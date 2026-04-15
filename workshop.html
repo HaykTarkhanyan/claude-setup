@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code Workshop - Deep Dive</title>
+<style>
+  :root { --bg: #ffffff; --fg: #1a1a2e; --accent: #2563eb; --dim: #6b7280; --green: #16a34a; --orange: #d97706; --red: #dc2626; --surface: #f3f4f6; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--fg); font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.6; padding: 2rem; max-width: 960px; margin: 0 auto; }
+  h1 { color: var(--accent); font-size: 2rem; margin-bottom: 0.5rem; }
+  h2 { color: var(--orange); font-size: 1.4rem; margin-top: 2.5rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--dim); padding-bottom: 0.3rem; }
+  h3 { color: var(--green); font-size: 1.1rem; margin-top: 1.2rem; margin-bottom: 0.4rem; }
+  p, li { margin-bottom: 0.4rem; }
+  .presenter-note { background: #fef9c3; border: 1px dashed var(--orange); padding: 0.5rem 0.75rem; margin: 0.5rem 0; border-radius: 4px; font-size: 0.8em; color: #92400e; }
+  .presenter-note::before { content: "PRESENTER: "; color: var(--red); font-weight: bold; }
+  ul { padding-left: 1.5rem; }
+  code { background: var(--surface); padding: 0.15rem 0.4rem; border-radius: 3px; font-size: 0.9em; color: var(--green); }
+  pre { background: var(--surface); padding: 1rem; border-radius: 6px; overflow-x: auto; margin: 0.75rem 0; }
+  pre code { padding: 0; background: none; }
+  .subtitle { color: var(--dim); font-size: 1rem; margin-bottom: 2rem; }
+  .file-ref { color: var(--accent); font-style: italic; font-size: 0.85em; }
+  .file-ref::before { content: "-> "; }
+  img { max-width: 100%; border-radius: 6px; margin: 0.75rem 0; border: 1px solid var(--dim); }
+  table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; }
+  th, td { text-align: left; padding: 0.4rem 0.75rem; border-bottom: 1px solid var(--surface); }
+  th { color: var(--accent); }
+  .highlight { background: var(--surface); border-left: 3px solid var(--orange); padding: 0.75rem 1rem; margin: 0.75rem 0; border-radius: 0 6px 6px 0; }
+</style>
+</head>
+<body>
+
+<h1>Claude Code Workshop</h1>
+<p class="subtitle">For developers who already use coding agents. Goal: go deeper.</p>
+
+<!-- ================================ -->
+<h2>1. Why CLI Over UI</h2>
+
+<table>
+  <tr><th>CLI advantage</th><th>Why it matters</th></tr>
+  <tr><td>Automatic reasoning</td><td>Model picks thinking depth per turn - no manual toggling</td></tr>
+  <tr><td>Full transcripts</td><td>See every tool call, every file read, every decision</td></tr>
+  <tr><td>Inline diffs</td><td>Color-coded diffs right in the terminal - review changes before accepting</td></tr>
+  <tr><td><code>Ctrl+B</code></td><td>Background a task, keep working in main session</td></tr>
+</table>
+
+<div class="presenter-note">Demo: open Claude Code in VS Code terminal, show Shift+Tab cycling, show a diff, show Ctrl+B backgrounding</div>
+
+<p class="file-ref">cli/commands.md - full shortcut and command reference</p>
+
+<h3>Terminal setup</h3>
+<p>VS Code intercepts some keys that Claude Code needs. Fix in <code>keybindings.json</code>:</p>
+<table>
+  <tr><th>Key</th><th>Fix</th><th>Why</th></tr>
+  <tr><td><code>Escape</code></td><td>Send <code>\x1b</code></td><td>Escape works in terminal (vim, menus)</td></tr>
+  <tr><td><code>Ctrl+B</code></td><td>Unbind sidebar toggle</td><td>Frees it for background tasks</td></tr>
+  <tr><td><code>Shift+Enter</code></td><td>Send <code>\x1b\r</code></td><td>Newline in prompt without submitting</td></tr>
+</table>
+
+<p>Shell aliases save typing:</p>
+<pre><code># ~/.bashrc
+alias kachayt='claude --dangerously-skip-permissions'
+alias kachaytr='claude --dangerously-skip-permissions --resume'</code></pre>
+
+<div class="presenter-note">Show cli/setting-up-terminal.md for full keybinding list and alias setup across shells</div>
+
+<!-- ================================ -->
+<h2>2. ccstatusline - Know Your Context</h2>
+
+<p>Claude degrades well before hitting 100% context. The ~50% rule: if you're past half, start a fresh session.</p>
+
+<img src="assets/nice_status_line.png" alt="ccstatusline screenshot showing context %, git branch, session time, token rate, weekly usage">
+
+<p>What you see:</p>
+<ul>
+  <li><strong>Line 1:</strong> Context usage (13%), git branch, staged changes</li>
+  <li><strong>Line 2:</strong> Session time, session cost%, token throughput, reset timer, weekly usage</li>
+  <li><strong>Bottom:</strong> Permission mode indicator</li>
+</ul>
+
+<h3>Context hygiene</h3>
+<table>
+  <tr><th>Situation</th><th>Action</th></tr>
+  <tr><td>Switching to unrelated task</td><td><code>/clear</code></td></tr>
+  <tr><td>Continuing related work</td><td><code>/compact</code> (lossy - prefer fresh session)</td></tr>
+  <tr><td>Quick side question</td><td><code>/btw</code> (reuses prompt cache, cheap)</td></tr>
+  <tr><td>Context past ~50%</td><td>Start fresh: <code>claude -n "new-task"</code></td></tr>
+</table>
+
+<pre><code>npx -y ccstatusline@latest</code></pre>
+
+<!-- ================================ -->
+<h2>3. Project Setup - Teaching Claude Your Codebase</h2>
+
+<h3>.claude/ directory structure</h3>
+<pre><code>.claude/
+  settings.json          # team settings (committed)
+  settings.local.json    # personal overrides (gitignored)
+  hooks/                 # lifecycle scripts
+  skills/                # reusable workflows
+  agents/                # specialized Claude instances
+  rules/                 # path-specific instructions</code></pre>
+
+<h3>CLAUDE.md</h3>
+<p>Project-level instructions Claude reads every conversation. Keep under 200 lines. Include what Claude can't guess: build commands, architecture constraints, conventions.</p>
+
+<h3>Settings hierarchy</h3>
+<p><code>~/.claude/settings.json</code> (global) > <code>.claude/settings.json</code> (project) > <code>.claude/settings.local.json</code> (personal)</p>
+
+<h3>Auto-setup</h3>
+<p>The <code>/claude-automation-recommender</code> plugin scans your codebase and suggests what hooks, skills, and MCPs to set up.</p>
+
+<div class="presenter-note">Open global/CLAUDE.md and walk through it. Run /claude-automation-recommender on a sample project live.</div>
+
+<p class="file-ref">global/CLAUDE.md - real example of global instructions</p>
+<p class="file-ref">global/settings.json - real example of global settings</p>
+
+<!-- ================================ -->
+<h2>4. Hooks - Automating Safety & Workflows</h2>
+
+<p>Shell scripts triggered by Claude Code lifecycle events. Defined in <code>settings.json</code>.</p>
+
+<table>
+  <tr><th>Event</th><th>Use for</th><th>Example</th></tr>
+  <tr><td><strong>PreToolUse</strong></td><td>Block dangerous actions</td><td>Block <code>git push</code>, secret file edits</td></tr>
+  <tr><td><strong>PostToolUse</strong></td><td>Auto-run after edits</td><td>Lint, format, upload configs</td></tr>
+  <tr><td><strong>SessionStart</strong></td><td>Orientation briefing</td><td>Git status, open PRs, reminders</td></tr>
+  <tr><td><strong>PostCompact</strong></td><td>Context recovery</td><td>Re-inject critical rules</td></tr>
+  <tr><td><strong>Notification</strong></td><td>Alert the user</td><td>Windows/macOS toast</td></tr>
+</table>
+
+<h3>Hook config pattern</h3>
+<pre><code>{
+  "hooks": {
+    "PreToolUse": [{
+      "matcher": "Bash",
+      "hooks": [{ "type": "command", "command": "bash .claude/hooks/guard-push.sh" }]
+    }]
+  }
+}</code></pre>
+
+<div class="presenter-note">Open hooks/guard-push.sh - show how simple a hook is. Show hooks/session-start.sh for the startup briefing pattern.</div>
+
+<p class="file-ref">hooks/ - 5 ready-to-use hook scripts</p>
+
+<!-- ================================ -->
+<h2>5. Skills - Reusable Workflows as Code</h2>
+
+<p>Markdown files in <code>.claude/skills/</code>. Invoked with <code>/skill-name</code> or auto-triggered by description match.</p>
+
+<h3>Skill anatomy</h3>
+<pre><code>---
+name: ci-status
+description: "Check GitHub Actions workflow status"
+argument-hint: "[repo] [run-id]"
+---
+
+# CI Status Check
+## Steps
+1. Detect repo...
+2. List recent runs...
+3. Show failures...</code></pre>
+
+<h3>When to build a skill</h3>
+<p>You've done something 3+ times. Ask Claude: "Take what we just did and create a reusable skill."</p>
+
+<div class="presenter-note">Open skills/ci-status/SKILL.md as a simple example. Then show skills/literature-review/ for a complex one with scripts.</div>
+
+<p class="file-ref">skills/ - 6 example skills (morning, ci-status, deploy-watch, literature-review, etc.)</p>
+
+<!-- ================================ -->
+<h2>6. Agents & Subagents</h2>
+
+<p>Agents are <code>.claude/agents/*.md</code> files - specialized Claude instances with focused instructions and their own context window.</p>
+
+<h3>The key insight</h3>
+<div class="highlight">Main session orchestrates. Subagents do heavy lifting. Main context stays clean - it only holds summaries, not full workloads.</div>
+
+<h3>Patterns</h3>
+<ul>
+  <li><strong>Implement + review:</strong> one agent codes in a worktree, another reviews the diff</li>
+  <li><strong>Parallel exploration:</strong> dispatch multiple research agents simultaneously</li>
+  <li><strong>Background:</strong> <code>Ctrl+B</code> to send a task to the background</li>
+  <li><strong>Session-wide:</strong> <code>claude --agent reviewer</code></li>
+</ul>
+
+<p class="file-ref">cli/workflows.md - delegation patterns in detail</p>
+
+<!-- ================================ -->
+<h2>7. Plugins & MCPs</h2>
+
+<h3>Plugins</h3>
+<table>
+  <tr><th>Plugin</th><th>What</th></tr>
+  <tr><td><strong>Superpowers</strong></td><td>Enforced workflow: brainstorm -> plan -> execute -> verify</td></tr>
+  <tr><td><strong>Code review</strong></td><td><code>/code-review</code> runs 4 parallel review agents</td></tr>
+  <tr><td><strong>Code simplifier</strong></td><td><code>/simplify</code> post-implementation cleanup</td></tr>
+  <tr><td><strong>Playwright</strong></td><td>Browser automation, screenshots, E2E testing</td></tr>
+</table>
+
+<h3>MCP servers</h3>
+<p>External tools Claude can call. Lazy-loaded via <code>ToolSearch</code> - hundreds available without context bloat.</p>
+<ul>
+  <li><strong>Context7</strong> - live library docs (no hallucinated APIs)</li>
+  <li><strong>Sequential Thinking</strong> - deeper reasoning for architecture</li>
+  <li><strong>Productivity:</strong> Gmail, Calendar, Telegram, Notion, Drive</li>
+  <li><strong>Dev tools:</strong> Playwright, GitHub</li>
+</ul>
+
+<div class="presenter-note">Demo Context7: ask Claude about a library API and say "use context7". Show the difference vs hallucinated docs.</div>
+
+<p class="file-ref">cli/plugins.md and cli/mcps.md</p>
+
+<!-- ================================ -->
+<h2>8. Useful Commands & Shortcuts</h2>
+
+<h3>Session commands</h3>
+<table>
+  <tr><th>Command</th><th>What</th></tr>
+  <tr><td><code>/btw</code></td><td>Side question - reuses prompt cache, cheap. Won't derail main task.</td></tr>
+  <tr><td><code>/rename</code></td><td>Name your session for easy resume later</td></tr>
+  <tr><td><code>/color</code></td><td>Set accent color (nice for multiple terminals)</td></tr>
+  <tr><td><code>/model</code></td><td>Switch model mid-session (opus/sonnet/haiku)</td></tr>
+  <tr><td><code>/vim</code></td><td>Enable vim keybindings</td></tr>
+  <tr><td><code>/cost</code></td><td>Show token usage and cost</td></tr>
+  <tr><td><code>/context</code></td><td>Visualize what's filling your context window</td></tr>
+</table>
+
+<h3>Keyboard shortcuts</h3>
+<table>
+  <tr><th>Key</th><th>What</th></tr>
+  <tr><td><code>Shift+Tab</code></td><td>Cycle permission modes</td></tr>
+  <tr><td><code>Esc</code> / <code>Esc Esc</code></td><td>Stop generation / rewind</td></tr>
+  <tr><td><code>Ctrl+O</code></td><td>Toggle verbose (see thinking)</td></tr>
+  <tr><td><code>Ctrl+B</code></td><td>Background current task</td></tr>
+  <tr><td><code>Ctrl+G</code></td><td>Open prompt in external editor</td></tr>
+  <tr><td><code>Ctrl+R</code></td><td>Search command history</td></tr>
+</table>
+
+<h3>Effort & thinking</h3>
+<p><code>/effort low</code> for simple tasks. <code>/effort high</code> for complex reasoning. Write <code>ultrathink</code> in your prompt for maximum thinking on a single turn.</p>
+
+<div class="presenter-note">Demo: /btw in the middle of a task. Show /color with different terminals. Show /context output.</div>
+
+<p class="file-ref">cli/commands.md - complete reference</p>
+
+<!-- ================================ -->
+<h2>9. Workflow Patterns & Tips</h2>
+
+<h3>Plan-review-code-review</h3>
+<pre><code>Plan (plan mode) -> Review plan -> Code (auto mode) -> Review (NEW session)</code></pre>
+<p>Always review in a fresh session. The coding session has accumulated bias.</p>
+
+<h3>The interview trick</h3>
+<p>"Interview me about the requirements before you start." Claude asks clarifying questions, you write a spec, then start a fresh session for implementation.</p>
+
+<div class="presenter-note">Demo: start a named session, show the plan-review workflow. Show the interview trick live.</div>
+
+<p class="file-ref">cli/workflows.md, cli/tips.md</p>
+
+<!-- ================================ -->
+<h2>10. Remote & Cloud Agents</h2>
+
+<h3>Remote control</h3>
+<p><code>/rc</code> - continue your current session from a phone, tablet, or another browser. One command, instant access.</p>
+
+<h3>Scheduled agents (triggers)</h3>
+<p>Assign tasks to run in the cloud on a schedule - no local machine needed.</p>
+<pre><code># Create a trigger that runs daily
+/schedule create "Review open PRs and post summaries" --cron "0 9 * * *"
+
+# List active triggers
+/schedule list</code></pre>
+
+<h3>Cloud tasks</h3>
+<ul>
+  <li>Agents run autonomously in Anthropic's cloud</li>
+  <li>Can create PRs, post comments, run analyses</li>
+  <li>Results delivered via GitHub or notification</li>
+  <li>No local machine needs to be running</li>
+</ul>
+
+<div class="presenter-note">Demo /rc if possible (needs phone). Show /schedule list for triggers. Mention this is the "assign work overnight" pattern.</div>
+
+<!-- ================================ -->
+<h2>11. Resources & Community</h2>
+
+<h3>Plugins & tools</h3>
+<table>
+  <tr><th>Resource</th><th>What</th></tr>
+  <tr><td><a href="https://github.com/obra/superpowers">Superpowers</a></td><td>Structured dev workflow (brainstorm, plan, execute, verify). 153k+ stars.</td></tr>
+  <tr><td><a href="https://github.com/MemPalace/mempalace">MemPalace</a></td><td>Local-first persistent memory with knowledge graph. 96.6% recall.</td></tr>
+  <tr><td><a href="https://github.com/JuliusBrussee/caveman">Caveman</a></td><td>Token compression - ~75% fewer output tokens, 3 intensity levels.</td></tr>
+  <tr><td><a href="https://github.com/sirmalloc/ccstatusline">ccstatusline</a></td><td>Custom status bar: model, git branch, tokens, timer.</td></tr>
+  <tr><td><a href="https://github.com/karpathy/autoresearch">Autoresearch</a></td><td>Automated experiment loop (Karpathy). Modify, evaluate, keep/discard.</td></tr>
+</table>
+
+<h3>Skills & standards</h3>
+<table>
+  <tr><th>Resource</th><th>What</th></tr>
+  <tr><td><a href="https://github.com/K-Dense-AI/scientific-agent-skills">Scientific Agent Skills</a></td><td>133 research skills: genomics, drug discovery, clinical ML, materials science.</td></tr>
+  <tr><td><a href="https://agentskills.io">agentskills.io</a></td><td>Open standard for agent skills (SKILL.md format).</td></tr>
+  <tr><td><a href="https://github.com/anthropics/skills">Anthropic Skills</a></td><td>Official skill repo: pdf, docx, pptx, xlsx, skill-creator.</td></tr>
+  <tr><td><a href="https://github.com/rohitg00/awesome-claude-code-toolkit">Awesome Claude Code Toolkit</a></td><td>Community curated: 135 agents, 36 skills, 176+ plugins.</td></tr>
+</table>
+
+<h3>Learning</h3>
+<table>
+  <tr><th>Resource</th><th>What</th></tr>
+  <tr><td><a href="https://anthropic.skilljar.com/claude-code-in-action">Anthropic Academy</a></td><td>Free 21-lesson Claude Code course.</td></tr>
+  <tr><td><a href="https://docs.anthropic.com/en/docs/claude-code">Claude Code Docs</a></td><td>Official documentation.</td></tr>
+  <tr><td><a href="https://github.com/modelcontextprotocol/servers">MCP Servers</a></td><td>Official MCP server collection.</td></tr>
+</table>
+
+<p class="file-ref">cli/resources.md - full link collection</p>
+
+</body>
+</html>
