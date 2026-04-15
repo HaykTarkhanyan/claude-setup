@@ -46,11 +46,14 @@
   <li><a href="#context" style="text-decoration: none;">ccstatusline - Know Your Context</a></li>
   <li><a href="#setup" style="text-decoration: none;">Project Setup & Self-Improvement</a></li>
   <li><a href="#hooks" style="text-decoration: none;">Hooks</a></li>
+  <li><a href="#permissions" style="text-decoration: none;">Permissions & Safety</a></li>
   <li><a href="#skills" style="text-decoration: none;">Skills</a></li>
   <li><a href="#agents" style="text-decoration: none;">Agents & Subagents</a></li>
   <li><a href="#plugins" style="text-decoration: none;">Plugins & MCPs</a></li>
+  <li><a href="#essentials" style="text-decoration: none;">Plugins</a></li>
   <li><a href="#commands" style="text-decoration: none;">Useful Commands & Shortcuts</a></li>
   <li><a href="#workflows" style="text-decoration: none;">Workflow Patterns & Tips</a></li>
+  <li><a href="#worktrees" style="text-decoration: none;">Parallel Sessions with Worktrees</a></li>
   <li><a href="#remote" style="text-decoration: none;">Remote & Cloud Agents</a></li>
 </ol>
 </nav>
@@ -85,6 +88,16 @@ alias kachayt='claude --dangerously-skip-permissions'
 alias kachaytr='claude --dangerously-skip-permissions --resume'</code></pre>
 
 <div class="presenter-note">Show cli/setting-up-terminal.md for full keybinding list and alias setup across shells</div>
+
+<h3><a href="https://ghostty.org/">Ghostty</a> - standalone terminal</h3>
+<p>When you're ready to graduate from the VS Code terminal, Ghostty is the current pick. Why it's worth the switch:</p>
+<ul>
+  <li><strong>Fast.</strong> GPU-accelerated - no lag even with long transcripts or fast token streaming.</li>
+  <li><strong>Native splits.</strong> <code>Cmd+D</code> / <code>Cmd+Shift+D</code> to split horizontally or vertically. Tile as many Claude Code and Codex sessions side by side as your screen fits.</li>
+  <li><strong>Working notifications.</strong> macOS notifications fire when an agent finishes - walk away from the desk, get pinged when it's done.</li>
+</ul>
+<img src="assets/ghostty-split.png" alt="Ghostty with a 2x2 split running four Claude Code and Codex sessions in parallel">
+<p class="subtitle">Four agents, one screen. Ghostty's splits pair perfectly with <a href="#worktrees">git worktrees</a> for true parallel work.</p>
 
 <!-- ================================ -->
 <h2 id="context">2. <a href="https://github.com/sirmalloc/ccstatusline">ccstatusline</a> - Know Your Context</h2>
@@ -194,7 +207,46 @@ alias kachaytr='claude --dangerously-skip-permissions --resume'</code></pre>
 <p class="file-ref">hooks/ - 5 ready-to-use hook scripts</p>
 
 <!-- ================================ -->
-<h2 id="skills">5. Skills - Reusable Workflows as Code</h2>
+<h2 id="permissions">5. Permissions & Safety</h2>
+
+<p>The spectrum runs from babysitting every action to trusting Claude entirely. Pick the mode that matches your task risk.</p>
+
+<h3>Permission modes</h3>
+<table>
+  <tr><th>Mode</th><th>How to enable</th><th>Behavior</th></tr>
+  <tr><td><strong>Default</strong></td><td>Just run <code>claude</code></td><td>Prompts before every file write and shell command</td></tr>
+  <tr><td><strong>Auto-edit</strong></td><td><code>Shift+Tab</code> to cycle</td><td>Edits auto-approved; shell commands still prompt</td></tr>
+  <tr><td><strong>Auto mode</strong> (new)</td><td><code>claude --enable-auto-mode</code></td><td>Claude makes permission decisions for you, with safeguards checking each action before it runs</td></tr>
+  <tr><td><strong>Skip permissions</strong></td><td><code>claude --dangerously-skip-permissions</code></td><td>No prompts, no safeguards. Fastest, riskiest. Use in disposable environments or worktrees.</td></tr>
+</table>
+
+<h3>Auto mode - the middle ground</h3>
+<p>Announced on <a href="https://x.com/claudeai/status/2036503582166393240">Anthropic's X</a>: instead of approving every file write and bash command - or skipping permissions entirely - auto mode lets Claude make permission decisions on your behalf, with safeguards checking each action before it runs. The sweet spot for ambient dev work when you don't want to babysit but don't want to go fully unrestricted either.</p>
+
+<h3>Hook-level guardrails</h3>
+<p>Even in <code>--dangerously-skip-permissions</code>, PreToolUse hooks still fire. Use them to block the actions you never want to happen, no matter what:</p>
+<pre><code>{
+  "hooks": {
+    "PreToolUse": [{
+      "matcher": "Bash",
+      "hooks": [{ "type": "command", "command": "bash .claude/hooks/guard-push.sh" }]
+    }]
+  }
+}</code></pre>
+<ul>
+  <li><code>guard-push.sh</code> - blocks <code>git push</code> (forces you to push manually)</li>
+  <li><code>gmail-readonly.sh</code> - blocks Gmail writes</li>
+  <li>Pattern: match dangerous command shapes (<code>rm -rf /</code>, <code>drop table</code>, credential file edits), exit non-zero to cancel</li>
+</ul>
+
+<div class="highlight">Rule of thumb: use auto mode for daily work, <code>--dangerously-skip-permissions</code> inside worktrees or sandboxes, and put hooks in place for the actions that should <em>never</em> slip through - regardless of mode.</div>
+
+<div class="presenter-note">Demo: Shift+Tab cycling through modes. Start a session with --enable-auto-mode and show it running. Open hooks/guard-push.sh and explain how PreToolUse blocks fire even in skip-permissions mode.</div>
+
+<p class="file-ref">hooks/guard-push.sh, hooks/gmail-readonly.sh</p>
+
+<!-- ================================ -->
+<h2 id="skills">6. Skills - Reusable Workflows as Code</h2>
 
 <p>Markdown files in <code>.claude/skills/</code>. Invoked with <code>/skill-name</code> or auto-triggered by description match.</p>
 
@@ -219,7 +271,7 @@ argument-hint: "[repo] [run-id]"
 <p class="file-ref">skills/ - 6 example skills (morning, ci-status, deploy-watch, literature-review, etc.)</p>
 
 <!-- ================================ -->
-<h2 id="agents">6. Agents & Subagents</h2>
+<h2 id="agents">7. Agents & Subagents</h2>
 
 <p>Agents are <code>.claude/agents/*.md</code> files - specialized Claude instances with focused instructions and their own context window.</p>
 
@@ -237,7 +289,7 @@ argument-hint: "[repo] [run-id]"
 <p class="file-ref">cli/workflows.md - delegation patterns in detail</p>
 
 <!-- ================================ -->
-<h2 id="plugins">7. Plugins & MCPs</h2>
+<h2 id="plugins">8. Plugins & MCPs</h2>
 
 <h3><a href="https://github.com/obra/superpowers">Superpowers</a> - structured development</h3>
 <p>Enforced 5-phase workflow that prevents the "just start coding" failure mode:</p>
@@ -262,11 +314,6 @@ argument-hint: "[repo] [run-id]"
 <pre><code>claude plugin marketplace add JuliusBrussee/caveman
 claude plugin install caveman@caveman</code></pre>
 
-<h3>Code review + simplify</h3>
-<p><code>/code-review</code> runs 4 parallel agents: CLAUDE.md compliance, bug scan, git-blame context. Findings scored 0-100.</p>
-<p><code>/simplify</code> - post-implementation cleanup that preserves functionality.</p>
-<div class="highlight">Best workflow: code -> <code>/code-review</code> -> <code>/simplify</code></div>
-
 <h3>Playwright</h3>
 <p>Browser automation via MCP. Screenshots, form filling, E2E testing. Useful for visual QA and web scraping tasks.</p>
 
@@ -284,7 +331,43 @@ claude plugin install caveman@caveman</code></pre>
 <p class="file-ref">cli/plugins.md and cli/mcps.md</p>
 
 <!-- ================================ -->
-<h2 id="commands">8. Useful Commands & Shortcuts</h2>
+<h2 id="essentials">9. Plugins</h2>
+
+<p>Before reaching for plugins, know what Claude Code already ships with - and the short list of extensions worth installing on day one.</p>
+
+<h3>Built-in review skills (zero install)</h3>
+<table>
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td><code>/review</code></td><td>Review a pull request</td></tr>
+  <tr><td><code>/simplify</code></td><td>Review changed code for reuse, quality, and efficiency, then fix any issues found</td></tr>
+</table>
+<p>Both are shipped skills - auto-triggered by description match or invoked directly. No <code>/plugin install</code> needed, works out of the box.</p>
+
+<h3>Heavier alternative: the <code>/code-review</code> plugin</h3>
+<p><code>/code-review</code> runs 4 parallel agents (CLAUDE.md compliance, bug scan, git-blame context) with findings scored 0-100. Reach for it on larger diffs or when you want structured scoring; the built-in <code>/review</code> is lighter and usually enough for a single PR.</p>
+
+<h3>Must-install extensions</h3>
+<table>
+  <tr><th>Extension</th><th>Why</th><th>Install</th></tr>
+  <tr><td><a href="https://github.com/upstash/context7"><strong>Context7</strong></a> (MCP)</td><td>Live library docs - kills hallucinated APIs. Highest-ROI MCP for any developer.</td><td><code>claude mcp add context7 -- npx -y @upstash/context7-mcp@latest</code></td></tr>
+  <tr><td><strong>GitHub app</strong></td><td><code>@claude</code> in issues/PRs, auto PR reviews, per-repo instructions</td><td><code>/install-github-app</code></td></tr>
+  <tr><td><strong>claude-code-setup</strong></td><td><code>/claude-automation-recommender</code> scans your repo and suggests hooks, skills, MCPs</td><td><code>/plugin install claude-code-setup</code></td></tr>
+</table>
+<p>For <strong>Superpowers</strong>, <strong>Caveman</strong>, <strong>Playwright</strong>, and <strong>MemPalace</strong> see section 7.</p>
+
+<h3>Recommended pairings</h3>
+<div class="highlight">
+Lightweight: <code>code -> /simplify -> /review</code> (built-in only, fast)<br>
+Thorough: <code>code -> /code-review -> /simplify</code> (plugin, scored findings)<br>
+Either way: once Context7 is installed, say "use context7" when touching unfamiliar libraries - it's a passive accuracy boost with no per-turn cost.
+</div>
+
+<div class="presenter-note">Demo /review on a real open PR. If time, contrast with /code-review plugin output on the same diff - shows when the heavier tool earns its keep. Then demo "use context7" on a library the attendee doesn't know well.</div>
+
+<p class="file-ref">cli/plugins.md, cli/mcps.md</p>
+
+<!-- ================================ -->
+<h2 id="commands">10. Useful Commands & Shortcuts</h2>
 
 <h3>Session commands</h3>
 <table>
@@ -316,14 +399,15 @@ claude plugin install caveman@caveman</code></pre>
 <p class="file-ref">cli/commands.md - complete reference</p>
 
 <!-- ================================ -->
-<h2 id="workflows">9. Workflow Patterns & Tips</h2>
+<h2 id="workflows">11. Workflow Patterns & Tips</h2>
 
 <h3>Plan-review-code-review</h3>
 <pre><code>Plan (plan mode) -> Review plan -> Code (auto mode) -> Review (NEW session)</code></pre>
 <p>Always review in a fresh session. The coding session has accumulated bias.</p>
 
-<h3>The interview trick</h3>
-<p>"Interview me about the requirements before you start." Claude asks clarifying questions, you write a spec, then start a fresh session for implementation.</p>
+<h3>The interview trick (<code>AskUserQuestion</code> tool)</h3>
+<p>Ask Claude: <em>"use the AskUserQuestion tool to interview me about this feature - spec, setup, edge cases, anything you need."</em> You get a structured multiple-choice questionnaire (with an "Other" option) instead of a chat wall. Claude builds its mental model properly before writing a line of code.</p>
+<p>Plan mode uses this tool by default to clarify before finalizing the plan - but you can invoke it directly in any session. Best paired with: answer the questions, then start a <em>fresh</em> session for implementation so the interview context doesn't bloat.</p>
 
 <h3><a href="https://github.com/karpathy/autoresearch">Autoresearch</a> pattern</h3>
 <p>Karpathy's automated experiment loop - works for any task with a measurable metric:</p>
@@ -336,10 +420,24 @@ claude plugin install caveman@caveman</code></pre>
 <p class="file-ref">cli/workflows.md, cli/tips.md</p>
 
 <!-- ================================ -->
-<h2 id="remote">10. Remote & Cloud Agents</h2>
+<h2 id="worktrees">12. Parallel Sessions with Worktrees</h2>
 
-<h3>Remote control</h3>
-<p><code>/rc</code> - continue your current session from a phone, tablet, or another browser. One command, instant access.</p>
+<p>A <strong>git worktree</strong> is a second (or third, or tenth) working directory attached to the same repository, each checked out to a different branch. Same <code>.git</code>, separate files on disk. Built into git itself - no extra tooling.</p>
+
+<p>That small feature is surprisingly powerful: you can run multiple coding agents on the same repo at once, each in its own folder, and their edits physically can't collide. No stashing, no branch-switching, no "wait, which branch am I on" - just parallel work that never interferes.</p>
+
+<p>In practice: just ask - <em>"implement feature X in a worktree and open a PR."</em> Claude Code (or Codex) spins up an isolated folder on its own branch, does the work there, and pushes a PR when done. Your main checkout stays untouched, and you can kick off the next feature in parallel.</p>
+
+<div class="highlight">The unlock: one agent on feature A, another on feature B, both running concurrently - neither one stomps on your files or each other's.</div>
+
+<div class="presenter-note">Demo: ask Claude to implement a small feature "in a worktree, then open a PR". Show the worktree directory appear, the PR land, and that your main checkout is unchanged.</div>
+
+<!-- ================================ -->
+<h2 id="remote">13. Remote & Cloud Agents</h2>
+
+<h3>Remote control (<code>/remote-control</code>, <code>/rc</code>)</h3>
+<p>Hand off your live Claude Code session to the Claude app on another device - phone, tablet, another browser. The session keeps running; you just change where you're watching from.</p>
+<p>Example: kick off a long task, run <code>/rc</code>, go to lunch. Check progress, approve prompts, and keep chatting from your phone. Walk back to the desk and pick up in the same terminal - nothing interrupted.</p>
 
 <h3>Cloud agents</h3>
 <ul>
