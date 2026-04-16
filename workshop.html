@@ -136,8 +136,12 @@ alias kachaytr='claude --dangerously-skip-permissions --resume'</code></pre>
   agents/                # specialized Claude instances
   rules/                 # path-specific instructions</code></pre>
 
-<h3>CLAUDE.md</h3>
+<h3>CLAUDE.md / AGENTS.md</h3>
 <p>Project-level instructions Claude reads every conversation. Keep under 200 lines. Include what Claude can't guess: build commands, architecture constraints, conventions.</p>
+<p><strong>Codex equivalent:</strong> <code>AGENTS.md</code> — same role, same location (repo root). If your team uses both tools, don't duplicate the file. Keep <code>CLAUDE.md</code> as the source of truth and make <code>AGENTS.md</code> a one-liner that points to it:</p>
+<pre><code># AGENTS.md
+See ./CLAUDE.md</code></pre>
+<p>Codex reads <code>AGENTS.md</code> by default, follows the reference, and picks up the same context — one file to maintain, both tools stay in sync.</p>
 
 <h3>Settings hierarchy</h3>
 <p><code>~/.claude/settings.json</code> (global) > <code>.claude/settings.json</code> (project) > <code>.claude/settings.local.json</code> (personal)</p>
