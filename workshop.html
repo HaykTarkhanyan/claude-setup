@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Claude Code Workshop - Deep Dive</title>
+<title>Claude Code / Codex Workshop - Deep Dive</title>
 <style>
   :root { --bg: #ffffff; --fg: #1a1a2e; --accent: #2563eb; --dim: #6b7280; --green: #16a34a; --orange: #d97706; --red: #dc2626; --surface: #f3f4f6; --note-bg: #fef9c3; --note-border: #d97706; --note-fg: #92400e; }
   :root.dark { --bg: #1a1b26; --fg: #c0caf5; --accent: #7aa2f7; --dim: #565f89; --green: #9ece6a; --orange: #ff9e64; --red: #f7768e; --surface: #24283b; --note-bg: #2d2a1e; --note-border: #ff9e64; --note-fg: #ff9e64; }
@@ -36,8 +36,8 @@
 
 <button class="theme-toggle" onclick="document.documentElement.classList.toggle('dark'); this.textContent = document.documentElement.classList.contains('dark') ? 'Light mode' : 'Dark mode';">Dark mode</button>
 
-<h1>Claude Code Workshop</h1>
-<p class="subtitle">For developers who already use coding agents. Goal: go deeper.</p>
+<h1>Claude Code / Codex Workshop</h1>
+<p class="subtitle">For developers who already use coding agents. We focus on Claude Code because its feature surface is broader - every pattern has a Codex equivalent, flagged inline where it differs.</p>
 
 <nav style="background: var(--surface); padding: 1rem 1.5rem; border-radius: 6px; margin-bottom: 1.5rem;">
 <strong>Contents</strong>
@@ -213,6 +213,8 @@ See ./CLAUDE.md</code></pre>
 <!-- ================================ -->
 <h2 id="permissions">5. Permissions & Safety</h2>
 
+<img src="assets/wheres-my-database.png" alt="Meme: stunned developer asking 'where's my database' after agent ran terraform destroy and wiped production infrastructure" style="max-width: 420px; display: block; margin: 0 auto;">
+
 <p>The spectrum runs from babysitting every action to trusting Claude entirely. Pick the mode that matches your task risk.</p>
 
 <h3>Permission modes</h3>
@@ -226,6 +228,17 @@ See ./CLAUDE.md</code></pre>
 
 <h3>Auto mode - the middle ground</h3>
 <p>Announced on <a href="https://x.com/claudeai/status/2036503582166393240">Anthropic's X</a>: instead of approving every file write and bash command - or skipping permissions entirely - auto mode lets Claude make permission decisions on your behalf, with safeguards checking each action before it runs. The sweet spot for ambient dev work when you don't want to babysit but don't want to go fully unrestricted either.</p>
+
+<h3>Codex equivalents</h3>
+<p>Codex splits the same spectrum across two axes — <code>approval_policy</code> (how often to ask) and <code>sandbox</code> (what's allowed without asking). Set either via <code>~/.codex/config.toml</code> or flags:</p>
+<table>
+  <tr><th>Claude Code</th><th>Codex</th><th>Notes</th></tr>
+  <tr><td>Default (prompt on everything)</td><td><code>--approval-policy untrusted</code></td><td>Ask before every command</td></tr>
+  <tr><td>Auto-edit / auto mode</td><td><code>--approval-policy on-request</code> + <code>--sandbox workspace-write</code></td><td>Codex asks only when it wants to escape the sandbox</td></tr>
+  <tr><td><code>--dangerously-skip-permissions</code></td><td><code>--full-auto</code></td><td><strong>Not equivalent:</strong> <code>--full-auto</code> stays inside the sandbox (Seatbelt on macOS, Landlock on Linux) - safer default</td></tr>
+  <tr><td><code>--dangerously-skip-permissions</code> (true YOLO)</td><td><code>--yolo</code> <em>(shorthand)</em> or <code>--dangerously-bypass-approvals-and-sandbox</code> / <code>--sandbox danger-full-access</code></td><td>No approvals, no sandbox, live web search. Only inside containers/worktrees.</td></tr>
+</table>
+<p class="subtitle">Heads-up: <code>--yolo</code> also flips web search from the cached index to live results, which widens the prompt-injection surface - another reason to only use it in throwaway environments.</p>
 
 <h3>Hook-level guardrails</h3>
 <p>Even in <code>--dangerously-skip-permissions</code>, PreToolUse hooks still fire. Use them to block the actions you never want to happen, no matter what:</p>
@@ -384,6 +397,9 @@ Either way: once Context7 is installed, say "use context7" when touching unfamil
   <tr><td><code>/context</code></td><td>Visualize what's filling your context window</td></tr>
 </table>
 
+<img src="assets/context-breakdown.png" alt="/context output showing a grid of used and free tokens plus a breakdown by category: system prompt, system tools, memory files, skills, messages, free space, autocompact buffer">
+<p class="subtitle"><code>/context</code> output: grid of used tokens on the left, category breakdown on the right. Use it to diagnose <em>why</em> you're past the ~50% mark - usually system tools, messages, or a file dump.</p>
+
 <h3>Keyboard shortcuts</h3>
 <table>
   <tr><th>Key</th><th>What</th></tr>
@@ -411,6 +427,8 @@ Either way: once Context7 is installed, say "use context7" when touching unfamil
 
 <h3>The interview trick (<code>AskUserQuestion</code> tool)</h3>
 <p>Ask Claude: <em>"use the AskUserQuestion tool to interview me about this feature - spec, setup, edge cases, anything you need."</em> You get a structured multiple-choice questionnaire (with an "Other" option) instead of a chat wall. Claude builds its mental model properly before writing a line of code.</p>
+<img src="assets/ask-user-question.png" alt="AskUserQuestion tool showing a multi-tab interview with checkbox options for designing an AI voice agent">
+<p class="subtitle">Structured tabs, checkboxes, and a "Type something" escape hatch - far denser than a chat back-and-forth.</p>
 <p>Plan mode uses this tool by default to clarify before finalizing the plan - but you can invoke it directly in any session. Best paired with: answer the questions, then start a <em>fresh</em> session for implementation so the interview context doesn't bloat.</p>
 
 <h3><a href="https://github.com/karpathy/autoresearch">Autoresearch</a> pattern</h3>
