@@ -122,6 +122,9 @@ alias kachaytr='claude --dangerously-skip-permissions --resume'</code></pre>
   <tr><td>Context past ~50%</td><td>Start fresh: <code>claude -n "new-task"</code></td></tr>
 </table>
 
+<img src="assets/session-decision-table.png" alt="Session management decision table: Continue when context is still relevant, Rewind (double-Esc) when Claude went down a wrong path, /compact with hint when mid-task but bloated, /clear for a genuinely new task, Subagent when the next step will generate lots of output you only need the conclusion from">
+<p class="subtitle">Every turn is a branching point. Default is <em>Continue</em>, but the other four each solve a specific failure mode - pick by situation, not by habit.</p>
+
 <pre><code>npx -y ccstatusline@latest</code></pre>
 
 <!-- ================================ -->
@@ -294,6 +297,9 @@ argument-hint: "[repo] [run-id]"
 
 <h3>The key insight</h3>
 <div class="highlight">Main session orchestrates. Subagents do heavy lifting. Main context stays clean - it only holds summaries, not full workloads.</div>
+
+<img src="assets/subagent-context.png" alt="Parent and subagent context diagram: parent spawns Task('explore auth/'), subagent burns 20 file reads, 12 greps, 3 dead ends in its own context, and only the final report ('uses JWT, middleware in auth.ts:40') returns to the parent - exploration noise is garbage-collected when the subagent exits">
+<p class="subtitle">Mental test before delegating: <em>will I need the intermediate tool output again, or just the conclusion?</em> If only the conclusion, spawn a subagent - the 20 file reads and 12 greps stay in the child's context and vanish when it exits.</p>
 
 <h3>Patterns</h3>
 <ul>
