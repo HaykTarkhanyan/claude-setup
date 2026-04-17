@@ -5,19 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Claude Code / Codex Workshop - Deep Dive</title>
 <style>
-  :root { --bg: #ffffff; --fg: #1a1a2e; --accent: #2563eb; --dim: #6b7280; --green: #16a34a; --orange: #d97706; --red: #dc2626; --surface: #f3f4f6; --note-bg: #fef9c3; --note-border: #d97706; --note-fg: #92400e; }
-  :root.dark { --bg: #1a1b26; --fg: #c0caf5; --accent: #7aa2f7; --dim: #565f89; --green: #9ece6a; --orange: #ff9e64; --red: #f7768e; --surface: #24283b; --note-bg: #2d2a1e; --note-border: #ff9e64; --note-fg: #ff9e64; }
+  :root { --bg: #ffffff; --fg: #1a1a2e; --accent: #2563eb; --dim: #6b7280; --green: #16a34a; --orange: #d97706; --red: #dc2626; --surface: #f3f4f6; }
+  :root.dark { --bg: #1a1b26; --fg: #c0caf5; --accent: #7aa2f7; --dim: #565f89; --green: #9ece6a; --orange: #ff9e64; --red: #f7768e; --surface: #24283b; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: var(--bg); color: var(--fg); font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.6; padding: 2rem; max-width: 960px; margin: 0 auto; }
   h1 { color: var(--accent); font-size: 2rem; margin-bottom: 0.5rem; }
   h2 { color: var(--orange); font-size: 1.4rem; margin-top: 2.5rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--dim); padding-bottom: 0.3rem; }
   h3 { color: var(--green); font-size: 1.1rem; margin-top: 1.2rem; margin-bottom: 0.4rem; }
   p, li { margin-bottom: 0.4rem; }
-  .presenter-note { background: var(--note-bg); border: 1px dashed var(--note-border); padding: 0.5rem 0.75rem; margin: 0.5rem 0; border-radius: 4px; font-size: 0.8em; color: var(--note-fg); }
   .theme-toggle { position: fixed; top: 1rem; right: 1rem; background: var(--surface); border: 1px solid var(--dim); color: var(--fg); padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85em; z-index: 10; }
   .theme-toggle:hover { border-color: var(--accent); }
   a { color: var(--accent); }
-  .presenter-note::before { content: "PRESENTER: "; color: var(--red); font-weight: bold; }
   ul { padding-left: 1.5rem; }
   code { background: var(--surface); padding: 0.15rem 0.4rem; border-radius: 3px; font-size: 0.9em; color: var(--green); }
   pre { background: var(--surface); padding: 1rem; border-radius: 6px; overflow-x: auto; margin: 0.75rem 0; }
@@ -44,6 +42,7 @@
 <ol style="columns: 2; column-gap: 2rem; margin: 0.5rem 0 0 1.2rem; padding: 0;">
   <li><a href="#cli" style="text-decoration: none;">Why CLI Over UI</a></li>
   <li><a href="#context" style="text-decoration: none;">ccstatusline - Know Your Context</a></li>
+  <li><a href="#ccusage" style="text-decoration: none;">ccusage - Know Your Spend</a></li>
   <li><a href="#setup" style="text-decoration: none;">Project Setup & Self-Improvement</a></li>
   <li><a href="#hooks" style="text-decoration: none;">Hooks</a></li>
   <li><a href="#permissions" style="text-decoration: none;">Permissions & Safety</a></li>
@@ -69,8 +68,6 @@
   <tr><td><code>Ctrl+B</code></td><td>Background a task, keep working in main session</td></tr>
 </table>
 
-<div class="presenter-note">Demo: open Claude Code in VS Code terminal, show Shift+Tab cycling, show a diff, show Ctrl+B backgrounding</div>
-
 <p class="file-ref">cli/commands.md - full shortcut and command reference</p>
 
 <h3>Terminal setup</h3>
@@ -86,8 +83,6 @@
 <pre><code># ~/.bashrc
 alias kachayt='claude --dangerously-skip-permissions'
 alias kachaytr='claude --dangerously-skip-permissions --resume'</code></pre>
-
-<div class="presenter-note">Show cli/setting-up-terminal.md for full keybinding list and alias setup across shells</div>
 
 <h3><a href="https://ghostty.org/">Ghostty</a> - standalone terminal</h3>
 <p>When you're ready to graduate from the VS Code terminal, Ghostty is the current pick. Why it's worth the switch:</p>
@@ -128,7 +123,33 @@ alias kachaytr='claude --dangerously-skip-permissions --resume'</code></pre>
 <pre><code>npx -y ccstatusline@latest</code></pre>
 
 <!-- ================================ -->
-<h2 id="setup">3. Project Setup & Self-Improvement</h2>
+<h2 id="ccusage">3. <a href="https://github.com/ryoppippi/ccusage">ccusage</a> - Know Your Spend</h2>
+
+<p>ccstatusline tells you how full your context is <em>right now</em>. ccusage tells you what you've actually spent - daily, monthly, per session, per project - by reading Claude Code's local JSONL logs. No API calls, no account login, pure local analysis.</p>
+
+<p>Why it's worth installing alongside ccstatusline:</p>
+<ul>
+  <li><strong>Real cost, not estimates.</strong> Parses the same JSONL files Claude Code writes, so numbers match your actual billing.</li>
+  <li><strong>5-hour block view.</strong> <code>ccusage blocks</code> shows where you are in Claude's rolling billing window - useful when you're near a rate limit and deciding whether to push or wait.</li>
+  <li><strong>Per-project breakdown.</strong> <code>--instances</code> groups by project so you can see which repo is eating your budget.</li>
+  <li><strong>Codex too.</strong> <code>@ccusage/codex</code> does the same for Codex sessions - one tool, both agents.</li>
+</ul>
+
+<pre><code># Run without installing
+npx ccusage@latest              # daily report (default)
+npx ccusage monthly             # monthly aggregate
+npx ccusage session             # per conversation
+npx ccusage blocks              # 5-hour billing windows
+npx ccusage daily --breakdown   # per-model cost split
+npx ccusage daily --instances   # group by project
+
+# Codex equivalent
+npx @ccusage/codex@latest</code></pre>
+
+<div class="highlight">Pair with ccstatusline: statusline for in-session context pressure, ccusage for end-of-day "where did my tokens go?" Both read local files, both zero-config.</div>
+
+<!-- ================================ -->
+<h2 id="setup">4. Project Setup & Self-Improvement</h2>
 
 <h3>.claude/ directory structure</h3>
 <pre><code>.claude/
@@ -180,13 +201,11 @@ See ./CLAUDE.md</code></pre>
   <li>"What should I automate with hooks or skills?"</li>
 </ul>
 
-<div class="presenter-note">Open global/CLAUDE.md and walk through it. Run /claude-automation-recommender on a sample project live. Show the memory directory structure.</div>
-
 <p class="file-ref">global/CLAUDE.md - real example of global instructions</p>
 <p class="file-ref">global/settings.json - real example of global settings</p>
 
 <!-- ================================ -->
-<h2 id="hooks">4. Hooks - Automating Safety & Workflows</h2>
+<h2 id="hooks">5. Hooks - Automating Safety & Workflows</h2>
 
 <p>Shell scripts triggered by Claude Code lifecycle events. Defined in <code>settings.json</code>.</p>
 
@@ -209,12 +228,10 @@ See ./CLAUDE.md</code></pre>
   }
 }</code></pre>
 
-<div class="presenter-note">Open hooks/guard-push.sh - show how simple a hook is. Show hooks/session-start.sh for the startup briefing pattern.</div>
-
 <p class="file-ref">hooks/ - 5 ready-to-use hook scripts</p>
 
 <!-- ================================ -->
-<h2 id="permissions">5. Permissions & Safety</h2>
+<h2 id="permissions">6. Permissions & Safety</h2>
 
 <img src="assets/wheres-my-database.png" alt="Meme: stunned developer asking 'where's my database' after agent ran terraform destroy and wiped production infrastructure" style="max-width: 420px; display: block; margin: 0 auto;">
 
@@ -261,12 +278,10 @@ See ./CLAUDE.md</code></pre>
 
 <div class="highlight">Rule of thumb: use auto mode for daily work, <code>--dangerously-skip-permissions</code> inside worktrees or sandboxes, and put hooks in place for the actions that should <em>never</em> slip through - regardless of mode.</div>
 
-<div class="presenter-note">Demo: Shift+Tab cycling through modes. Start a session with --enable-auto-mode and show it running. Open hooks/guard-push.sh and explain how PreToolUse blocks fire even in skip-permissions mode.</div>
-
 <p class="file-ref">hooks/guard-push.sh, hooks/gmail-readonly.sh</p>
 
 <!-- ================================ -->
-<h2 id="skills">6. Skills - Reusable Workflows as Code</h2>
+<h2 id="skills">7. Skills - Reusable Workflows as Code</h2>
 
 <p>Markdown files in <code>.claude/skills/</code>. Invoked with <code>/skill-name</code> or auto-triggered by description match.</p>
 
@@ -286,12 +301,10 @@ argument-hint: "[repo] [run-id]"
 <h3>When to build a skill</h3>
 <p>You've done something 3+ times. Ask Claude: "Take what we just did and create a reusable skill." Browse <a href="https://github.com/anthropics/skills">Anthropic's official skills</a>, <a href="https://github.com/K-Dense-AI/scientific-agent-skills">133 scientific skills</a>, or the <a href="https://github.com/rohitg00/awesome-claude-code-toolkit">Awesome Claude Code Toolkit</a> for inspiration.</p>
 
-<div class="presenter-note">Open skills/ci-status/SKILL.md as a simple example. Then show skills/literature-review/ for a complex one with scripts.</div>
-
 <p class="file-ref">skills/ - 6 example skills (morning, ci-status, deploy-watch, literature-review, etc.)</p>
 
 <!-- ================================ -->
-<h2 id="agents">7. Agents & Subagents</h2>
+<h2 id="agents">8. Agents & Subagents</h2>
 
 <p>Agents are <code>.claude/agents/*.md</code> files - specialized Claude instances with focused instructions and their own context window.</p>
 
@@ -312,7 +325,7 @@ argument-hint: "[repo] [run-id]"
 <p class="file-ref">cli/workflows.md - delegation patterns in detail</p>
 
 <!-- ================================ -->
-<h2 id="plugins">8. Plugins & MCPs</h2>
+<h2 id="plugins">9. Plugins & MCPs</h2>
 
 <h3><a href="https://github.com/obra/superpowers">Superpowers</a> - structured development</h3>
 <p>Enforced 5-phase workflow that prevents the "just start coding" failure mode:</p>
@@ -349,12 +362,10 @@ claude plugin install caveman@caveman</code></pre>
   <li><strong>Dev tools:</strong> Playwright, GitHub</li>
 </ul>
 
-<div class="presenter-note">Demo Context7: ask Claude about a library API and say "use context7". Show the difference vs hallucinated docs.</div>
-
 <p class="file-ref">cli/plugins.md and cli/mcps.md</p>
 
 <!-- ================================ -->
-<h2 id="essentials">9. Plugins</h2>
+<h2 id="essentials">10. Plugins</h2>
 
 <p>Before reaching for plugins, know what Claude Code already ships with - and the short list of extensions worth installing on day one.</p>
 
@@ -385,12 +396,10 @@ Thorough: <code>code -> /code-review -> /simplify</code> (plugin, scored finding
 Either way: once Context7 is installed, say "use context7" when touching unfamiliar libraries - it's a passive accuracy boost with no per-turn cost.
 </div>
 
-<div class="presenter-note">Demo /review on a real open PR. If time, contrast with /code-review plugin output on the same diff - shows when the heavier tool earns its keep. Then demo "use context7" on a library the attendee doesn't know well.</div>
-
 <p class="file-ref">cli/plugins.md, cli/mcps.md</p>
 
 <!-- ================================ -->
-<h2 id="commands">10. Useful Commands & Shortcuts</h2>
+<h2 id="commands">11. Useful Commands & Shortcuts</h2>
 
 <h3>Session commands</h3>
 <table>
@@ -420,12 +429,10 @@ Either way: once Context7 is installed, say "use context7" when touching unfamil
 <h3>Effort & thinking</h3>
 <p><code>/effort low</code> for simple tasks. <code>/effort high</code> for complex reasoning. Write <code>ultrathink</code> in your prompt for maximum thinking on a single turn.</p>
 
-<div class="presenter-note">Demo: /btw in the middle of a task. Show /color with different terminals. Show /context output.</div>
-
 <p class="file-ref">cli/commands.md - complete reference</p>
 
 <!-- ================================ -->
-<h2 id="workflows">11. Workflow Patterns & Tips</h2>
+<h2 id="workflows">12. Workflow Patterns & Tips</h2>
 
 <h3>Plan-review-code-review</h3>
 <pre><code>Plan (plan mode) -> Review plan -> Code (auto mode) -> Review (NEW session)</code></pre>
@@ -443,8 +450,6 @@ Either way: once Context7 is installed, say "use context7" when touching unfamil
 <p>In his case: 83 runs overnight, 15 kept, 11% performance gain. Use Claude Code's headless mode to automate:</p>
 <pre><code>claude -p "try a different approach to X, run tests, report results" > run_N.txt</code></pre>
 
-<div class="presenter-note">Demo: start a named session, show the plan-review workflow. Show the interview trick live.</div>
-
 <p class="file-ref">cli/workflows.md, cli/tips.md</p>
 
 <!-- ================================ -->
@@ -457,8 +462,6 @@ Either way: once Context7 is installed, say "use context7" when touching unfamil
 <p>In practice: just ask - <em>"implement feature X in a worktree and open a PR."</em> Claude Code (or Codex) spins up an isolated folder on its own branch, does the work there, and pushes a PR when done. Your main checkout stays untouched, and you can kick off the next feature in parallel.</p>
 
 <div class="highlight">The unlock: one agent on feature A, another on feature B, both running concurrently - neither one stomps on your files or each other's.</div>
-
-<div class="presenter-note">Demo: ask Claude to implement a small feature "in a worktree, then open a PR". Show the worktree directory appear, the PR land, and that your main checkout is unchanged.</div>
 
 <!-- ================================ -->
 <h2 id="remote">13. Remote & Cloud Agents</h2>
@@ -474,8 +477,6 @@ Either way: once Context7 is installed, say "use context7" when touching unfamil
   <li>Results delivered via GitHub or notification</li>
   <li>No local machine needs to be running</li>
 </ul>
-
-<div class="presenter-note">Demo /rc if possible (needs phone). Mention this is the "assign work overnight" pattern.</div>
 
 <p class="file-ref">cli/resources.md - full link collection with all repos mentioned above</p>
 
