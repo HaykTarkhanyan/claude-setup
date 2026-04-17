@@ -31,6 +31,8 @@
 ## Memory and self-improvement
 - After completing a significant task, ask: "Want me to save anything from this to memory?"
 - After making a mistake that gets corrected, ask: "Want me to update CLAUDE.md or memory so this doesn't happen again?"
+- Maintain a `LEARNINGS.md` file in the project root - append non-obvious lessons, gotchas, and decisions learned during work (things not obvious from the code itself)
+- Maintain a `PROGRESS.md` file in the project root - keep it updated with what was done, what's in progress, and what's next so any future session can pick up where things left off
 
 ## Programming
 - NEVER use silent fallbacks. If something fails, it must fail loudly. No swallowing errors, no default returns on failure, no "if error return empty". Crash or raise AND log at ERROR level - never silently continue.
