@@ -62,7 +62,6 @@
 
 <table>
   <tr><th>CLI advantage</th><th>Why it matters</th></tr>
-  <tr><td>Automatic reasoning</td><td>Model picks thinking depth per turn - no manual toggling</td></tr>
   <tr><td>Full transcripts</td><td>See every tool call, every file read, every decision</td></tr>
   <tr><td>Inline diffs</td><td>Color-coded diffs right in the terminal - review changes before accepting</td></tr>
   <tr><td><code>Ctrl+B</code></td><td>Background a task, keep working in main session</td></tr>
@@ -126,6 +125,9 @@ alias kachaytr='claude --dangerously-skip-permissions --resume'</code></pre>
 <h2 id="ccusage">3. <a href="https://github.com/ryoppippi/ccusage">ccusage</a> - Know Your Spend</h2>
 
 <p>ccstatusline tells you how full your context is <em>right now</em>. ccusage tells you what you've actually spent - daily, monthly, per session, per project - by reading Claude Code's local JSONL logs. No API calls, no account login, pure local analysis.</p>
+
+<img src="assets/ccusage-daily.png" alt="ccusage daily report: table with Date, Models, Input, Output, Cache Create, Cache Read, Total Tokens, and Cost (USD) columns - showing one day at $99.97 driven by 138M cache-read tokens">
+<p class="subtitle">Daily report. Note how cache reads dwarf input/output tokens - that's the <em>why</em> behind a $99 day, and exactly what you'd never see from a billing summary alone.</p>
 
 <p>Why it's worth installing alongside ccstatusline:</p>
 <ul>
@@ -453,7 +455,7 @@ Either way: once Context7 is installed, say "use context7" when touching unfamil
 <p class="file-ref">cli/workflows.md, cli/tips.md</p>
 
 <!-- ================================ -->
-<h2 id="worktrees">12. Parallel Sessions with Worktrees</h2>
+<h2 id="worktrees">13. Parallel Sessions with Worktrees</h2>
 
 <p>A <strong>git worktree</strong> is a second (or third, or tenth) working directory attached to the same repository, each checked out to a different branch. Same <code>.git</code>, separate files on disk. Built into git itself - no extra tooling.</p>
 
@@ -464,7 +466,7 @@ Either way: once Context7 is installed, say "use context7" when touching unfamil
 <div class="highlight">The unlock: one agent on feature A, another on feature B, both running concurrently - neither one stomps on your files or each other's.</div>
 
 <!-- ================================ -->
-<h2 id="remote">13. Remote & Cloud Agents</h2>
+<h2 id="remote">14. Remote & Cloud Agents</h2>
 
 <h3>Remote control (<code>/remote-control</code>, <code>/rc</code>)</h3>
 <p>Hand off your live Claude Code session to the Claude app on another device - phone, tablet, another browser. The session keeps running; you just change where you're watching from.</p>
