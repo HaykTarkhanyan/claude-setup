@@ -453,6 +453,13 @@ Either way: once Context7 is installed, say "use context7" when touching unfamil
 </table>
 <div class="highlight">Most useful pattern: "Refactor @src/auth/ to match the pattern in @src/payments/stripe.ts" - Claude sees both without you pasting anything.</div>
 
+<h3>! - run shell commands from the prompt</h3>
+<p>Prefix any line with <code>!</code> to run a shell command without leaving Claude Code. Output lands directly in the conversation as context.</p>
+<pre><code>! git log --oneline -10
+! npm test
+! cat .env.example</code></pre>
+<p>Useful for: feeding Claude the current test output, showing it a file it can't read directly, or running a quick check mid-conversation without opening a second terminal.</p>
+
 <h3>Session commands</h3>
 <table>
   <tr><th>Command</th><th>What</th></tr>
@@ -496,10 +503,22 @@ Either way: once Context7 is installed, say "use context7" when touching unfamil
 <p class="subtitle">Structured tabs, checkboxes, and a "Type something" escape hatch - far denser than a chat back-and-forth.</p>
 <p>Plan mode uses this tool by default to clarify before finalizing the plan - but you can invoke it directly in any session. Best paired with: answer the questions, then start a <em>fresh</em> session for implementation so the interview context doesn't bloat.</p>
 
+<h3>Headless mode - <code>claude -p</code></h3>
+<p>Run Claude non-interactively: one prompt in, output to stdout, exits. No UI, no waiting. Makes Claude scriptable.</p>
+<pre><code># Pipe output to a file
+claude -p "review this diff and flag any bugs" > review.txt
+
+# Feed input from stdin
+claude -p "summarize the errors" < build.log
+
+# Chain into scripts or CI
+claude -p "check open PRs for failing CI and summarize" >> daily-report.txt</code></pre>
+<p>Use cases: CI pipeline steps, cron jobs, feeding Claude a log file mid-script. One constraint: no back-and-forth - Claude gets one shot, so your prompt needs to be complete and unambiguous.</p>
+
 <h3><a href="https://github.com/karpathy/autoresearch">Autoresearch</a> pattern</h3>
 <p>Karpathy's automated experiment loop - works for any task with a measurable metric:</p>
 <pre><code>modify -> evaluate -> keep/discard -> repeat</code></pre>
-<p>In his case: 83 runs overnight, 15 kept, 11% performance gain. Use Claude Code's headless mode to automate:</p>
+<p>In his case: 83 runs overnight, 15 kept, 11% performance gain. <code>claude -p</code> is exactly what powers this loop:</p>
 <pre><code>claude -p "try a different approach to X, run tests, report results" > run_N.txt</code></pre>
 
 <p class="file-ref">cli/workflows.md, cli/tips.md</p>
