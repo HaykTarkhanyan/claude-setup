@@ -84,7 +84,7 @@
 alias kachayt='claude --dangerously-skip-permissions'
 alias kachaytr='claude --dangerously-skip-permissions --resume'</code></pre>
 
-<h3><a href="https://ghostty.org/">Ghostty</a> - standalone terminal</h3>
+<h3><a href="https://ghostty.org/">Ghostty</a> - standalone terminal <span style="color: var(--dim); font-weight: normal; font-size: 0.9em;">(macOS / Linux only - not available on Windows)</span></h3>
 <p>When you're ready to graduate from the VS Code terminal, Ghostty is the current pick. Why it's worth the switch:</p>
 <ul>
   <li><strong>Fast.</strong> GPU-accelerated - no lag even with long transcripts or fast token streaming.</li>
@@ -170,6 +170,21 @@ npx @ccusage/codex@latest</code></pre>
 See ./CLAUDE.md</code></pre>
 <p>Codex reads <code>AGENTS.md</code> by default, follows the reference, and picks up the same context — one file to maintain, both tools stay in sync.</p>
 
+<h3>Karpathy's CLAUDE.md guidelines</h3>
+<p>Andrej Karpathy's <a href="https://github.com/forrestchang/andrej-karpathy-skills" target="_blank">andrej-karpathy-skills</a> repo includes a battle-tested CLAUDE.md with 4 behavioral rules worth stealing:</p>
+<table>
+  <tr><th>Rule</th><th>What it means in practice</th></tr>
+  <tr><td><strong>Think Before Coding</strong></td><td>State assumptions explicitly. If multiple interpretations exist, present them - don't pick silently. If unclear, stop and ask.</td></tr>
+  <tr><td><strong>Simplicity First</strong></td><td>Minimum code that solves the problem. No abstractions for single-use code. No "flexibility" that wasn't asked for. If you write 200 lines and it could be 50, rewrite it.</td></tr>
+  <tr><td><strong>Surgical Changes</strong></td><td>Touch only what you must. Don't "improve" adjacent code. Match existing style. Every changed line should trace directly to the request.</td></tr>
+  <tr><td><strong>Goal-Driven Execution</strong></td><td>Transform tasks into verifiable goals: "fix the bug" → "write a test that reproduces it, then make it pass". Strong success criteria let Claude loop independently.</td></tr>
+</table>
+<div class="highlight">The key insight: <strong>Goal-Driven Execution</strong> is where most CLAUDE.md files fall short. Vague tasks ("make it work") force constant back-and-forth. Verifiable goals let Claude run autonomously and stop when done - not when it thinks it's done.</div>
+<pre><code># Example: Goal-Driven task framing
+# Weak: "Fix the auth bug"
+# Strong: "Write a test that reproduces the session expiry bug, then make it pass.
+#          Success: test is green, no other tests break, no new files added."</code></pre>
+
 <h3>Settings hierarchy</h3>
 <p><code>~/.claude/settings.json</code> (global) > <code>.claude/settings.json</code> (project) > <code>.claude/settings.local.json</code> (personal)</p>
 
@@ -185,6 +200,13 @@ See ./CLAUDE.md</code></pre>
   <li>100% local - zero API calls</li>
 </ul>
 <pre><code>pip install mempalace</code></pre>
+
+<h3>Bootstrapping CLAUDE.md with <code>/init</code></h3>
+<p>Don't write your CLAUDE.md from scratch. Run <code>/init</code> in a new project and Claude scans the codebase - directory structure, languages, frameworks, build commands - and generates a first draft. Edit it down to what's non-obvious and you're done in minutes instead of hours.</p>
+<pre><code>/init</code></pre>
+<p>Once you have a CLAUDE.md, the <strong>claude-md-management</strong> plugin's <code>/claude-md-improver</code> skill audits it and suggests improvements - gaps, redundancies, missing conventions. Run it periodically as the codebase evolves.</p>
+<pre><code>/plugin install claude-md-management
+/claude-md-improver</code></pre>
 
 <h3>Auto-setup</h3>
 <p>The <code>/claude-automation-recommender</code> plugin scans your codebase and suggests what hooks, skills, and MCPs to set up. See also <a href="https://docs.anthropic.com/en/docs/claude-code">official docs</a> and the free <a href="https://anthropic.skilljar.com/claude-code-in-action">Anthropic Academy course</a>.</p>
@@ -330,16 +352,31 @@ argument-hint: "[repo] [run-id]"
 <!-- ================================ -->
 <h2 id="plugins">9. Plugins & MCPs</h2>
 
-<h3><a href="https://github.com/obra/superpowers">Superpowers</a> - structured development</h3>
+<h3><a href="https://github.com/obra/superpowers">Superpowers</a> - structured development <span style="color: var(--red); font-weight: bold;">[INSTALL THIS FIRST]</span></h3>
+<div class="highlight" style="border-left-color: var(--red);">If you only install one plugin from this workshop, make it Superpowers. It turns Claude Code from a fast typist into a disciplined engineer. Every skill listed below is a slash command away - no prompting required.</div>
 <p>Enforced 5-phase workflow that prevents the "just start coding" failure mode:</p>
 <ol>
-  <li><strong>Clarify</strong> requirements</li>
-  <li><strong>Design</strong> architecture</li>
-  <li><strong>Plan</strong> implementation steps</li>
-  <li><strong>Code</strong> with TDD (red-green-refactor)</li>
-  <li><strong>Verify</strong> with two-stage review</li>
+  <li><strong>Clarify</strong> requirements before touching any file</li>
+  <li><strong>Design</strong> architecture and identify risks</li>
+  <li><strong>Plan</strong> implementation steps with explicit success criteria</li>
+  <li><strong>Code</strong> with TDD (red-green-refactor, one failing test at a time)</li>
+  <li><strong>Verify</strong> with two-stage review before calling anything done</li>
 </ol>
-<p>Features: subagent-driven development, git worktree isolation, systematic debugging with root-cause analysis.</p>
+<h3>Superpowers skills reference</h3>
+<table>
+  <tr><th>Skill</th><th>When to use it</th></tr>
+  <tr><td><code>/superpowers:writing-plans</code></td><td>Before touching code - turns a spec into a step-by-step plan</td></tr>
+  <tr><td><code>/superpowers:executing-plans</code></td><td>Run a written plan in a fresh session with real progress tracking</td></tr>
+  <tr><td><code>/superpowers:test-driven-development</code></td><td>Any feature or bugfix - writes the failing test before the fix</td></tr>
+  <tr><td><code>/superpowers:systematic-debugging</code></td><td>Any bug or unexpected behavior - forces root-cause analysis first</td></tr>
+  <tr><td><code>/superpowers:brainstorming</code></td><td>Before any creative work: features, UI, architecture</td></tr>
+  <tr><td><code>/superpowers:requesting-code-review</code></td><td>Before merging - structured multi-agent review</td></tr>
+  <tr><td><code>/superpowers:verification-before-completion</code></td><td>Before claiming "done" - catches the things you forgot to check</td></tr>
+  <tr><td><code>/superpowers:dispatching-parallel-agents</code></td><td>2+ independent tasks - runs them concurrently</td></tr>
+  <tr><td><code>/superpowers:systematic-debugging</code></td><td>Any bug, test failure, or unexpected behavior</td></tr>
+  <tr><td><code>/superpowers:using-git-worktrees</code></td><td>Feature work that needs full isolation from main branch</td></tr>
+</table>
+<div class="highlight">The pattern that compounds: <code>/superpowers:writing-plans</code> in one session → <code>/superpowers:executing-plans</code> in a fresh session → <code>/superpowers:requesting-code-review</code> before merge. Each phase gets a clean context window, no accumulated bias.</div>
 <pre><code>/plugin install superpowers@claude-plugins-official</code></pre>
 
 <h3><a href="https://github.com/JuliusBrussee/caveman">Caveman</a> - token compression</h3>
@@ -389,8 +426,9 @@ claude plugin install caveman@caveman</code></pre>
   <tr><td><a href="https://github.com/upstash/context7"><strong>Context7</strong></a> (MCP)</td><td>Live library docs - kills hallucinated APIs. Highest-ROI MCP for any developer.</td><td><code>claude mcp add context7 -- npx -y @upstash/context7-mcp@latest</code></td></tr>
   <tr><td><strong>GitHub app</strong></td><td><code>@claude</code> in issues/PRs, auto PR reviews, per-repo instructions</td><td><code>/install-github-app</code></td></tr>
   <tr><td><strong>claude-code-setup</strong></td><td><code>/claude-automation-recommender</code> scans your repo and suggests hooks, skills, MCPs</td><td><code>/plugin install claude-code-setup</code></td></tr>
+  <tr><td><strong>claude-md-management</strong></td><td><code>/claude-md-improver</code> audits your CLAUDE.md for gaps, redundancies, missing conventions</td><td><code>/plugin install claude-md-management</code></td></tr>
 </table>
-<p>For <strong>Superpowers</strong>, <strong>Caveman</strong>, <strong>Playwright</strong>, and <strong>MemPalace</strong> see section 7.</p>
+<p>For <strong>Superpowers</strong>, <strong>Caveman</strong>, <strong>Playwright</strong>, and <strong>MemPalace</strong> see section 9.</p>
 
 <h3>Recommended pairings</h3>
 <div class="highlight">
@@ -403,6 +441,17 @@ Either way: once Context7 is installed, say "use context7" when touching unfamil
 
 <!-- ================================ -->
 <h2 id="commands">11. Useful Commands & Shortcuts</h2>
+
+<h3>@ references - pulling context into prompts</h3>
+<p>Type <code>@</code> anywhere in your prompt to attach context without copy-pasting:</p>
+<table>
+  <tr><th>Syntax</th><th>What it attaches</th></tr>
+  <tr><td><code>@src/auth.ts</code></td><td>A specific file</td></tr>
+  <tr><td><code>@src/</code></td><td>An entire folder</td></tr>
+  <tr><td><code>@https://...</code></td><td>A URL (fetched and included)</td></tr>
+  <tr><td><code>@README.md</code></td><td>Any file by name - tab-completes as you type</td></tr>
+</table>
+<div class="highlight">Most useful pattern: "Refactor @src/auth/ to match the pattern in @src/payments/stripe.ts" - Claude sees both without you pasting anything.</div>
 
 <h3>Session commands</h3>
 <table>
