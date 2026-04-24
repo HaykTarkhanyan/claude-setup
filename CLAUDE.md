@@ -34,6 +34,17 @@
 - Maintain a `LEARNINGS.md` file in the project root - append non-obvious lessons, gotchas, and decisions learned during work (things not obvious from the code itself)
 - Maintain a `PROGRESS.md` file in the project root - keep it updated with what was done, what's in progress, and what's next so any future session can pick up where things left off
 
+## Tools and plugins
+- **Context7 MCP** is available for fetching live library/framework docs. Use it proactively whenever working with libraries, frameworks, SDKs, or APIs - don't rely on training data for syntax, config, or version-specific behavior. When in doubt, check Context7 first.
+- The following programming-related plugins are installed. Use them when clearly applicable, and when unsure, mention them and ask if I want them used:
+  - **Playwright** - browser automation, screenshots, testing web UIs
+  - **code-review** - code review for PRs and completed work
+  - **code-simplifier** - simplify and refine code for clarity
+  - **superpowers** - structured workflows: brainstorming, TDD, debugging, plans, code review
+  - **skill-creator** - create, edit, and eval custom skills
+  - **claude-code-setup** - recommend automations (hooks, skills, MCP servers)
+  - **claude-md-management** - audit and improve CLAUDE.md files
+
 ## Programming
 - NEVER use silent fallbacks. If something fails, it must fail loudly. No swallowing errors, no default returns on failure, no "if error return empty". Crash or raise AND log at ERROR level - never silently continue.
 
