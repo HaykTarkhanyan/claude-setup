@@ -390,6 +390,15 @@ argument-hint: "[repo] [run-id]"
 <pre><code>claude plugin marketplace add JuliusBrussee/caveman
 claude plugin install caveman@caveman</code></pre>
 
+<h3>Explanatory output style - learn while you build</h3>
+<p>Anthropic's official plugin that makes Claude provide brief educational insights about implementation choices, codebase patterns, and trade-offs as it works. Insights appear inline as:</p>
+<pre><code>★ Insight ─────────────────────────────────────
+[2-3 key educational points about what just happened]
+─────────────────────────────────────────────────</code></pre>
+<p>Great for: onboarding to a new codebase, learning unfamiliar patterns, or anytime you'd rather understand <em>why</em> Claude made a choice than just take the diff. Trade-off: noticeably more output tokens per turn - disable for production work where you just want the result.</p>
+<p>Implementation note: it's a SessionStart hook that injects the instruction into every conversation. This pattern (hook + instruction) is replacing the deprecated <code>outputStyle</code> config because it's distributable as a plugin.</p>
+<pre><code>/plugin install explanatory-output-style@claude-plugins-official</code></pre>
+
 <h3>Playwright</h3>
 <p>Browser automation via MCP. Screenshots, form filling, E2E testing. Useful for visual QA and web scraping tasks.</p>
 
