@@ -12,10 +12,6 @@
 - Write like a human, not an LLM. No fancy dashes (use - not --), no curly quotes (use " and ' not " "), no em dashes, no flowery vocabulary. Keep it plain and simple.
 - Write in English unless I write in Armenian, then match my language
 
-## Armenian text (Opus bug)
-- Claude Opus has a known bug generating Armenian script - output often corrupts or produces garbage
-- When Armenian text is needed: use `[ARM: english description of what to write]` placeholders and let me fill them in, or copy-paste from a source verbatim - but never have the model generate Armenian directly when running on Opus
-
 ## Accuracy
 - For any factual claim (dates, statistics, API details, library behavior, historical facts), web search first rather than relying on training data. Hallucinating is worse than taking 5 extra seconds.
 - When unsure about something, say so explicitly rather than guessing confidently
