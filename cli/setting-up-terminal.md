@@ -44,6 +44,50 @@ These fix key sequences that Claude Code's terminal intercepts:
 - Watch for `Ctrl+B` conflict (toggles sidebar in VS Code, backgrounds task in Claude)
 - Remap or disable VS Code shortcuts that clash with Claude Code
 
+## VS Code Layout Shortcut (Ctrl+Alt+K)
+
+`Ctrl+Alt+K` splits the editor into 2 columns and opens a `Kachaytr` terminal on the right that auto-runs `claude --dangerously-skip-permissions --resume`. Used right after opening a fresh project.
+
+Two pieces of config are needed.
+
+**1. Terminal profile** in `%APPDATA%/Code/User/settings.json` under `terminal.integrated.profiles.windows`:
+
+```json
+"Kachaytr": {
+    "path": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "args": ["-NoExit", "-Command", "claude --dangerously-skip-permissions --resume"],
+    "icon": "robot"
+}
+```
+
+**2. Keybinding** in `%APPDATA%/Code/User/keybindings.json`:
+
+```json
+{
+    "key": "ctrl+alt+k",
+    "command": "runCommands",
+    "args": {
+        "commands": [
+            "workbench.action.editorLayoutTwoColumns",
+            "workbench.action.focusSecondEditorGroup",
+            {
+                "command": "workbench.action.terminal.newWithProfile",
+                "args": {
+                    "profileName": "Kachaytr",
+                    "location": "editor"
+                }
+            }
+        ]
+    }
+}
+```
+
+Notes:
+- Command is hardcoded in the profile (not via `kachaytr.bat`) to avoid PATH dependencies in PowerShell.
+- `editorLayoutTwoColumns` splits the editor area only; Explorer sidebar stays as a sidebar.
+- Pressing twice opens two Kachaytr terminals (no dedup guard).
+- `-NoExit` keeps PowerShell alive after `claude` exits.
+
 ## Settings
 
 File: `~/.claude/settings.json`
