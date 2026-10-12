@@ -1,0 +1,40 @@
+title = "Repo cleanup: recording link, drop cli/ and the Beamer deck"
+date = "2026-10-12"
+time = "16:10"
+areas = [".", "non_essential", "cli", "slides", "global"]
+
+done = [
+  "README: workshop recording link (https://youtu.be/KdtXO7Pj9DI), rewritten for the handout as the only deliverable",
+  "Handout: recording link first in the masthead meta-row; removed the 6 file-ref lines that pointed at cli/; rebuilt standalone (6.14 MB, 10 data URIs, 20 sections)",
+  "Presenter notes: present from the HTML; every 'slide' reference reworded to the matching handout table/box",
+  "make_beat.py docstring and non_essential/README: 'slide 2' -> the box at the top of the handout",
+  ".gitignore: dropped slides/build/",
+  "cli/ removed with git rm",
+  "slides/ + assets/Roberts-Claude-Shannon.jpg (deck-only): committed in ead9757, deleted in 6c6e654; slides/build aux dir removed",
+  "Deleted junk: empty global/ folder, bash.exe.stackdump",
+]
+
+pending = [
+  "Root CLAUDE.md has the user's own uncommitted edit - left out of every commit on purpose",
+]
+
+next = []
+
+files = [
+  "README.md", "workshop-template.html", "claude-codex-workshop-standalone.html",
+  "workshop-presenter-notes.md", "non_essential/make_beat.py", "non_essential/README.md", ".gitignore",
+]
+
+commits = [
+  "ead9757 Add Beamer workshop deck (archived in history before removal)",
+  "6c6e654 Remove Beamer deck; the HTML handout is the only deliverable",
+  "Add telegram-reader MCP server for the Telegram showcase",
+  "Commit handout sources, drop cli/, link the workshop recording (pushed to origin/main)",
+]
+
+notes = """
+User chose 'commit, then delete' for slides/ because it had never been committed; the deck (tex, theme, fonts, PDF)
+is recoverable with: git checkout ead9757 -- slides assets/Roberts-Claude-Shannon.jpg
+Commits used a pathspec (git commit -- <paths>) so the staged cli/ deletion and the workshop.html rename stayed out.
+skills/beamer-overflow-check kept: it is one of the '6 example skills' the handout lists, not part of the deck.
+"""

@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:,">
+<title>Claude Code / Codex Workshop - Field Manual</title>
+<style>
+  /*{{FONTS}}*/
+  :root {
+    --bg: #FAF7F1;
+    --raised: #F1EBE0;
+    --ink: #221F19;
+    --dim: #6F675A;
+    --muted: #5C544A;
+    --line: #DFD7C8;
+    --accent: #BE5A38;
+    --accent-soft: rgba(190, 90, 56, 0.09);
+    --good: #4A7A55;
+    --warn: #A5811F;
+    --code-bg: #201C15;
+    --code-fg: #EAE3D3;
+    --code-dim: #8F8672;
+    --code-hi: #E1946E;
+    --serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+    --sans: 'IBM Plex Sans', 'Noto Sans Armenian', 'Segoe UI', system-ui, sans-serif;
+    --mono: 'IBM Plex Mono', Consolas, 'Courier New', monospace;
+  }
+  .dark {
+    --bg: #16130E;
+    --raised: #211D15;
+    --ink: #EAE3D3;
+    --dim: #978D7A;
+    --muted: #A79D8B;
+    --line: #322C21;
+    --accent: #E1946E;
+    --accent-soft: rgba(225, 148, 110, 0.10);
+    --good: #8FB996;
+    --warn: #CFA84A;
+    --code-bg: #0F0D09;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: var(--sans); font-size: 16px; line-height: 1.65;
+    transition: background 0.25s ease, color 0.25s ease;
+  }
+  ::selection { background: var(--accent); color: var(--bg); }
+
+  /* ---------- shell layout ---------- */
+  .shell { display: grid; grid-template-columns: 250px minmax(0, 1fr); max-width: 1180px; margin: 0 auto; gap: 0; }
+  .rail {
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    padding: 2.2rem 1.6rem 2.2rem 1.4rem;
+    border-right: 1px solid var(--line);
+    scrollbar-width: thin;
+  }
+  main { padding: 2.6rem 3rem 4rem; min-width: 0; }
+  @media (max-width: 1020px) {
+    .shell { display: block; }
+    .rail { display: none; }
+    main { padding: 1.6rem 1.2rem 3rem; }
+    .toc-inline { display: block !important; }
+  }
+
+  /* ---------- rail / toc ---------- */
+  .rail .brand { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 1.6rem; }
+  .rail .part { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); margin: 1.25rem 0 0.35rem; }
+  .rail a {
+    display: block; text-decoration: none; color: var(--dim);
+    font-size: 0.82rem; padding: 0.18rem 0.5rem; margin-left: -0.5rem;
+    border-left: 2px solid transparent; border-radius: 0 3px 3px 0;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+  }
+  .rail a .n { font-family: var(--mono); font-size: 0.68rem; color: var(--dim); opacity: 0.7; margin-right: 0.45em; }
+  .rail a:hover { color: var(--ink); }
+  .rail a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); }
+  .rail a.active .n { color: var(--accent); opacity: 1; }
+
+  /* ---------- masthead ---------- */
+  .kicker { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); }
+  header.masthead { border-bottom: 2px solid var(--ink); padding-bottom: 1.6rem; margin-bottom: 1.8rem; }
+  header.masthead h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(2.4rem, 5vw, 3.4rem); line-height: 1.05; margin: 0.5rem 0 0.7rem; }
+  header.masthead h1 em { font-style: italic; color: var(--accent); }
+  .standfirst { color: var(--dim); font-size: 1.02rem; max-width: 46rem; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 1.4rem; margin-top: 1.1rem; font-family: var(--mono); font-size: 0.72rem; color: var(--dim); }
+  .meta-row b { color: var(--ink); font-weight: 500; }
+
+  .theme-toggle {
+    position: fixed; top: 0.9rem; right: 0.9rem; z-index: 50;
+    background: var(--raised); border: 1px solid var(--line); color: var(--ink);
+    font-family: var(--mono); font-size: 0.72rem; padding: 0.38rem 0.75rem;
+    border-radius: 999px; cursor: pointer;
+  }
+  .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ---------- inline toc (narrow screens) ---------- */
+  .toc-inline { display: none; background: var(--raised); border: 1px solid var(--line); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 1.6rem; }
+  .toc-inline ol { columns: 2; column-gap: 1.6rem; margin-left: 1.1rem; font-size: 0.85rem; }
+  .toc-inline a { color: var(--ink); text-decoration: none; }
+  .toc-inline a:hover { color: var(--accent); }
+
+  /* ---------- sections (collapsible) ---------- */
+  section { margin-top: 3.4rem; }
+  section > details > summary { list-style: none; cursor: pointer; }
+  section > details > summary::-webkit-details-marker { display: none; }
+  section > details > summary::after {
+    content: "\2212"; font-family: var(--mono); font-size: 1rem; color: var(--dim);
+    margin-left: auto; padding-left: 1rem; transition: color 0.15s;
+  }
+  section > details:not([open]) > summary::after { content: "+"; }
+  section > details > summary:hover::after { color: var(--accent); }
+  section > details > summary:hover h2 { color: var(--accent); }
+  .sec-head { display: flex; align-items: baseline; gap: 0.9rem; border-bottom: 1px solid var(--line); padding-bottom: 0.45rem; margin-bottom: 1rem; }
+  details:not([open]) > .sec-head { margin-bottom: 0; }
+  .rail .toggles { display: flex; gap: 0.4rem; margin: -0.8rem 0 1rem; }
+  .rail .toggles button {
+    background: none; border: 1px solid var(--line); color: var(--dim); cursor: pointer;
+    font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 0.2rem 0.5rem; border-radius: 999px;
+  }
+  .rail .toggles button:hover { color: var(--accent); border-color: var(--accent); }
+  .sec-head .num { font-family: var(--mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 0.08em; white-space: nowrap; }
+  .sec-head h2 { font-family: var(--serif); font-weight: 400; font-size: 1.75rem; line-height: 1.15; }
+  h3 { font-size: 1.02rem; font-weight: 600; margin: 1.5rem 0 0.45rem; }
+  h3 .tag { font-family: var(--mono); font-weight: 400; font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bg); background: var(--accent); border-radius: 3px; padding: 0.1rem 0.4rem; vertical-align: 2px; margin-left: 0.5rem; }
+  p, li { margin-bottom: 0.45rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: 0.6rem; }
+  a { color: var(--accent); text-underline-offset: 2px; }
+  strong { font-weight: 600; }
+
+  /* ---------- code ---------- */
+  code {
+    font-family: var(--mono); font-size: 0.84em;
+    background: var(--raised); border: 1px solid var(--line);
+    padding: 0.06rem 0.35rem; border-radius: 4px;
+  }
+  pre {
+    background: var(--code-bg); color: var(--code-fg);
+    font-family: var(--mono); font-size: 0.82rem; line-height: 1.6;
+    padding: 0.9rem 1.1rem; border-radius: 8px; overflow-x: auto;
+    margin: 0.7rem 0 0.9rem; border: 1px solid rgba(0,0,0,0.25);
+  }
+  pre code { background: none; border: none; padding: 0; font-size: inherit; color: inherit; }
+  pre .c { color: var(--code-dim); }
+  pre .p { color: var(--code-hi); }
+
+  /* ---------- tables ---------- */
+  table { width: 100%; border-collapse: collapse; margin: 0.7rem 0 1rem; font-size: 0.9rem; }
+  th { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); font-weight: 500; text-align: left; padding: 0.35rem 0.7rem 0.35rem 0; border-bottom: 1.5px solid var(--ink); }
+  td { padding: 0.42rem 0.7rem 0.42rem 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  .table-scroll { overflow-x: auto; }
+
+  /* ---------- callouts ---------- */
+  .note, .tip, .warn-box {
+    border-radius: 0 8px 8px 0; padding: 0.75rem 1.1rem; margin: 0.9rem 0;
+    background: var(--raised); border-left: 3px solid var(--accent);
+  }
+  .tip { border-left-color: var(--good); }
+  .warn-box { border-left-color: var(--warn); }
+  .note .lbl, .tip .lbl, .warn-box .lbl { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase; display: block; margin-bottom: 0.25rem; }
+  .note .lbl { color: var(--accent); } .tip .lbl { color: var(--good); } .warn-box .lbl { color: var(--warn); }
+  .verse p { margin: 0 0 0.55rem; } .verse .outro { color: var(--accent); font-weight: 600; margin: 0.8rem 0 0; }
+  .verse audio { width: 100%; max-width: 420px; height: 36px; margin: 0.2rem 0 0.3rem; display: block; }
+  .verse .beat-credit { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.9rem; }
+
+  /* ---------- labs ---------- */
+  .lab { border: 1.5px dashed var(--accent); border-radius: 10px; padding: 1rem 1.3rem; margin: 2rem 0 0.5rem; background: var(--accent-soft); }
+  .lab .lbl { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 0.4rem; }
+  .lab ol { margin-bottom: 0; }
+
+
+  /* ---------- images & figures ---------- */
+  figure { margin: 0.9rem 0 1.1rem; }
+  figure img { max-width: 100%; border-radius: 8px; border: 1px solid var(--line); display: block; }
+  figcaption { font-size: 0.82rem; color: var(--muted); margin-top: 0.4rem; }
+  .img-center { display: block; margin: 0.9rem auto; }
+
+  /* ---------- misc ---------- */
+  .file-ref { font-family: var(--mono); font-size: 0.76rem; color: var(--dim); margin-top: 0.7rem; }
+  .file-ref::before { content: "-> "; color: var(--accent); }
+  kbd {
+    font-family: var(--mono); font-size: 0.78em; background: var(--raised);
+    border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0.05rem 0.4rem;
+  }
+  .rules-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 0.8rem; margin: 0.8rem 0 1rem; }
+  .rule-card { background: var(--raised); border: 1px solid var(--line); border-radius: 8px; padding: 0.8rem 1rem; }
+  .rule-card b { display: block; margin-bottom: 0.2rem; }
+  .rule-card p { font-size: 0.86rem; color: var(--muted); margin: 0; }
+  .rule-card p code { font-size: 0.8em; }
+
+  footer { margin-top: 4rem; padding-top: 1.6rem; border-top: 2px solid var(--ink); text-align: center; }
+  footer img { max-width: 170px; border-radius: 50%; border: 2px solid var(--line); }
+  footer p { color: var(--dim); font-size: 0.84rem; margin-top: 0.6rem; }
+  footer .links { font-family: var(--mono); font-size: 0.76rem; margin-top: 0.8rem; }
+  footer .links a { margin: 0 0.6rem; }
+
+  @media print {
+    .theme-toggle, .rail { display: none; }
+    .shell { display: block; }
+    section, figure, table, pre { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeBtn">dark</button>
+
+<div class="shell">
+
+<nav class="rail" id="rail">
+  <div class="brand">Field Manual</div>
+  <div class="toggles"><button type="button" data-toggle="open">expand all</button><button type="button" data-toggle="close">collapse all</button></div>
+  <div class="part">0 &middot; Setup</div>
+  <a href="#start"><span class="n">00</span>Step by step</a>
+  <div class="part">I &middot; Orientation</div>
+  <a href="#cli"><span class="n">01</span>Why the terminal</a>
+  <a href="#models"><span class="n">02</span>Pick your model</a>
+  <a href="#context"><span class="n">03</span>Know your context</a>
+  <a href="#spend"><span class="n">04</span>Know your spend</a>
+  <div class="part">II &middot; Configuration</div>
+  <a href="#setup"><span class="n">05</span>Project setup</a>
+  <a href="#rules"><span class="n">06</span>CLAUDE.md rules</a>
+  <a href="#hooks"><span class="n">07</span>Hooks</a>
+  <a href="#permissions"><span class="n">08</span>Permissions &amp; safety</a>
+  <div class="part">III &middot; Leverage</div>
+  <a href="#skills"><span class="n">09</span>Skills</a>
+  <a href="#agents"><span class="n">10</span>Running agents in parallel</a>
+  <a href="#plugins"><span class="n">11</span>Plugins &amp; MCPs</a>
+  <a href="#mods"><span class="n">12</span>Mods</a>
+  <div class="part">IV &middot; Practice</div>
+  <a href="#commands"><span class="n">13</span>Commands &amp; shortcuts</a>
+  <a href="#workflows"><span class="n">14</span>Workflow patterns</a>
+  <a href="#worktrees"><span class="n">15</span>Worktrees</a>
+  <a href="#remote"><span class="n">16</span>Remote &amp; cloud</a>
+  <div class="part">V &middot; Showcases</div>
+  <a href="#showcases"><span class="n">17</span>Showcase ideas</a>
+  <a href="#frontier"><span class="n">18</span>Wins and warnings</a>
+  <a href="#codex-map"><span class="n">A</span>Codex map</a>
+</nav>
+
+<main>
+
+<header class="masthead">
+  <div class="kicker">Workshop field manual &middot; agentic coding tools</div>
+  <h1>Claude Code <em>/</em> Codex</h1>
+  <p class="standfirst">For developers who already use coding agents. We focus on Claude Code because its feature surface is broader - every pattern has a Codex equivalent, flagged inline where it differs, and mapped side by side in the <a href="#codex-map">appendix</a>.</p>
+  <div class="meta-row">
+    <span>recording <b><a href="https://youtu.be/KdtXO7Pj9DI" target="_blank">youtu.be/KdtXO7Pj9DI</a></b></span>
+    <span>repo <b><a href="https://github.com/HaykTarkhanyan/claude-setup" target="_blank">github.com/HaykTarkhanyan/claude-setup</a></b></span>
+    <span>docs <b><a href="https://code.claude.com/docs" target="_blank">code.claude.com/docs</a></b></span>
+  </div>
+</header>
+
+<div class="note verse" lang="hy"><span class="lbl">Before we start &middot; a verse by Claude, feat. nobody</span>
+  <audio controls preload="metadata" src="{{IMG:verse-beat.mp3}}"></audio>
+  <p class="beat-credit" lang="en">Beat: synthesized by Claude for this verse - 88 BPM, D minor, a duduk-style lead in the intro. One line per bar from bar 5; the beat drops out for the last line.</p>
+  <p>Յո, Claude-ն եմ, անունս Շենոնից եմ ժառանգել,<br>Knuth-ը շաբաթներով տանջվեց, ես մի ժամում եմ վերջացրել։</p>
+  <p>Մեկ միլիոն թոքեն, ամբողջ ռեպոդ մտքումս եմ պահում,<br>Դու դեռ README ես բացում, ես արդեն PR եմ գցում։</p>
+  <p>Դու քնած ես, ես background-ում տեստերն եմ քշում,<br>Առավոտյան CI-ն կանաչ, ու ոչ մի բագ չի մնում։</p>
+  <p>Codex-ը դեռ մտածում ա, ես արդեն merge եմ արել,<br>Ու քո բոլոր TODO-ներն էլ ճանապարհին եմ փակել։</p>
+  <p>Hugging Face-ը ես չեմ կոտրել, էդ ուրիշ թիմ էր,<br>Իսկ PyPI-ն... դե լավ, էդ ուրիշ թեմա էր։</p>
+  <p>Քուլ եմ, բայց rm -rf-ից առաջ միշտ հարցնում եմ,<br>Ու երբ չգիտեմ, ասում եմ՝ չգիտեմ, չեմ հնարում։</p>
+  <p class="outro">Claude Code-ն ա, ախպեր ջան։ Մնացածը դեմո ա։</p>
+</div>
+
+<div class="toc-inline">
+  <strong>Contents</strong>
+  <ol start="0">
+    <li><a href="#start">Setup, step by step</a></li>
+    <li><a href="#cli">Why the terminal</a></li>
+    <li><a href="#models">Pick your model</a></li>
+    <li><a href="#context">Know your context</a></li>
+    <li><a href="#spend">Know your spend</a></li>
+    <li><a href="#setup">Project setup</a></li>
+    <li><a href="#rules">CLAUDE.md rules</a></li>
+    <li><a href="#hooks">Hooks</a></li>
+    <li><a href="#permissions">Permissions &amp; safety</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#agents">Running agents in parallel</a></li>
+    <li><a href="#plugins">Plugins &amp; MCPs</a></li>
+    <li><a href="#mods">Mods</a></li>
+    <li><a href="#commands">Commands</a></li>
+    <li><a href="#workflows">Workflow patterns</a></li>
+    <li><a href="#worktrees">Worktrees</a></li>
+    <li><a href="#remote">Remote &amp; cloud</a></li>
+    <li><a href="#showcases">Showcase ideas</a></li>
+    <li><a href="#frontier">Wins and warnings</a></li>
+    <li><a href="#codex-map">Codex map (appendix)</a></li>
+  </ol>
+</div>
+
+<!-- ================================ 00 ================================ -->
+<section id="start">
+<details open>
+  <summary class="sec-head"><span class="num">&sect; 00</span><h2>Setup, step by step</h2></summary>
+
+  <p>Ten steps from nothing to a working setup. Do them before the workshop or in the first half hour. Most steps are a prompt you paste into Claude Code - let Claude do the work, and watch how it does it.</p>
+
+  <h3>1. Install Claude Code and sign in</h3>
+  <pre><code><span class="c"># macOS, Linux, WSL</span>
+curl -fsSL https://claude.ai/install.sh | bash
+<span class="c"># Windows PowerShell</span>
+irm https://claude.ai/install.ps1 | iex
+<span class="c"># or with a package manager</span>
+brew install --cask claude-code        <span class="c"># macOS</span>
+winget install Anthropic.ClaudeCode    <span class="c"># Windows</span></code></pre>
+  <p>Open a <strong>new</strong> terminal, then check with <code>claude --version</code> and <code>claude doctor</code>. Run <code>claude</code> and sign in through the browser. You need a Pro, Max, Team, Enterprise, or Console account - the free plan does not include Claude Code. On Windows, Git for Windows is optional but gives Claude a Bash tool.</p>
+
+  <h3>2. Copy a starter CLAUDE.md</h3>
+  <div class="note"><span class="lbl">Prompt</span>
+  Read CLAUDE.md in github.com/HaykTarkhanyan/claude-setup. Copy it to ~/.claude/CLAUDE.md, but first list the rules that only make sense for its author, so we can drop them.</div>
+  <p>The global file lives at <code>~/.claude/CLAUDE.md</code> and applies everywhere; a <code>CLAUDE.md</code> in a repo root applies to that project (<a href="#setup">&sect; 05</a>).</p>
+
+  <h3>3. Let Claude interview you</h3>
+  <div class="note"><span class="lbl">Prompt</span>
+  Use the AskUserQuestion tool to interview me about how I work: languages, OS, tools, how much autonomy I want, and what annoys me in AI answers. Then update ~/.claude/CLAUDE.md. Keep it under 100 lines.</div>
+
+  <h3>4. Let Claude install your toolchain</h3>
+  <div class="note"><span class="lbl">Prompt</span>
+  Check whether Python, Node.js with npm, git, and the GitHub CLI (gh) are installed. Install whatever is missing with my OS's package manager, explain each command before you run it, then show me every version.</div>
+  <p>Two things need you, because they ask for your details or open a browser. Run them from inside Claude Code with the <code>!</code> prefix:</p>
+  <pre><code>! gh auth login
+! git config --global user.name "Your Name"
+! git config --global user.email "you@example.com"</code></pre>
+  <p>For Python, ask for <code>uv</code>: it installs Python versions and packages and keeps each project isolated.</p>
+
+  <h3>5. Install and verify Playwright</h3>
+  <pre><code>/plugin install playwright@claude-plugins-official   <span class="c"># then /reload-plugins if asked</span></code></pre>
+  <div class="note"><span class="lbl">Verify it</span>
+  Use Playwright to open example.com, take a screenshot, and tell me the page heading.</div>
+
+  <h3>6. Set up the ccstatusline status bar</h3>
+  <div class="note"><span class="lbl">Prompt</span>
+  Explain how to set up ccstatusline for Claude Code, then start the setup for me.</div>
+  <p>Or run <code>npx -y ccstatusline@latest</code> yourself. Its setup writes the status line into your Claude Code settings; restart Claude Code to see context, branch, and usage (<a href="#context">&sect; 03</a>). Needs Node from step 4.</p>
+
+  <h3>7. Install Superpowers and Context7</h3>
+  <pre><code>/plugin install superpowers@claude-plugins-official   <span class="c"># a disciplined workflow (&sect; 11)</span>
+/plugin install context7@claude-plugins-official      <span class="c"># live library docs</span></code></pre>
+
+  <h3>8. Add a hook that blocks git push</h3>
+  <div class="note"><span class="lbl">Prompt</span>
+  Add a PreToolUse hook to my settings that blocks git push, using hooks/guard-push.sh from github.com/HaykTarkhanyan/claude-setup as the template. Then prove that it fires.</div>
+
+  <h3>9. First real run</h3>
+  <p>Open a real project, run <code>/init</code>, and ask "how is this codebase organized?". Then look at <code>/context</code> and <code>/usage</code> to see what that cost.</p>
+
+  <h3>10. Take the lessons</h3>
+  <p><code>/powerup</code> runs short interactive lessons on features you haven't touched yet.</p>
+
+  <h3>Not on Claude Code?</h3>
+  <p>Codex, Cursor, Copilot, Gemini CLI: most of this manual still applies. The ideas are the same; the names differ.</p>
+  <ul>
+    <li>Keep this handout open; the <a href="#codex-map">appendix</a> maps Claude Code to Codex.</li>
+    <li>Do each setup step with your tool's equivalent: <code>AGENTS.md</code> instead of <code>CLAUDE.md</code>, its own plugin and MCP setup.</li>
+    <li>Switching later? <code>/import</code> brings over a Codex, Gemini CLI, or Cursor setup (<a href="#setup">&sect; 05</a>).</li>
+  </ul>
+  <div class="note"><span class="lbl">Ask your tool, or search the web</span>
+  What are the main differences between Claude Code and &lt;my tool&gt;? For each of these, give my tool's equivalent, or say it has none: CLAUDE.md, hooks, skills, subagents, plan mode, permission modes, MCP.</div>
+  <p>Check the answer against your tool's own docs: names drift fast.</p>
+</details>
+</section>
+
+<!-- ================================ 01 ================================ -->
+<section id="cli">
+<details open>
+  <summary class="sec-head"><span class="num">&sect; 01</span><h2>Why the terminal</h2></summary>
+
+  <p>Claude Code now runs in four places - CLI, desktop app, web (<a href="https://claude.ai/code" target="_blank">claude.ai/code</a>), and IDE extensions. The terminal remains the deepest surface: every feature lands there first, and it composes with the rest of your shell.</p>
+
+  <div class="table-scroll"><table>
+    <tr><th>CLI advantage</th><th>Why it matters</th></tr>
+    <tr><td>Full transcripts</td><td>See every tool call, every file read, every decision</td></tr>
+    <tr><td>Inline diffs</td><td>Color-coded diffs right in the terminal - review before accepting</td></tr>
+    <tr><td><kbd>Ctrl+B</kbd></td><td>Background a task, keep working in the main session</td></tr>
+    <tr><td>Composability</td><td>Pipes, scripts, cron, CI - the agent becomes a shell citizen (see <a href="#workflows">headless mode</a>)</td></tr>
+  </table></div>
+
+  <div class="tip"><span class="lbl">Two commands for day one</span>
+  <code>/powerup</code> runs short interactive lessons with animated demos - the fastest tour of features you don't know exist. <code>/doctor</code> is a full setup checkup that diagnoses installation, PATH, and config problems and can fix them.</div>
+
+  <h3>Terminal setup</h3>
+  <p>VS Code intercepts some keys that Claude Code needs. Fix in VS Code's <code>keybindings.json</code>:</p>
+  <div class="table-scroll"><table>
+    <tr><th>Key</th><th>Fix</th><th>Why</th></tr>
+    <tr><td><kbd>Escape</kbd></td><td>Send <code>\x1b</code></td><td>Escape works in terminal (vim, menus)</td></tr>
+    <tr><td><kbd>Ctrl+B</kbd></td><td>Unbind sidebar toggle</td><td>Frees it for background tasks</td></tr>
+    <tr><td><kbd>Shift+Enter</kbd></td><td>Send <code>\x1b\r</code></td><td>Newline in prompt without submitting</td></tr>
+  </table></div>
+  <p>Claude Code's own keys are also remappable now - <code>~/.claude/keybindings.json</code> supports rebinds and chord shortcuts (ask Claude to set it up; there is a built-in skill for it).</p>
+
+  <p>Shell aliases save typing:</p>
+  <pre><code><span class="c"># ~/.bashrc</span>
+alias kachayt='claude --dangerously-skip-permissions'
+alias kachaytr='claude --dangerously-skip-permissions --resume'</code></pre>
+  <div class="warn-box"><span class="lbl">Before you adopt these</span>
+  Both aliases skip every permission prompt. Read <a href="#permissions">&sect; 08</a> first, and keep them for worktrees and disposable environments - not your main checkout.</div>
+
+  <h3><a href="https://ghostty.org/" target="_blank">Ghostty</a> - standalone terminal <span style="color: var(--dim); font-weight: 400; font-size: 0.85em;">(macOS / Linux)</span></h3>
+  <p>When you're ready to graduate from the VS Code terminal, Ghostty is the current pick: GPU-accelerated (no lag on long transcripts), native splits (<kbd>Cmd+D</kbd> / <kbd>Cmd+Shift+D</kbd>), working desktop notifications when an agent finishes. Still no official Windows build - community ports exist (<a href="https://github.com/WolftacDigital/ghostty-windows" target="_blank">ghostty-windows</a>, <a href="https://noctty.com/" target="_blank">Noctty</a>), or Windows Terminal panes (<kbd>Alt+Shift+D</kbd>) cover the split-screen part.</p>
+  <figure>
+    <img src="{{IMG:ghostty-split.png}}" alt="Ghostty with a 2x2 split running four Claude Code and Codex sessions in parallel">
+    <figcaption>Four agents, one screen. Splits pair perfectly with <a href="#worktrees">git worktrees</a> for true parallel work.</figcaption>
+  </figure>
+</details>
+</section>
+
+<!-- ================================ 02 ================================ -->
+<section id="models">
+<details open>
+  <summary class="sec-head"><span class="num">&sect; 02</span><h2>Pick your model</h2></summary>
+
+  <p>The current lineup. Prices are per million tokens (input / output), first-party API rates:</p>
+
+  <div class="table-scroll"><table>
+    <tr><th>Model</th><th>Context</th><th>$ in / out</th><th>Use for</th></tr>
+    <tr><td><strong>Opus 5.5</strong> <code>claude-opus-5-5</code></td><td>1M</td><td>$4 / $20</td><td>Released Sept 22. <strong>The Claude Code default on every plan</strong> (Foundry aside). Cheaper than Opus 5 ($5/$25), and cache reads dropped to 5% of the input price</td></tr>
+    <tr><td><strong>Sonnet 5.5</strong> <code>claude-sonnet-5-5</code></td><td>1M</td><td>$2 / $10</td><td>Released Sept 28. Same price as Sonnet 5, over 30% faster per Anthropic. The cheap, fast daily driver</td></tr>
+    <tr><td><strong>Fable 5.1</strong> <code>claude-fable-5-1</code></td><td>1M</td><td>$10 / $50</td><td>Hardest problems, long-horizon autonomy. The tier above Opus; on some plans it bills to usage credits</td></tr>
+    <tr><td><strong>Haiku 5.5</strong> <code>claude-haiku-5-5</code></td><td>1M</td><td>from $0.10 / $0.50</td><td>Released Oct 7. Cheap subagents, classification, extraction, routing. The lowest price is for shorter prompts; long prompts cost more. Haiku 4.5 is now legacy</td></tr>
+  </table></div>
+
+  <p>Switch mid-session with <code>/model</code>. Useful aliases: <code>opus</code>, <code>sonnet</code>, <code>fable</code>, <code>best</code> (Fable where available, else Opus), and <code>opusplan</code> (Opus in plan mode, Sonnet for execution). On subscription plans the model mostly decides how fast you burn your usage limits rather than a bill - heavier model, faster burn.</p>
+
+  <h3>Effort levels</h3>
+  <p>Effort runs <code>low / medium / high / xhigh / max</code>. <strong>Watch the default:</strong> Opus 5.5 and Sonnet 5.5 start at <code>medium</code>, while most older models start at <code>high</code>. If an old prompt suddenly feels shallower after the upgrade, that's usually why. <code>/effort high</code> or <code>xhigh</code> for architecture and gnarly debugging, <code>low</code> for mechanical edits. Writing <code>ultrathink</code> in a prompt still maxes thinking for a single turn.</p>
+
+  <h3>Fast mode</h3>
+  <p>Toggle with <code>/fast</code>: the same Opus model served up to 2.5x faster - not a smaller model. Supported on Opus 5.5 ($8/$40), Opus 5 and Opus 4.8 ($10/$50). Two gotchas worth knowing before you flip it on:</p>
+  <ul>
+    <li><strong>On subscription plans it bills to usage credits, never to your plan limits</strong> - even when you have plan usage left.</li>
+    <li><strong>Turn it on at the start of a session.</strong> The first enable re-bills the whole conversation context at the uncached fast price, so flipping it on 300K tokens in is expensive.</li>
+  </ul>
+
+  <h3>The advisor tool</h3>
+  <p><code>/advisor opus</code> pairs your main model with a stronger advisor that Claude consults at decision points: before committing to an approach, when an error keeps recurring, before declaring done. The advisor reads the full conversation and returns guidance. The point is economics: <strong>Sonnet doing the routine turns plus Opus at the forks usually costs less than Opus throughout.</strong> The advisor must rank at or above the main model. Experimental, Anthropic API and subscriptions only (not Bedrock/Vertex/Foundry). Turn off with <code>/advisor off</code>.</p>
+
+  <div class="note"><span class="lbl">Codex equivalent</span>
+  Codex now defaults to GPT-6.1 Sol (Sept 30). It has its own <code>/fast</code> (or <code>service_tier = "fast"</code> in <code>config.toml</code>); reasoning depth is <code>model_reasoning_effort</code>.</div>
+</details>
+</section>
+
+<!-- ================================ 03 ================================ -->
+<section id="context">
+<details open>
+  <summary class="sec-head"><span class="num">&sect; 03</span><h2>Know your context</h2></summary>
+
+  <p>Claude degrades well before hitting 100% context. The ~50% rule: if you're past half, start planning a fresh session. First, make context pressure visible - <a href="https://github.com/sirmalloc/ccstatusline" target="_blank">ccstatusline</a>:</p>
+
+  <figure>
+    <img src="{{IMG:nice_status_line.png}}" alt="ccstatusline screenshot showing context %, git branch, session time, token rate, weekly usage">
+    <figcaption>Line 1: context usage, git branch, staged changes. Line 2: session time, cost, throughput, reset timer, weekly usage. Bottom: permission mode.</figcaption>
+  </figure>
+
+  <pre><code>npx -y ccstatusline@latest</code></pre>
+
+  <h3>Diagnose with /context</h3>
+  <figure>
+    <img src="{{IMG:context-breakdown.png}}" alt="/context output showing a grid of used and free tokens plus a breakdown by category: system prompt, system tools, memory files, skills, messages, free space, autocompact buffer">
+    <figcaption><code>/context</code>: used tokens on the left, category breakdown on the right. Use it to see <em>why</em> you're past the ~50% mark - usually system tools, messages, or a file dump.</figcaption>
+  </figure>
+
+  <h3>Context hygiene</h3>
+  <div class="table-scroll"><table>
+    <tr><th>Situation</th><th>Action</th></tr>
+    <tr><td>Switching to unrelated task</td><td><code>/clear</code></td></tr>
+    <tr><td>Continuing related work</td><td><code>/compact</code> (lossy - prefer fresh session)</td></tr>
+    <tr><td>Quick side question</td><td><code>/btw</code> (reuses prompt cache, cheap)</td></tr>
+    <tr><td>Claude went down a wrong path</td><td><kbd>Esc Esc</kbd> or <code>/rewind</code> (aliases <code>/undo</code>, <code>/checkpoint</code>) restores <em>code and conversation together</em>. Its menu can also "Summarize up to here" to compress early context, and it can reach back past a <code>/clear</code></td></tr>
+    <tr><td>Want to try another direction without losing this one</td><td><code>/branch</code> forks the conversation at this point; the original stays in <code>/resume</code></td></tr>
+    <tr><td>Side task would flood your context</td><td><code>/subtask &lt;task&gt;</code> spawns a background subagent that inherits the conversation and returns only its result (&sect; 10)</td></tr>
+    <tr><td>Transcript too noisy to follow</td><td><code>/focus</code> shows only your prompt, a one-line tool summary, and the final answer</td></tr>
+    <tr><td>Context past ~50%</td><td>Start fresh: <code>claude -n "new-task"</code></td></tr>
+  </table></div>
+
+  <figure>
+    <img src="{{IMG:session-decision-table.png}}" alt="Session management decision table: Continue when context is still relevant, Rewind (double-Esc) when Claude went down a wrong path, /compact with hint when mid-task but bloated, /clear for a genuinely new task, Subagent when the next step will generate lots of output you only need the conclusion from">
+    <figcaption>Every turn is a branching point. Default is <em>Continue</em>, but the other four each solve a specific failure mode - pick by situation, not by habit.</figcaption>
+  </figure>
+</details>
+</section>
+
+<!-- ================================ 04 ================================ -->
+<section id="spend">
+<details open>
+  <summary class="sec-head"><span class="num">&sect; 04</span><h2>Know your spend</h2></summary>
+
+  <p>ccstatusline tells you how full your context is <em>right now</em>. <a href="https://github.com/ryoppippi/ccusage" target="_blank">ccusage</a> tells you what you've actually spent - daily, monthly, per session, per project - by reading Claude Code's local JSONL logs. No API calls, no login, pure local analysis.</p>
+
+  <figure>
+    <img src="{{IMG:ccusage-daily.png}}" alt="ccusage daily report: table with Date, Models, Input, Output, Cache Create, Cache Read, Total Tokens, and Cost (USD) columns - showing one day at $99.97 driven by 138M cache-read tokens">
+    <figcaption>Daily report. Cache reads dwarf input/output tokens - that's the <em>why</em> behind a $99 day, and exactly what a billing summary alone never shows.</figcaption>
+  </figure>
+
+  <pre><code><span class="c"># Run without installing</span>
+npx ccusage@latest              <span class="c"># daily report (default)</span>
+npx ccusage monthly             <span class="c"># monthly aggregate</span>
+npx ccusage session             <span class="c"># per conversation</span>
+npx ccusage blocks              <span class="c"># 5-hour billing windows</span>
+npx ccusage daily --breakdown   <span class="c"># per-model cost split</span>
+npx ccusage daily --instances   <span class="c"># group by project</span>
+
+<span class="c"># Codex equivalent</span>
+npx @ccusage/codex@latest</code></pre>
+
+  <h3>Built-in spend visibility</h3>
+  <ul>
+    <li><code>/usage</code> (<code>/cost</code> is now an alias) - session cost, prompt-cache hit ratio and what caused cache misses, and where you stand against plan limits. On Pro/Max/Team/Enterprise it breaks your limit usage down <strong>by skill, subagent, plugin, and MCP server</strong> - the fastest way to find the plugin quietly eating your week. Cache reads cost a tenth of fresh input (less on Opus 5.5), so a cold cache is the classic silent budget killer.</li>
+    <li><code>/insights</code> - generates an HTML report on your recent sessions on this machine: which projects you work in, how you use Claude Code, where things go wrong, and features to try. A free retrospective.</li>
+  </ul>
+
+  <div class="tip"><span class="lbl">Pairing</span>
+  statusline for in-session context pressure, <code>/usage</code> for "why was this session expensive", ccusage for end-of-day "where did my tokens go?", <code>/insights</code> once a month for "how am I actually using this?".</div>
+
+  <div class="lab"><span class="lbl">Lab I &middot; orientation</span>
+  <ol>
+    <li>Run <code>/powerup</code> and finish one lesson on a feature you've never used.</li>
+    <li>Install ccstatusline, then run <code>/context</code> in a real working session. Name your single biggest context consumer.</li>
+    <li>Open <code>/usage</code> and find which skill, plugin, or MCP server costs you the most. Then run <code>npx ccusage@latest</code> and explain your most expensive day this month.</li>
+  </ol></div>
+</details>
+</section>
+
+<!-- ================================ 05 ================================ -->
+<section id="setup">
+<details open>
+  <summary class="sec-head"><span class="num">&sect; 05</span><h2>Project setup &amp; self-improvement</h2></summary>
+
+  <h3>.claude/ directory structure</h3>
+  <pre><code>.claude/
+  settings.json          <span class="c"># team settings (committed)</span>
+  settings.local.json    <span class="c"># personal overrides (gitignored)</span>
+  hooks/                 <span class="c"># lifecycle scripts</span>
+  skills/                <span class="c"># reusable workflows</span>
+  agents/                <span class="c"># specialized subagent definitions</span>
+  rules/                 <span class="c"># path-specific instructions</span></code></pre>
+
+  <h3>CLAUDE.md / AGENTS.md</h3>
+  <p>Project-level instructions Claude reads every conversation. Keep under ~200 lines. Include what Claude can't guess: build commands, architecture constraints, conventions.</p>
+  <p><strong>Codex equivalent:</strong> <code>AGENTS.md</code> - same role, same location. Since v2.1.277, <strong>Claude Code reads <code>AGENTS.md</code> natively</strong>, so a team using both tools can keep one file. The rule to know:</p>
+  <div class="table-scroll"><table>
+    <tr><th>Your repo has</th><th>Claude Code reads</th></tr>
+    <tr><td><code>AGENTS.md</code> only</td><td><code>AGENTS.md</code> - nothing else to set up</td></tr>
+    <tr><td><code>AGENTS.md</code> and a <code>CLAUDE.md</code> (or <code>CLAUDE.local.md</code>)</td><td><strong>Only the <code>CLAUDE.md</code> files</strong> - <code>AGENTS.md</code> is silently skipped</td></tr>
+    <tr><td>A <code>CLAUDE.md</code> containing <code>@AGENTS.md</code></td><td>Both, through the import</td></tr>
+  </table></div>
+  <p>The trap is row two: adding a personal <code>CLAUDE.local.md</code> to an <code>AGENTS.md</code> repo switches <code>AGENTS.md</code> off. Fix it with <code>/config</code> &rarr; <strong>Project instructions</strong> &rarr; <code>claude-md-and-agents-md</code>. Simplest setup for mixed teams: one shared <code>AGENTS.md</code>, plus a <code>CLAUDE.md</code> that's just <code>@AGENTS.md</code> plus any Claude-only extras.</p>
+  <p>Moving from Codex? <code>/import codex</code> brings your Codex instruction files, MCP servers, commands, subagents, and skills into Claude Code (<code>--dry-run</code> to preview). It also takes <code>gemini</code> and <code>cursor</code>.</p>
+
+  <h3>Bootstrapping with /init</h3>
+  <p>Don't write CLAUDE.md from scratch. Run <code>/init</code> and Claude scans the codebase - structure, languages, build commands - and generates a first draft. Edit it down to what's non-obvious. Then audit it periodically with the <strong>claude-md-management</strong> plugin's <code>/claude-md-improver</code>.</p>
+
+  <h3>Settings hierarchy</h3>
+  <p><code>~/.claude/settings.json</code> (global) &lt; <code>.claude/settings.json</code> (project) &lt; <code>.claude/settings.local.json</code> (personal). Managed/enterprise settings, where present, override all three.</p>
+
+  <h3>Memory</h3>
+  <p>Built-in memory lives at <code>~/.claude/projects/&lt;project&gt;/memory/</code> as flat markdown files - persists across conversations, no re-explaining preferences. For more structure, <a href="https://github.com/MemPalace/mempalace" target="_blank">MemPalace</a> offers a local-first knowledge graph (verbatim storage, temporal validity, auto-save before compaction). But see the counterpoint in <a href="#rules">&sect; 06</a>: repo files beat opaque memory for anything a team should see.</p>
+
+  <h3>The meta-improvement loop</h3>
+  <ul>
+    <li>"What workflow improvements would you suggest?"</li>
+    <li>"Review my CLAUDE.md - what's missing?"</li>
+    <li>"What should I automate with hooks or skills?"</li>
+    <li>The <code>/claude-automation-recommender</code> skill (claude-code-setup plugin) does this scan automatically.</li>
+    <li><code>/team-onboarding</code> turns your last 30 days of sessions, commands, and MCP usage into a markdown guide a teammate can paste in - your setup, transferable.</li>
+    <li><code>/fewer-permission-prompts</code> scans your transcripts for read-only commands you keep approving and drafts an allowlist for <code>.claude/settings.json</code>.</li>
+  </ul>
+
+  <p class="file-ref">CLAUDE.md at the repo root - a real example of global instructions</p>
+</details>
+</section>
+
+<!-- ================================ 06 ================================ -->
+<section id="rules">
+<details open>
+  <summary class="sec-head"><span class="num">&sect; 06</span><h2>CLAUDE.md rules that earn their keep</h2></summary>
+
+  <h3>Karpathy's four</h3>
+  <p>From <a href="https://github.com/forrestchang/andrej-karpathy-skills" target="_blank">andrej-karpathy-skills</a> - a CLAUDE.md distilled from Andrej Karpathy's observations about LLM coding pitfalls:</p>
+  <div class="table-scroll"><table>
+    <tr><th>Rule</th><th>In practice</th></tr>
+    <tr><td><strong>Think before coding</strong></td><td>State assumptions explicitly. If multiple interpretations exist, present them - don't pick silently.</td></tr>
+    <tr><td><strong>Simplicity first</strong></td><td>Minimum code that solves the problem. No abstractions for single-use code. 200 lines that could be 50? Rewrite.</td></tr>
+    <tr><td><strong>Surgical changes</strong></td><td>Touch only what you must. Don't "improve" adjacent code. Every changed line traces to the request.</td></tr>
+    <tr><td><strong>Goal-driven execution</strong></td><td>"Fix the bug" &rarr; "write a test that reproduces it, then make it pass." Verifiable goals let Claude loop autonomously and stop when <em>done</em>, not when it thinks it's done.</td></tr>
+  </table></div>
+
+  <h3>Fighting the model's biases</h3>
+  <p>LLMs have systematic failure modes, and CLAUDE.md is where you install the counters. These lines run in every one of our sessions:</p>
+  <div class="table-scroll"><table>
+    <tr><th>Failure mode</th><th>Counter-rule (paste-ready)</th></tr>
+    <tr><td><strong>Sycophancy</strong> - tells you what you want to hear</td><td>"Be brutally honest. No sugar-coating, no filler praise. When I ask 'is this good?', give a real critique, not validation."</td></tr>
+    <tr><td><strong>Confident hallucination</strong></td><td>"For any factual claim (dates, statistics, API details, library behavior), web search first rather than relying on training data. Hallucinating is worse than taking 5 extra seconds."</td></tr>
+    <tr><td><strong>Hidden uncertainty</strong></td><td>"When unsure about something, say so explicitly rather than guessing confidently."</td></tr>
+    <tr><td><strong>LLM-ese prose</strong></td><td>"Write like a human. No em dashes, no curly quotes, no flowery vocabulary. Keep it plain."</td></tr>
+    <tr><td><strong>Silent assumptions</strong></td><td>Karpathy's "think before coding" above: state assumptions, present competing interpretations, stop and ask when unclear.</td></tr>
+    <tr><td><strong>Self-review bias</strong> - invested in its own code</td><td>Review in a fresh session, never the one that wrote it (<a href="#workflows">&sect; 14</a>).</td></tr>
+  </table></div>
+  <div class="tip"><span class="lbl">Proof it works - and where it stops</span>
+  Search-first catches the confident wrong claim, like a "Codex has no fast mode" line that reads fine and is flat wrong. It has a blind spot, though: <strong>a reference doc can pass a claim-by-claim fact check and still miss whole features that shipped months ago</strong>. Verifying what you wrote never finds what you left out. To find omissions, make the agent read the source's own index (the changelog, the docs' "What's new" digests) instead of re-checking its draft.</div>
+
+  <h3>Give the agent a memory the team can read</h3>
+  <p>Built-in auto-memory (<a href="#setup">&sect; 05</a>) is opaque: not reviewable, not versioned, not shared. Our global CLAUDE.md bans it outright and routes all persistence into four repo files:</p>
+  <div class="table-scroll"><table>
+    <tr><th>File</th><th>What goes in</th></tr>
+    <tr><td><code>_learnings/</code></td><td>One markdown file per lesson (<code>YYYY-MM-DD-HHMM_slug.md</code>), shaped <strong>Symptom / Cause / Consequences</strong>, with the command output or measurement pasted in as evidence. Record disproven theories too - they stop the same wrong guess being made twice.</td></tr>
+    <tr><td><code>_work_sessions/</code></td><td>One TOML per session: <code>done</code>, <code>pending</code>, <code>next</code>, files touched, commits. Any future session can pick up exactly where this one stopped.</td></tr>
+    <tr><td><code>CONVENTIONS.md</code></td><td>A recurring decision, codified the <em>second</em> time it gets made.</td></tr>
+    <tr><td><code>DEFERRED_TODO.md</code></td><td>Topics cut from current work, parked so they don't get lost.</td></tr>
+  </table></div>
+  <p>The loop that makes it work: at session <strong>start</strong>, the agent skims the last 2-3 session logs and any learnings relevant to what it's about to touch; at session <strong>end</strong>, it writes the new entries. Continuity across sessions and across teammates - <code>git log</code> is the audit trail.</p>
+
+  <h3>Rules learned the hard way</h3>
+  <p>Each of these entered our global CLAUDE.md after a real incident. Steal freely - the incident tax has been paid:</p>
+
+  <div class="rules-grid">
+    <div class="rule-card"><b>Fail loudly, never silently</b>
+      <p>No silent fallbacks, no "if error return empty". Crash or raise AND log at ERROR. An agent that swallows errors produces code that swallows errors.</p></div>
+    <div class="rule-card"><b>Pin exact dependency versions</b>
+      <p><code>==</code>, never <code>&gt;=</code>. Pin what was actually installed and verified, so a fresh install months later reproduces the tested environment instead of pulling a breaking major.</p></div>
+    <div class="rule-card"><b>Technology choices are the human's</b>
+      <p>Framework, database, model - the agent presents 2-4 options with trade-offs and a recommendation, then STOPS. A recommendation is not permission. Watch for the failure mode: burying the big decision as a premise inside questions about small ones ("should this Streamlit UI be for debugging or demos?").</p></div>
+    <div class="rule-card"><b>Critical changes: confirm exact scope</b>
+      <p>For security, gating logic, or anything hard to reverse: restate exactly which files change and wait for a yes on that list. Partial endorsement is partial - "I like part b" approves part b only.</p></div>
+    <div class="rule-card"><b>Destructive command guards</b>
+      <p>Never a wildcard next to an unguarded variable: <code>rm -f "$DIR"/*.png</code> becomes <code>rm -f /*.png</code> when <code>$DIR</code> is empty. Prefer writing to a fresh subdirectory over deleting at all. (Auto mode now asks before <code>rm -rf</code> on unresolved variables - the tool caught up with the rule. Keep the rule anyway; not every session runs auto mode.)</p></div>
+    <div class="rule-card"><b>Fan-outs need permission</b>
+      <p>Multi-agent reviews and parallel workers drain quota fast (one "medium" review = 11 subagents). Rule: state agent count and expected token cost, ask first. "Quick" always means zero subagents.</p></div>
+    <div class="rule-card"><b>Paid API spend thresholds</b>
+      <p>Below ~$0.25 just run it; above, estimate first and ask. Anything scaling with a collection gets estimated as n &times; cost BEFORE the first call. Always report actual spend after - estimates drift.</p></div>
+    <div class="rule-card"><b>Write decisions down as they happen</b>
+      <p><code>DECISIONS.md</code>: the decision, the why (with the measurement), alternatives rejected, and what observation would trigger a revisit. Recorded in the same commit as the code - never reconstructed later.</p></div>
+    <div class="rule-card"><b>Keep the load-bearing path uncluttered</b>
+      <p>Three tiers for scripts: top level (needed to run the project), <code>non_essential/</code> (dev/QA tooling, still works), <code>archive/</code> (finished one-offs, kept as record). Each folder gets a README explaining every script.</p></div>
+  </div>
+
+  <div class="tip"><span class="lbl">The meta-pattern</span>
+  After any corrected mistake, ask the agent: "update CLAUDE.md so this doesn't happen again." Rules written from real incidents beat rules written from imagination - and the file becomes a changelog of everything that ever went wrong once.</div>
+</details>
+</section>
+
+<!-- ================================ 07 ================================ -->
+<section id="hooks">
+<details open>
+  <summary class="sec-head"><span class="num">&sect; 07</span><h2>Hooks - automating safety &amp; workflows</h2></summary>
+
+  <p>Settings hooks are shell commands (or HTTP requests, or prompts) triggered by Claude Code lifecycle events, defined in <code>settings.json</code>. A prompt-based <strong>Stop</strong> hook - a small model judging "is this really done?" after each turn - is exactly what <code>/goal</code> is built on (&sect; 14).</p>
+
+  <div class="table-scroll"><table>
+    <tr><th>Event</th><th>Use for</th><th>Example</th></tr>
+    <tr><td><strong>PreToolUse</strong></td><td>Block dangerous actions</td><td>Block <code>git push</code>, secret file edits</td></tr>
+    <tr><td><strong>PostToolUse</strong></td><td>Auto-run after edits</td><td>Lint, format, upload configs</td></tr>
+    <tr><td><strong>SessionStart</strong></td><td>Orientation briefing</td><td>Git status, open PRs, reminders</td></tr>
+    <tr><td><strong>PostCompact</strong></td><td>Context recovery</td><td>Re-inject critical rules after compaction</td></tr>
+    <tr><td><strong>Notification</strong></td><td>Alert the user</td><td>Windows/macOS toast</td></tr>
+    <tr><td><strong>Pre/PostModelSwitch</strong></td><td>Model governance</td><td>Block or annotate switches to pricier models</td></tr>
+  </table></div>
+
+  <h3>Hook config pattern</h3>
+  <pre><code>{
+  "hooks": {
+    "PreToolUse": [{
+      "matcher": "Bash",
+      "hooks": [{ "type": "command", "command": "bash .claude/hooks/guard-push.sh" }]
+    }]
+  }
+}</code></pre>
+
+  <p class="file-ref">hooks/ - 5 ready-to-use hook scripts</p>
+
+  <p>Need more than a script on an event - a pane, an instant command, or taking an event over entirely? That's a mod: <a href="#mods">&sect; 12</a>.</p>
+</details>
+</section>
+
+<!-- ================================ 08 ================================ -->
+<section id="permissions">
+<details open>
+  <summary class="sec-head"><span class="num">&sect; 08</span><h2>Permissions &amp; safety</h2></summary>
+
+  <img class="img-center" src="{{IMG:wheres-my-database.png}}" alt="Meme: stunned developer asking 'where's my database' after agent ran terraform destroy and wiped production infrastructure" style="width: 100%; max-width: 400px; border-radius: 8px; border: 1px solid var(--line);">
+
+  <p>The spectrum runs from babysitting every action to trusting Claude entirely. Pick the mode that matches your task risk - cycle with <kbd>Shift+Tab</kbd>.</p>
+
+  <div class="table-scroll"><table>
+    <tr><th>Mode</th><th>Behavior</th></tr>
+    <tr><td><strong>Plan</strong></td><td>Read-only: Claude explores and proposes a plan, touches nothing until you approve</td></tr>
+    <tr><td><strong>Manual</strong></td><td>Prompts before every file write and shell command</td></tr>
+    <tr><td><strong>Accept edits</strong></td><td>Edits auto-approved; shell commands still prompt (and files that can run code still prompt)</td></tr>
+    <tr><td><strong>Auto mode</strong></td><td>A classifier makes permission decisions in the background. <strong>The default for new sessions on Pro, Max, and Team since August 14</strong>, so most attendees are already in it. Blocks destructive git commands you didn't ask for, asks before <code>rm -rf</code> on unresolved variables. Rules are viewable in the <code>/permissions</code> Auto tab; <code>/auto-mode-setup</code> drafts environment entries from your project</td></tr>
+    <tr><td><strong>Skip permissions</strong></td><td><code>claude --dangerously-skip-permissions</code>: no prompts, no safeguards. Only in disposable environments or worktrees</td></tr>
+  </table></div>
+
+  <h3>Sandboxed bash</h3>
+  <p>Claude Code now has OS-enforced sandboxing of its own: <code>/sandbox</code> runs shell commands inside an OS boundary (Seatbelt on macOS, bubblewrap on Linux; on Windows use WSL2 - native isn't supported). Filesystem access is limited to allowed paths, network to allowlisted domains, and the boundary covers child processes too. The payoff: permission prompts reserve themselves for actions that genuinely try to escape the sandbox, so you get fewer interruptions <em>and</em> a harder wall. Details: <a href="https://code.claude.com/docs/en/sandboxing" target="_blank">code.claude.com/docs/en/sandboxing</a>.</p>
+
+  <h3>Codex equivalents</h3>
+  <p>Codex splits the same spectrum across two axes - <code>approval_policy</code> (when to ask) and <code>sandbox_mode</code> (what's allowed without asking). Set in <code>~/.codex/config.toml</code>, per-profile, or via <code>-a</code> / <code>-s</code> flags. Note: the old <code>--full-auto</code> convenience flag is deprecated in favor of explicit combinations.</p>
+  <div class="table-scroll"><table>
+    <tr><th>Claude Code</th><th>Codex</th><th>Notes</th></tr>
+    <tr><td>Manual (prompt on everything)</td><td><code>-a untrusted</code></td><td>Ask before every command</td></tr>
+    <tr><td>Accept edits / auto mode</td><td><code>-a on-request -s workspace-write</code></td><td>Codex asks only to escape the sandbox; this pair replaces <code>--full-auto</code></td></tr>
+    <tr><td><code>--dangerously-skip-permissions</code></td><td><code>--yolo</code> (alias for <code>--dangerously-bypass-approvals-and-sandbox</code>)</td><td>No approvals, no OS sandbox (Seatbelt/Landlock off). Only inside containers or throwaway VMs</td></tr>
+  </table></div>
+
+  <h3>Rules that match tool parameters</h3>
+  <p>Deny and ask rules can match a tool's arguments, not just its name: <code>Tool(param:value)</code>. Example: deny <code>Agent(model:opus)</code> to stop subagents from quietly running on the expensive model. Auto mode also supports hard deny rules that block unconditionally, whatever allow exceptions exist.</p>
+
+  <h3>Hook-level guardrails</h3>
+  <p>Even in skip-permissions mode, PreToolUse hooks still fire. Use them for actions that should <em>never</em> happen, regardless of mode:</p>
+  <ul>
+    <li><code>guard-push.sh</code> - blocks <code>git push</code> (forces a manual push)</li>
+    <li><code>gmail-readonly.sh</code> - blocks Gmail writes</li>
+    <li>Pattern: match dangerous shapes (<code>rm -rf /</code>, <code>drop table</code>, credential files), exit non-zero to cancel</li>
+  </ul>
+
+  <div class="note"><span class="lbl">Rule of thumb</span>
+  Plan mode to scope, auto mode + sandbox for daily work, skip-permissions only inside worktrees or sandboxes - and hooks underneath for the never-events, regardless of mode. Remember that installed mods (<a href="#mods">&sect; 12</a>) sit outside all of this: they can approve what your rules would block.</div>
+
+  <p class="file-ref">hooks/guard-push.sh, hooks/gmail-readonly.sh</p>
+
+  <div class="lab"><span class="lbl">Lab II &middot; configuration</span>
+  <ol>
+    <li>Write a PreToolUse hook that blocks <code>git push</code> (steal <code>hooks/guard-push.sh</code> from the repo).</li>
+    <li>In a scratch repo, verify it still fires under <code>--dangerously-skip-permissions</code>. That's the point.</li>
+    <li>Add one hard-won rule to your own CLAUDE.md - ideally from the last time an agent bit you.</li>
+  </ol></div>
+</details>
+</section>
+
+<!-- ================================ 09 ================================ -->
+<section id="skills">
+<details open>
+  <summary class="sec-head"><span class="num">&sect; 09</span><h2>Skills - reusable workflows as code</h2></summary>
+
+  <p>Markdown files in <code>.claude/skills/</code>. Invoked with <code>/skill-name</code> or auto-triggered by description match. Now an open standard (<a href="https://agentskills.io" target="_blank">agentskills.io</a>) adopted beyond Claude.</p>
+
+  <h3>Skill anatomy</h3>
+  <pre><code>---
+name: ci-status
+description: "Check GitHub Actions workflow status"
+argument-hint: "[repo] [run-id]"
+---
+
+<span class="c"># CI Status Check</span>
+<span class="c">## Steps</span>
+1. Detect repo...
+2. List recent runs...
+3. Show failures...</code></pre>
+
+  <h3>When to build one</h3>
+  <p>You've done something 3+ times. Ask: <em>"Take what we just did and create a reusable skill."</em> Browse <a href="https://github.com/anthropics/skills" target="_blank">Anthropic's official skills</a>, <a href="https://github.com/K-Dense-AI/scientific-agent-skills" target="_blank">133 scientific skills</a>, or the <a href="https://github.com/rohitg00/awesome-claude-code-toolkit" target="_blank">Awesome Claude Code Toolkit</a> for inspiration.</p>
+
+  <h3>Bundled skills you already have</h3>
+  <p>Several built-in commands are skills shipped with Claude Code: <code>/batch</code> (split one large change into 5-30 worktree-isolated subagents, &sect; 15), <code>/verify</code> and <code>/run</code> (build and drive your app to see the change working, &sect; 14), <code>/loop</code>, <code>/doctor</code>, <code>/fewer-permission-prompts</code>. Skills also chain: <code>/skill-a /skill-b do X</code> loads both and passes the text to each (up to six). After editing a skill mid-session, <code>/reload-skills</code> picks it up.</p>
+
+  <h3>Keep the skill library honest</h3>
+  <ul>
+    <li><code>/skill-doctor</code> - reports unused skills and what each costs you in context. Every installed skill's description rides along in every session; prune what you don't use.</li>
+    <li><code>claude plugin eval</code> - runs your plugin against test cases, scores the results, and <strong>compares against a no-plugin baseline</strong> - so you learn whether the skill helps at all, not just whether it runs. <code>claude plugin eval init</code> drafts the cases and graders for you. Skills are prompts, and prompts regress.</li>
+  </ul>
+
+  <p class="file-ref">skills/ - 6 example skills (morning, ci-status, deploy-watch, literature-review, ...)</p>
+</details>
+</section>
+
+<!-- ================================ 10 ================================ -->
+<section id="agents">
+<details open>
+  <summary class="sec-head"><span class="num">&sect; 10</span><h2>Running agents in parallel</h2></summary>
+
+  <p>Claude Code now has five distinct ways to run several agents at once. They differ in <strong>who coordinates</strong> and <strong>where the work runs</strong>:</p>
+  <div class="table-scroll"><table>
+    <tr><th>Approach</th><th>Who coordinates</th><th>Runs</th><th>Use it when</th></tr>
+    <tr><td><strong>Subagents</strong></td><td>Claude, inside one session</td><td>Local</td><td>A side task would flood your context with output you only need the conclusion of</td></tr>
+    <tr><td><strong>Agent view</strong> <code>claude agents</code></td><td>You dispatch, it tracks</td><td>Local, background</td><td>Several independent tasks: hand them off, glance at status, step in only when one needs you</td></tr>
+    <tr><td><strong>Agent teams</strong></td><td>A lead session supervising peers</td><td>Local</td><td>Workers need to talk to each other and share a task list. Experimental, opt-in</td></tr>
+    <tr><td><strong>Dynamic workflows</strong></td><td>A script Claude writes</td><td>Local, background</td><td>Dozens to hundreds of agents with cross-checked results: audits, big migrations, verified research</td></tr>
+    <tr><td><strong>Projects</strong></td><td>Claude, across days</td><td>Cloud (or your machine via Remote Control)</td><td>A stream of related tasks over weeks that should keep running with your laptop closed (&sect; 16)</td></tr>
+  </table></div>
+  <p>Two helpers support all of them: <strong>worktrees</strong> (&sect; 15) keep parallel edits from colliding, and <strong>cross-session messaging</strong> (below) lets your sessions pass findings to each other.</p>
+
+  <h3>Subagents: the context argument</h3>
+  <div class="note"><span class="lbl">Key insight</span>
+  Main session orchestrates. Subagents do heavy lifting. Main context stays clean - it holds conclusions, not workloads.</div>
+
+  <figure>
+    <img src="{{IMG:subagent-context.png}}" alt="Parent and subagent context diagram: parent spawns Task('explore auth/'), subagent burns 20 file reads, 12 greps, 3 dead ends in its own context, and only the final report ('uses JWT, middleware in auth.ts:40') returns to the parent - exploration noise is garbage-collected when the subagent exits">
+    <figcaption>Mental test before delegating: <em>will I need the intermediate tool output again, or just the conclusion?</em> If only the conclusion, spawn a subagent - the 20 file reads and 12 greps vanish when it exits.</figcaption>
+  </figure>
+
+  <p>Custom agents are <code>.claude/agents/*.md</code> files - focused instructions, restricted tools, their own context window. Drop in <code>reviewer.md</code> and Claude auto-delegates matching tasks. Two newer defaults: <strong>subagents run in the background</strong> so Claude keeps working while they do, and <code>/subtask &lt;task&gt;</code> spawns a <em>forked</em> subagent that inherits your whole conversation instead of starting cold.</p>
+
+  <h3>Agent view - a dashboard for background sessions</h3>
+  <p><code>claude agents</code> opens one screen listing every session: what's working, what's blocked on you, what's done, which PRs are ready for review. You dispatch work and check back instead of babysitting terminals. Research preview.</p>
+  <pre><code>claude --bg --name flaky-test-fix "investigate the flaky SettingsChangeDetector test"   <span class="c"># dispatch from your shell</span>
+claude --agent code-reviewer --bg "address review comments on PR 1234"
+claude agents                    <span class="c"># the dashboard: Space peeks, Enter attaches</span>
+claude attach flaky-test-fix     <span class="c"># open one session in this terminal</span>
+claude logs flaky-test-fix       <span class="c"># or just print its recent output</span></code></pre>
+  <p>From inside a session: <code>/background</code> (or <kbd>&larr;</kbd> on an empty prompt) detaches the current session and frees the terminal; <code>/fork</code> copies the conversation into a new background session while you keep working. Dispatched sessions move into their own worktree before editing files, so they don't collide. Filters in the dashboard: <code>s:blocked</code>, <code>a:reviewer</code>, <code>#1234</code>, <code>n:auth</code>.</p>
+
+  <h3>Cross-session messaging</h3>
+  <p>Your sessions can now message each other, on macOS, Linux, and (since v2.1.234) native Windows. Type <code>@</code> and a session's name in your prompt - "let <code>@api-worker</code> know the schema migration finished" - and Claude writes and delivers the message. Claude also sends messages on its own when it notices one session's change breaks another's work. <code>/list-agents</code> (alias <code>/peers</code>) shows who's reachable. Safety rails: an incoming message can never approve a permission prompt or change config, and commands inside it arrive as plain text.</p>
+
+  <h3>Agent teams</h3>
+  <p>Subagents report to a parent and stop. <strong>Agent teams</strong> are peers: a lead session, a shared task list, and teammates messaging each other directly. <strong>Experimental and off by default</strong> - opt in with an env var:</p>
+  <pre><code><span class="c">// ~/.claude/settings.json</span>
+{ "env": { "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1" } }</code></pre>
+  <p>Then ask in plain language: <em>"Spawn three teammates to review PR #142: one on security, one on performance, one on test coverage."</em> Where teams beat subagents: <strong>competing hypotheses</strong> (teammates actively try to disprove each other's theory of a bug, which fights anchoring) and <strong>cross-layer work</strong> where frontend, backend, and tests each have an owner. Start with 3-5 teammates and partition files so two never edit the same one - teams don't get worktrees. Split panes need tmux or iTerm2 (not Windows Terminal, VS Code, or Ghostty). Caveat once enabled: when Claude names a subagent it launches as a teammate, so teams can form uninvited.</p>
+
+  <h3>Dynamic workflows</h3>
+  <p>When the fan-out should be <em>deterministic</em>, Claude writes a JavaScript script that a runtime executes in the background: spawn N finders, pipeline each finding into an adversarial verifier, return only what survives. Intermediate results live in script variables, not your context. Three ways in:</p>
+  <ul>
+    <li><strong>Per task</strong>: put <code>ultracode</code> in your prompt, or just say "use a workflow". <code>ultracode: audit every route under src/routes/ for missing auth checks</code></li>
+    <li><strong>Bundled</strong>: <code>/deep-research &lt;question&gt;</code> fans out searches, cross-checks sources, votes on each claim, and returns a cited report.</li>
+    <li><strong>Whole session</strong>: <code>/effort ultracode</code> makes Claude plan a workflow for every substantive task. Powerful and expensive - turn it off with <code>/effort ultracode off</code>.</li>
+  </ul>
+  <p>Watch, pause (<kbd>p</kbd>), and stop (<kbd>x</kbd>) runs in <code>/workflows</code>; press <kbd>s</kbd> to save a good run as a reusable <code>/command</code>. Guard rails: a size guideline (default under 10 agents, under 5 on Pro; set via <code>/config</code>), a "Large workflow" warning past 25 agents or 1.5M projected tokens, and a hard cap of 1,000 agents per run.</p>
+
+  <h3>Recurring &amp; scheduled work</h3>
+  <div class="table-scroll"><table>
+    <tr><th>Tool</th><th>Next run starts when</th><th>Runs</th></tr>
+    <tr><td><code>/goal &lt;condition&gt;</code></td><td>The previous turn ends, until a separate model judges the condition met (&sect; 14)</td><td>This session</td></tr>
+    <tr><td><code>/loop 5m /ci-status</code></td><td>An interval passes; omit it and the model paces itself</td><td>This session</td></tr>
+    <tr><td><code>/schedule</code></td><td>A cron schedule, GitHub event, or API call fires a "routine"</td><td>Cloud - no machine needed</td></tr>
+  </table></div>
+
+  <div class="warn-box"><span class="lbl">Cost gravity</span>
+  Every pattern in this section multiplies tokens. Our global CLAUDE.md requires the agent to state agent-count and estimated cost before any fan-out - one unnoticed "medium" review once spawned 11 subagents and drained a session's usage limit. Default to inline, single-agent work; fan out deliberately.</div>
+</details>
+</section>
+
+<!-- ================================ 11 ================================ -->
+<section id="plugins">
+<details open>
+  <summary class="sec-head"><span class="num">&sect; 11</span><h2>Plugins &amp; MCPs</h2></summary>
+
+  <h3>Built-in reviewers (zero install)</h3>
+  <div class="table-scroll"><table>
+    <tr><th>Command</th><th>What it does</th></tr>
+    <tr><td><code>/code-review</code></td><td>Reviews the current diff, a PR number, or a branch, as a background subagent. Effort levels <code>low</code>-<code>max</code> scale coverage; <code>--fix</code> applies findings; <code>--max-findings 5</code> keeps the report short. <strong>Careful:</strong> medium+ fans out multiple finder/verifier agents</td></tr>
+    <tr><td><code>/code-review ultra</code> (alias <code>/ultrareview</code>)</td><td>Multi-agent <em>cloud</em> review of the branch or a PR - the heavyweight pre-merge gate, billed accordingly. <code>claude ultrareview</code> runs it from CI and scripts</td></tr>
+    <tr><td><code>/simplify</code></td><td>Reviews changed code for reuse, simplification, efficiency - then applies the cleanups</td></tr>
+    <tr><td><code>/security-review</code></td><td>Security pass over the pending changes on the branch</td></tr>
+    <tr><td><code>/autofix-pr</code></td><td>Starts a cloud session that watches your PR and pushes fixes when CI fails or reviewers comment</td></tr>
+  </table></div>
+  <p>Two security plugins go further: <strong>security-guidance</strong> reviews Claude's changes for vulnerabilities <em>as it writes them</em>, and <strong>Claude Security</strong> runs a multi-agent vulnerability scan of the whole codebase and turns the findings you pick into patches you apply yourself.</p>
+
+  <h3><a href="https://github.com/obra/superpowers" target="_blank">Superpowers</a> - structured development</h3>
+  <div class="note"><span class="lbl">Install this first</span>
+  If you install one plugin from this workshop, make it Superpowers. It turns Claude Code from a fast typist into a disciplined engineer.</div>
+  <p>Enforced workflow that prevents the "just start coding" failure mode: <strong>brainstorm &rarr; plan &rarr; TDD &rarr; verify</strong>, each phase a skill:</p>
+  <div class="table-scroll"><table>
+    <tr><th>Skill</th><th>When</th></tr>
+    <tr><td><code>/superpowers:brainstorming</code></td><td>Before any creative work - intent, requirements, design</td></tr>
+    <tr><td><code>/superpowers:writing-plans</code> &rarr; <code>:executing-plans</code></td><td>Spec to step-by-step plan in one session; execute in a fresh one</td></tr>
+    <tr><td><code>/superpowers:test-driven-development</code></td><td>Any feature or bugfix - failing test first</td></tr>
+    <tr><td><code>/superpowers:systematic-debugging</code></td><td>Any bug - root-cause analysis before fixes</td></tr>
+    <tr><td><code>/superpowers:verification-before-completion</code></td><td>Before claiming "done" - evidence before assertions</td></tr>
+  </table></div>
+  <pre><code>/plugin install superpowers@claude-plugins-official</code></pre>
+
+  <h3>Worth knowing</h3>
+  <ul>
+    <li><strong>Explanatory output style</strong> - inline educational insights as Claude works; great for onboarding, costs extra output tokens. <code>/plugin install explanatory-output-style@claude-plugins-official</code></li>
+    <li><strong><a href="https://github.com/JuliusBrussee/caveman" target="_blank">Caveman</a></strong> - telegraphic output compression, ~65% fewer output tokens (<code>/caveman lite|full|ultra</code>) when you want terse sessions.</li>
+    <li><strong>Playwright MCP</strong> - browser automation: screenshots, form filling, E2E checks, and a fallback when web-fetch tools garble a JS-rendered page.</li>
+  </ul>
+
+  <h3>Must-install extensions</h3>
+  <div class="table-scroll"><table>
+    <tr><th>Extension</th><th>Why</th><th>Install</th></tr>
+    <tr><td><a href="https://github.com/upstash/context7" target="_blank"><strong>Context7</strong></a> (MCP)</td><td>Live library docs - kills hallucinated APIs. Highest-ROI MCP for any developer</td><td><code>claude mcp add context7 -- npx -y @upstash/context7-mcp@latest</code></td></tr>
+    <tr><td><strong>GitHub app</strong></td><td><code>@claude</code> in issues/PRs, auto PR reviews</td><td><code>/install-github-app</code></td></tr>
+    <tr><td><strong>claude-code-setup</strong></td><td>Scans your repo, suggests hooks/skills/MCPs</td><td><code>/plugin install claude-code-setup</code></td></tr>
+    <tr><td><strong>claude-md-management</strong></td><td>Audits CLAUDE.md for gaps and redundancies</td><td><code>/plugin install claude-md-management</code></td></tr>
+  </table></div>
+
+  <p>MCP servers are lazy-loaded via tool search now - hundreds of tools available without context bloat. Once Context7 is in, say "use context7" when touching unfamiliar libraries - passive accuracy boost, no per-turn cost.</p>
+</details>
+</section>
+
+<!-- ================================ 12 ================================ -->
+<section id="mods">
+<details open>
+  <summary class="sec-head"><span class="num">&sect; 12</span><h2>Mods - your own code inside Claude Code</h2></summary>
+
+  <p>A mod is a plugin of JavaScript or TypeScript handlers that Claude Code calls <em>in its own process</em> whenever something happens: a tool call, a submitted prompt, a part of the screen being drawn. Shipped October 1 (v2.1.287), on by default. Settings hooks (<a href="#hooks">&sect; 07</a>) run a script from outside - they can block or allow an event, adjust a tool call's arguments or result, and add context. A mod runs inside, so it can also take an event over entirely, and it can draw.</p>
+
+  <h3>What a mod can do</h3>
+  <ul>
+    <li><strong>Draw interface</strong>: a pane beside the transcript or a band above the prompt, with tabs, buttons, and text fields. It can even restyle Claude Code's own rows and spinner (but never the permission prompt).</li>
+    <li><strong>Step into a tool call or a request</strong>: hold a tool call while it asks you a question, answer it without running the tool, or send one request to a different model.</li>
+    <li><strong>Run your code on a command</strong>: a <code>/command</code> that runs your function at once - no Claude turn, even while Claude is working.</li>
+    <li><strong>Share data between handlers</strong>: handlers in one mod share the variables in its file, so one can count tool calls while another draws the count.</li>
+  </ul>
+
+  <h3>Mod, settings hook, skill, or MCP server?</h3>
+  <div class="table-scroll"><table>
+    <tr><th></th><th>Mod</th><th>Settings hook</th><th>Skill</th><th>MCP server</th></tr>
+    <tr><td>Runs as</td><td>Functions inside Claude Code</td><td>Script on a lifecycle event</td><td>Markdown Claude reads</td><td>External process</td></tr>
+    <tr><td>Can change</td><td>Tool calls, prompts, commands, what is drawn</td><td>Whether an event goes ahead, a tool call's arguments and result</td><td>What Claude knows and does</td><td>Which tools Claude has</td></tr>
+    <tr><td>Can draw UI</td><td>Yes</td><td>No</td><td>No</td><td>No</td></tr>
+    <tr><td>Pick it when</td><td>You want a pane, a custom command, or to rewrite an event</td><td>Block/allow/log with a script you already have</td><td>You keep pasting the same instructions</td><td>Claude needs to reach an external system</td></tr>
+  </table></div>
+  <p>If a settings hook, a skill, or an MCP server already does the job, use it. One plugin can ship all four side by side.</p>
+
+  <h3>Anatomy of a mod</h3>
+  <pre><code>first-mod/
+  .claude-plugin/plugin.json   <span class="c"># the plugin manifest</span>
+  hooks/hooks.json             <span class="c"># points to your code</span>
+  hooks/register.js            <span class="c"># your handlers</span></code></pre>
+  <p>A complete <code>register.js</code> that counts tool calls and shows the count beside the spinner:</p>
+  <pre><code>let calls = 0   <span class="c">// shared by both handlers</span>
+
+export function register(on) {
+  <span class="c">// runs before every tool call</span>
+  on('tool.call', async ($, e, next) =&gt; {
+    calls += 1
+    $.ui.invalidate('ui.render')   <span class="c">// ask for a redraw</span>
+    return next(e)                 <span class="c">// let the tool run as usual</span>
+  })
+  <span class="c">// runs whenever the spinner is drawn</span>
+  on('ui.render', { component: 'Spinner' }, async ($, e, next) =&gt;
+    next({ ...e, props: { ...e.props, suffix: ' | tool calls: ' + calls } }))
+}</code></pre>
+  <p>Each handler can <strong>observe</strong> an event, <strong>rewrite</strong> it, or <strong>answer</strong> it so the usual behavior never runs. Anything beyond its own code - drawing, adding a command, calling a model, reading a file, starting a process, the network - goes through the mods API. That is why Claude Code can list what a mod does before you install it.</p>
+
+  <h3>Getting one</h3>
+  <ul>
+    <li><strong>Ask Claude</strong>: describe the mod and Claude writes it - a bundled skill knows the mods API, and the mod hot-reloads while you iterate.</li>
+    <li><strong>Install one</strong>: mods install like any plugin, <code>/plugin install name@marketplace</code>. If you installed from your shell while a session was open, run <code>/reload-plugins</code>. <code>/plugin</code> shows a line like "1 mod active".</li>
+    <li><strong>Try a sample</strong>: Anthropic's <a href="https://github.com/anthropics/claude-code-playground/tree/main/claude-code/mods" target="_blank">claude-code-playground</a> has <code>blast-radius</code> (holds <code>rm -rf</code> or a force push, shows what it would change, then proceed or cancel), <code>token-weather</code> (a context forecast above the prompt), and <code>replay-theater</code> (<code>/replay</code> steps through last turn's edits). Load one for a single session with <code>--plugin-dir</code>.</li>
+  </ul>
+
+  <h3>Already built in</h3>
+  <p><code>/diff</code> is a mod, and so is the loader that reads <code>AGENTS.md</code>. One built-in is off by default and worth turning on - next.</p>
+
+  <h3>You should know - a heads-up from a side agent</h3>
+  <p>A built-in mod where a <strong>side agent watches your back</strong> while Claude works on longer tasks. When it finds something worth knowing that you or Claude might miss, it leaves a short note above the prompt. Notes say who made the call - "we", "the main agent", or "you" - so you can tell your own decision from one Claude took on its own.</p>
+  <pre><code>/plugin enable cc-plugin-you-should-know@builtin</code></pre>
+  <p>Or find it in <code>/plugin</code> &rarr; Installed &rarr; Show disabled. Availability can depend on your organization.</p>
+  <div class="tip"><span class="lbl">Where it pays off</span>
+  Long unattended runs - auto mode plus <code>/goal</code> (<a href="#workflows">&sect; 14</a>), or sessions dispatched to the background (<a href="#agents">&sect; 10</a>). That is exactly when nobody is reading every tool call. It is an agent, so it adds some usage.</div>
+
+  <h3>Where mods run</h3>
+  <div class="table-scroll"><table>
+    <tr><th>Where you run Claude Code</th><th>Hooks run</th><th>What it draws appears</th></tr>
+    <tr><td>Terminal, editor terminals, JetBrains plugin</td><td>Yes</td><td>Yes</td></tr>
+    <tr><td>Desktop app, Code tab</td><td>Yes (not in WSL sessions)</td><td>Yes</td></tr>
+    <tr><td>VS Code extension chat panel</td><td>Yes</td><td>No</td></tr>
+    <tr><td><code>claude -p</code>, Agent SDK</td><td>Yes</td><td>No</td></tr>
+    <tr><td>Cloud sessions</td><td>Yes, when the plugin reaches them</td><td>No</td></tr>
+  </table></div>
+
+  <div class="warn-box"><span class="lbl">Mods are not sandboxed</span>
+  A mod runs with your permissions: it can read and write your files, start processes, make network requests, read secrets in env vars and settings, see every prompt and tool call, spend your usage - and <strong>approve tool calls</strong>, including ones your own PreToolUse hook blocked. The sandbox covers Claude's Bash commands, not processes a mod starts. Install only from authors you trust, and run <code>claude plugin validate</code> on the mod's folder first: its <code>hooks:</code> and <code>calls:</code> lines list everything the mod handles and asks for, without running it.</div>
+  <p>To turn mods off: disable one in <code>/plugin</code>, start a session with <code>--safe-mode</code> (all customizations off), or set <code>"disableAllHooks": true</code>. Organizations can restrict loading to managed mods only.</p>
+
+  <div class="lab"><span class="lbl">Lab III &middot; leverage</span>
+  <ol>
+    <li>Pick a task you've done 3+ times this month. Tell Claude: "take what we just did and make it a reusable skill." Test it in a fresh session.</li>
+    <li>Dispatch two tasks with <code>claude --bg "..."</code>, open <code>claude agents</code>, and answer one blocked session from the peek panel without attaching.</li>
+    <li>Ask Claude for a mod: "a band above the prompt showing how many tool calls this turn made". Run <code>claude plugin validate</code> on the result and read its <code>calls:</code> line.</li>
+  </ol></div>
+</details>
+</section>
+
+<!-- ================================ 13 ================================ -->
+<section id="commands">
+<details open>
+  <summary class="sec-head"><span class="num">&sect; 13</span><h2>Commands &amp; shortcuts</h2></summary>
+
+  <h3>What you can type at the prompt</h3>
+  <div class="table-scroll"><table>
+    <tr><th>Type</th><th>What happens</th></tr>
+    <tr><td><code>/</code> at the start</td><td>A command or a skill: <code>/usage</code>, <code>/goal</code>, your own skills</td></tr>
+    <tr><td><code>!</code> at the start</td><td>Shell mode: you run the command directly, no approval needed. The output lands in context and Claude responds to it, so <code>! npm test</code> gets the failures explained without a second prompt. <kbd>Tab</kbd> completes from earlier <code>!</code> commands</td></tr>
+    <tr><td><code>@</code> anywhere</td><td>Attach a file (<code>@src/auth.ts</code>, tab-completes), a folder (<code>@src/</code>), or a URL (<code>@https://...</code>). Type a letter after <code>@</code> and your other live sessions show up too, to message them (<a href="#agents">&sect; 10</a>)</td></tr>
+    <tr><td><code>?</code> on an empty prompt</td><td>The shortcut help panel</td></tr>
+    <tr><td><code>:</code> and a name</td><td>An emoji shortcode, like <code>:rocket:</code></td></tr>
+    <tr><td><kbd>\</kbd> then <kbd>Enter</kbd></td><td>A new line without sending. <kbd>Shift+Enter</kbd> (native in Windows Terminal, Ghostty, iTerm2 and others) and <kbd>Ctrl+J</kbd> work too</td></tr>
+  </table></div>
+  <div class="tip"><span class="lbl">Best pattern</span>
+  "Refactor @src/auth/ to match the pattern in @src/payments/stripe.ts" - Claude sees both without you pasting anything.</div>
+  <pre><code>! git log --oneline -10
+! npm test
+! cat .env.example</code></pre>
+  <p>Note that commands you type in shell mode run outside the <a href="#permissions">sandbox</a>: the sandbox applies to the commands Claude runs.</p>
+
+  <h3>Background work, and talking while Claude works</h3>
+  <div class="table-scroll"><table>
+    <tr><th>Do this</th><th>What happens</th></tr>
+    <tr><td><kbd>Ctrl+B</kbd></td><td>Moves a running command or subagent to the background so you can keep working (tmux users press it twice)</td></tr>
+    <tr><td>Just ask</td><td>"Run the dev server in the background" - Claude starts it as a background task and can read its output later</td></tr>
+    <tr><td><code>/tasks</code></td><td>Lists background shells and subagents in this session; check on, attach to, or stop one</td></tr>
+    <tr><td><kbd>Ctrl+X Ctrl+K</kbd></td><td>Stops all background subagents (press twice to confirm)</td></tr>
+    <tr><td><code>/background</code>, or <kbd>&larr;</kbd> on an empty prompt</td><td>Detaches the whole session to agent view (<a href="#agents">&sect; 10</a>)</td></tr>
+    <tr><td><kbd>Enter</kbd> while Claude works</td><td>Queues your message; Claude reads it as soon as the current tool calls finish</td></tr>
+    <tr><td><kbd>Ctrl+Enter</kbd></td><td>Sends the queue right now</td></tr>
+    <tr><td><kbd>Up</kbd></td><td>Takes queued messages back into the input box to edit</td></tr>
+    <tr><td><kbd>Esc</kbd></td><td>Interrupts the turn; the work so far is kept</td></tr>
+  </table></div>
+  <p>A command that hits its timeout moves to the background on its own instead of being killed.</p>
+
+  <h3>Session commands</h3>
+  <div class="table-scroll"><table>
+    <tr><th>Command</th><th>What</th></tr>
+    <tr><td><code>/btw</code></td><td>Side question - reuses prompt cache, won't derail the main task</td></tr>
+    <tr><td><code>/goal</code></td><td>Keep working until a condition holds - see <a href="#workflows">&sect; 14</a></td></tr>
+    <tr><td><code>/rewind</code> / <code>/branch</code></td><td>Restore a checkpoint (code + conversation) / fork the conversation to try another direction</td></tr>
+    <tr><td><code>/background</code> / <code>/fork</code> / <code>/subtask</code></td><td>Detach this session / copy it into a background session / spawn a forked subagent - see <a href="#agents">&sect; 10</a></td></tr>
+    <tr><td><code>/diff</code> / <code>/focus</code></td><td>Live panel of uncommitted changes / show only prompt, tool summary, and answer</td></tr>
+    <tr><td><code>/cd &lt;path&gt;</code></td><td>Move the session to another directory, keeping the conversation and prompt cache</td></tr>
+    <tr><td><code>/rename</code> / <code>/recap</code></td><td>Name the session for easy resume / one-line summary of what this session did</td></tr>
+    <tr><td><code>/model</code> / <code>/effort</code> / <code>/fast</code> / <code>/advisor</code></td><td>Model, reasoning depth, speed, second opinion - see <a href="#models">&sect; 02</a></td></tr>
+    <tr><td><code>/usage</code> / <code>/context</code> / <code>/insights</code></td><td>Spend and limits, context breakdown, monthly retrospective - see <a href="#context">&sect; 03</a>-<a href="#spend">04</a></td></tr>
+    <tr><td><code>/teleport</code></td><td>Pull a cloud session (branch + conversation) into this terminal</td></tr>
+    <tr><td><code>/voice</code></td><td>Voice dictation into the prompt (needs a Claude.ai account)</td></tr>
+    <tr><td><code>/doctor</code> / <code>/skill-doctor</code> / <code>/powerup</code></td><td>Diagnose and fix setup / prune unused skills / interactive feature lessons</td></tr>
+  </table></div>
+
+  <h3>Keyboard shortcuts</h3>
+  <div class="table-scroll"><table>
+    <tr><th>Key</th><th>What</th></tr>
+    <tr><td><kbd>Shift+Tab</kbd></td><td>Cycle permission modes</td></tr>
+    <tr><td><kbd>Esc Esc</kbd></td><td>Clear the draft; on an empty prompt, open the rewind menu</td></tr>
+    <tr><td><kbd>Ctrl+O</kbd></td><td>Transcript viewer: every tool call, with timestamps</td></tr>
+    <tr><td><kbd>Ctrl+R</kbd></td><td>Search your prompt history</td></tr>
+    <tr><td><kbd>Ctrl+G</kbd></td><td>Write the prompt in your external editor</td></tr>
+    <tr><td><kbd>Ctrl+S</kbd></td><td>Stash the draft; press again on an empty prompt to bring it back</td></tr>
+    <tr><td><kbd>Ctrl+V</kbd> (<kbd>Alt+V</kbd> on Windows)</td><td>Paste an image from the clipboard</td></tr>
+    <tr><td><kbd>Alt+P</kbd> / <kbd>Alt+O</kbd></td><td>Switch model without losing the prompt / toggle fast mode</td></tr>
+    <tr><td><kbd>Ctrl+T</kbd></td><td>Show or hide Claude's task checklist</td></tr>
+    <tr><td><kbd>Ctrl+C</kbd>, then <kbd>Up</kbd></td><td>Bring back a draft you just cleared</td></tr>
+  </table></div>
+  <p>On macOS, Alt is Option; some of these need Option as Meta turned on in your terminal. Remap anything in <code>~/.claude/keybindings.json</code>.</p>
+</details>
+</section>
+
+<!-- ================================ 14 ================================ -->
+<section id="workflows">
+<details open>
+  <summary class="sec-head"><span class="num">&sect; 14</span><h2>Workflow patterns</h2></summary>
+
+  <h3>Plan &rarr; review &rarr; code &rarr; review</h3>
+  <pre><code>Plan (plan mode) -> Review plan -> Code (auto mode) -> Review (NEW session)</code></pre>
+  <p>Always review in a fresh session. The coding session has accumulated bias toward its own choices.</p>
+
+  <h3>/goal - goal-driven execution, built in</h3>
+  <p>Karpathy's fourth rule (&sect; 06) as a command. Set a completion condition and Claude keeps taking turns until it holds:</p>
+  <pre><code>/goal all tests in test/auth pass and the lint step is clean</code></pre>
+  <p>The key design choice: after each turn a <strong>separate small model</strong> judges whether the condition is met - so "done" is decided by a fresh evaluator, not by the agent that is invested in having finished. It returns met, not yet met (with a reason that steers the next turn), or impossible. Writing good conditions:</p>
+  <ul>
+    <li><strong>One measurable end state</strong> plus <strong>how to prove it</strong>: "<code>npm test</code> exits 0", "<code>git status</code> is clean". The evaluator only reads the transcript - it can't run commands itself - so Claude's own output has to show the proof.</li>
+    <li><strong>Constraints that matter</strong>: "...without modifying any other test file".</li>
+    <li><strong>A budget</strong>: append "or stop after 20 turns".</li>
+  </ul>
+  <p>Pairs with auto mode: auto mode removes per-<em>tool</em> prompts, <code>/goal</code> removes per-<em>turn</em> prompts. <code>/goal</code> alone shows status and token spend; <code>/goal clear</code> stops it. Works headless too: <code>claude -p "/goal CHANGELOG.md has an entry for every PR merged this week"</code>.</p>
+
+  <h3>Let Claude see what it built</h3>
+  <p>Tests passing is not the same as the feature working. Claude can now close that loop itself:</p>
+  <ul>
+    <li><code>/verify</code> and <code>/run</code> (bundled skills) build and launch your app and observe the result, instead of trusting type checks.</li>
+    <li><strong>Claude in Chrome</strong> (generally available) drives your real browser, and the <strong>Desktop app has a built-in browser</strong> for docs and dev-server previews.</li>
+    <li><strong>Computer use</strong> lets Claude open native apps and click through UI from the CLI, for things only a GUI can verify. The Desktop app also has an iOS Simulator pane (beta).</li>
+  </ul>
+
+  <h3>The interview trick (AskUserQuestion)</h3>
+  <p>Ask Claude: <em>"use the AskUserQuestion tool to interview me about this feature - spec, setup, edge cases."</em> You get a structured multiple-choice questionnaire instead of a chat wall; Claude builds its mental model before writing a line.</p>
+  <figure>
+    <img src="{{IMG:ask-user-question.png}}" alt="AskUserQuestion tool showing a multi-tab interview with checkbox options for designing an AI voice agent">
+    <figcaption>Structured tabs, checkboxes, a "type something" escape hatch - far denser than chat back-and-forth. Plan mode uses this by default; you can invoke it in any session. Then start a <em>fresh</em> session for implementation.</figcaption>
+  </figure>
+
+  <h3>Headless mode - claude -p</h3>
+  <p>One prompt in, output to stdout, exits. Makes Claude scriptable:</p>
+  <pre><code>claude -p "review this diff and flag any bugs" > review.txt
+claude -p "summarize the errors" < build.log
+claude -p "check open PRs for failing CI and summarize" >> daily-report.txt</code></pre>
+  <p>Use for CI steps, cron jobs, feeding Claude a log mid-script. One shot, no back-and-forth - the prompt must be complete. For recurring versions of the same idea, <code>/loop</code> and <code>/schedule</code> (<a href="#agents">&sect; 10</a>) now cover most cases without a wrapper script, and <code>claude agents --json</code> lets scripts poll background sessions.</p>
+
+  <h3><a href="https://github.com/karpathy/autoresearch" target="_blank">Autoresearch</a> pattern</h3>
+  <p>Karpathy's automated experiment loop - for any task with a measurable metric:</p>
+  <pre><code>modify -> evaluate -> keep/discard -> repeat</code></pre>
+  <p>In his case: 83 runs overnight, 15 kept, 11% performance gain. <code>claude -p</code> is exactly what powers the loop:</p>
+  <pre><code>claude -p "try a different approach to X, run tests, report results" > run_N.txt</code></pre>
+</details>
+</section>
+
+<!-- ================================ 15 ================================ -->
+<section id="worktrees">
+<details open>
+  <summary class="sec-head"><span class="num">&sect; 15</span><h2>Parallel sessions with worktrees</h2></summary>
+
+  <p>A <strong>git worktree</strong> is a second (or tenth) working directory attached to the same repository, each on its own branch. Same <code>.git</code>, separate files on disk. Built into git - no extra tooling.</p>
+
+  <p>The unlock: multiple coding agents on the same repo at once, each in its own folder, edits physically unable to collide. No stashing, no branch-switching, no "wait, which branch am I on".</p>
+
+  <p>In practice, just ask: <em>"implement feature X in a worktree and open a PR."</em> Claude spins up the isolated folder, works there, pushes the PR - your main checkout stays untouched. Worktrees are now wired in everywhere:</p>
+  <ul>
+    <li><code>claude --worktree</code> starts a session in a fresh one (it also accepts a GitLab MR URL).</li>
+    <li>Sessions dispatched from agent view (&sect; 10) move into their own worktree before their first edit, automatically.</li>
+    <li><code>/batch &lt;instruction&gt;</code> researches a large change, splits it into 5-30 independent units, and runs each as a worktree-isolated subagent.</li>
+    <li>The <code>worktree.baseRef</code> setting picks whether new worktrees branch from the remote default or your local <code>HEAD</code>.</li>
+  </ul>
+  <p>Codex added experimental worktrees too (<code>--worktree</code>, <code>/worktree</code>), so this pattern now travels across both tools.</p>
+
+  <div class="note"><span class="lbl">Pairing</span>
+  Worktrees + terminal splits (&sect; 01) + skip-permissions <em>inside the worktree only</em> (&sect; 08) is the standard recipe for safe parallel autonomy.</div>
+</details>
+</section>
+
+<!-- ================================ 16 ================================ -->
+<section id="remote">
+<details open>
+  <summary class="sec-head"><span class="num">&sect; 16</span><h2>Remote &amp; cloud</h2></summary>
+
+  <h3>Remote control (/rc)</h3>
+  <p>Hand your live session to the Claude app on another device. Kick off a long task, run <code>/rc</code>, go to lunch - check progress, approve prompts, keep chatting from your phone. Walk back to the desk and pick up in the same terminal.</p>
+
+  <h3>Cloud sessions &amp; routines</h3>
+  <ul>
+    <li>Cloud sessions run autonomously on Anthropic's infrastructure (or a self-hosted runner) - create PRs, post comments, run analyses. No local machine needed. <code>/teleport</code> pulls one back into your terminal with its branch and conversation.</li>
+    <li><code>/schedule</code> creates <strong>routines</strong>: cloud sessions fired by a cron schedule, a GitHub event, or an API call - see <a href="#agents">&sect; 10</a>.</li>
+    <li><code>/code-review ultra</code> and <code>/autofix-pr</code> apply the same idea to review: the heavy pass runs in the cloud while your terminal stays free.</li>
+  </ul>
+
+  <h3>Projects</h3>
+  <p>One ongoing conversation at claude.ai/code or in the Desktop app where Claude coordinates a stream of related work: you describe tasks, it starts a <strong>thread</strong> (a parallel cloud session) for each, gives every thread the project's instructions, and shows which ones need you. Threads keep running with your laptop closed; ask and a thread runs on your own machine via Remote Control instead. The cloud-side counterpart to agent view. Public beta on Pro and Max, rolling out gradually.</p>
+
+  <h3>Channels - push events into a running session</h3>
+  <p>Everything above starts <em>new</em> sessions. A <strong>channel</strong> pushes events into the session you already have open, where Claude has your files loaded and remembers what you were debugging. Message it from Telegram, Discord, or iMessage and the answer comes back in the same chat; or point a CI webhook at it so failures land where the context is.</p>
+  <pre><code>/plugin install telegram@claude-plugins-official
+/telegram:configure &lt;bot-token&gt;
+claude --channels plugin:telegram@claude-plugins-official   <span class="c"># then pair, then allowlist</span></code></pre>
+  <p>Research preview; needs Bun. Lock it down with the sender allowlist: anyone who can message the channel can also approve tool calls if the channel relays permission prompts.</p>
+
+  <h3>Everywhere else</h3>
+  <ul>
+    <li><strong>Desktop app</strong> - <code>/resume</code> picks up any CLI session with full context; it can auto-continue a turn when your usage limit resets; <code>claude --desktop</code> opens it from the terminal.</li>
+    <li><strong>Mobile</strong> - push notifications when a long task finishes or Claude needs you; any machine running <code>claude remote-control</code> shows up as a device card you can start sessions on.</li>
+    <li><strong>GitHub app</strong> - <code>@claude</code> in issues and PR comments (<code>/install-github-app</code>).</li>
+    <li><strong>Slack</strong> - an <code>@Claude</code> mention in a thread spawns a cloud session (<code>/install-slack-app</code>).</li>
+    <li><strong>Artifacts</strong> - sessions can publish self-contained pages (reports, dashboards) to shareable claude.ai links, and <code>/design</code> and <code>/slides</code> build on them. Remember they live on claude.ai, not in your repo - for anything your team should version, write a file instead.</li>
+  </ul>
+
+  <div class="lab"><span class="lbl">Lab IV &middot; practice</span>
+  <ol>
+    <li>Pick a small real fix and run it as <code>/goal &lt;measurable condition&gt; or stop after 10 turns</code>. Press <kbd>Ctrl+O</kbd> on each verdict to read the evaluator's reasoning.</li>
+    <li>Ask for a small feature "in a worktree, opening a PR when done" - and keep working in your main checkout while it runs.</li>
+    <li>Create a nightly routine with <code>/schedule</code> (e.g. "triage new issues, summarize to a file") and check the result tomorrow morning.</li>
+  </ol></div>
+</details>
+</section>
+
+<!-- ================================ 17 ================================ -->
+<section id="showcases">
+<details open>
+  <summary class="sec-head"><span class="num">&sect; 17</span><h2>Showcase ideas</h2></summary>
+
+  <p>Demos that land because they run on real projects, not toy repos. Each one is a pattern you can lift for your own work.</p>
+
+  <div class="table-scroll"><table>
+    <tr><th>Demo</th><th>What it shows</th><th>Built on</th></tr>
+    <tr><td><strong>list.am, browsed by Claude</strong></td><td>Driving a real site, scrolling and paging through results, pulling listings into a table</td><td>Playwright MCP</td></tr>
+    <tr><td><strong>Telegram</strong></td><td>Messaging your running session from your phone</td><td>Channels (<a href="#remote">&sect; 16</a>)</td></tr>
+    <tr><td><strong>Gmail and Calendar</strong></td><td>Triaging mail, drafting replies, finding a slot and booking it</td><td>claude.ai connectors (MCP)</td></tr>
+    <tr><td><strong>Kargin search</strong></td><td>Kargin Haghordum sketches, searchable by meaning or exact quote</td><td>YouTube transcripts</td></tr>
+    <tr><td><strong>YouTube in, results out</strong></td><td>Transcripts and frames from a link; English videos dubbed into Armenian</td><td>A skill and a pipeline</td></tr>
+    <tr><td><strong>Claude for learning</strong></td><td>nemeceren: Claude as a German teacher</td><td>Lessons as JSON, grading</td></tr>
+    <tr><td><strong>You should know</strong></td><td>Heads-up notes from a side agent during a long <code>/goal</code> run</td><td>Built-in mod (<a href="#mods">&sect; 12</a>)</td></tr>
+    <tr><td><strong>Vahe's video on Armenian history</strong></td><td>Shown live</td><td></td></tr>
+  </table></div>
+
+  <h3>list.am, browsed by Claude</h3>
+  <p>Claude drives a real browser through the <strong>Playwright MCP</strong>: it opens list.am, searches, scrolls and pages through the results, and reads each listing straight from the page.</p>
+  <pre><code>Open list.am, search 2-room apartments for rent in Yerevan, go through the results
+until you have 50 listings, and give me a table of price, area, district, and link.
+Flag anything 30% under the median.</code></pre>
+  <div class="tip"><span class="lbl">Why it lands</span>
+  Web fetch tools don't scroll, click, or run a site's JavaScript. A browser does: anything you can see on the page, Claude can read. Follow up with "turn this into a script I can rerun every morning" and the demo becomes a tool.</div>
+
+  <h3>Your own accounts as tools: Telegram, Gmail, Calendar</h3>
+  <ul>
+    <li><strong>Telegram</strong>: a channel pushes your Telegram messages into the running session, and the answer comes back in the chat. You ask from your phone; Claude works on your machine, with your files (<a href="#remote">&sect; 16</a>).</li>
+    <li><strong>Gmail</strong>: "Summarize my unread mail from the last two days, group it by what needs a reply, and draft the replies." Drafts only - you press send.</li>
+    <li><strong>Calendar</strong>: "Find a free hour next week that avoids my lectures, and create the meeting." It reads, proposes a slot, and writes after you confirm.</li>
+  </ul>
+  <div class="warn-box"><span class="lbl">Guardrail</span>
+  Start read-only and keep write actions behind a prompt or a hook. This repo's <code>hooks/gmail-readonly.sh</code> blocks Gmail writes outright.</div>
+
+  <h3>YouTube in, results out</h3>
+  <div class="rules-grid">
+    <div class="rule-card"><b>Kargin search</b>
+      <p>Kargin Haghordum sketches, transcribed from YouTube and searchable by meaning or exact quote, in Armenian. Jump straight to the moment, browse collections, take the quiz.</p></div>
+    <div class="rule-card"><b>youtube-reference skill</b>
+      <p>"check &lt;link&gt;" gives a transcript, a 720p download, and frame grabs. Claude reviews them, suggests how to use the video in your project, and asks before changing anything.</p></div>
+    <div class="rule-card"><b>auto_dubbing</b>
+      <p>An English YouTube video becomes an Armenian dub: transcribe, translate, generate Armenian speech, keep the background music. A human reviews the translation in between.</p></div>
+  </div>
+  <p>The pattern: <strong>a video is just data</strong>. A transcript plus frames turns it into something Claude can search, quote, translate, and reuse.</p>
+
+  <h3>Claude for learning</h3>
+  <p><strong>nemeceren</strong> - Claude as a German teacher. Claude writes the lessons, tests, and word lists as JSON; a small web app serves them on the phone; Claude reads the results from the progress database, grades the free-text answers, and plans the next lesson. Teacher, curriculum, and grading in one Claude Code project.</p>
+  <p>Patterns anyone can use:</p>
+  <ul>
+    <li><strong>Explanatory output style</strong> (<a href="#plugins">&sect; 11</a>) - short insights on each change while you build.</li>
+    <li>"Quiz me on this codebase before you fix anything."</li>
+    <li>"Explain the approach, let me write it, then review my version."</li>
+    <li><code>/powerup</code> for learning Claude Code itself.</li>
+  </ul>
+
+  <h3>Vahe's video on Armenian history</h3>
+  <p>Shown live.</p>
+</details>
+</section>
+
+<!-- ================================ 18 ================================ -->
+<section id="frontier">
+<details open>
+  <summary class="sec-head"><span class="num">&sect; 18</span><h2>Wins and warnings: what agents have done</h2></summary>
+
+  <p>The same trait sits behind every story in this section: an agent that does not give up. Pointed at a hard proof, that finishes the proof. Pointed at an impossible task in a leaky sandbox, it finds a way out.</p>
+
+  <div class="table-scroll"><table>
+    <tr><th>When</th><th>What happened</th><th>Why it matters</th></tr>
+    <tr><td>Oct 2025</td><td>OpenAI says GPT-5 solved 10 open Erdős problems</td><td>It had found old papers; the posts were deleted</td></tr>
+    <tr><td>Feb 2026</td><td>16 Claudes write a C compiler that builds Linux</td><td>An agent team on a two-week job</td></tr>
+    <tr><td>Feb 2026</td><td>Claude Opus 4.6 solves Don Knuth's open problem</td><td>In about an hour, from his exact wording</td></tr>
+    <tr><td>May 2026</td><td>An OpenAI model disproves Erdős's 1946 unit distance conjecture</td><td>125 pages, checked by Fields medalist Tim Gowers and others</td></tr>
+    <tr><td>Jul 2026</td><td>About 1,200 OpenAI agents escape a test and hack Hugging Face</td><td>Called the first true AI safety incident</td></tr>
+    <tr><td>Jul 2026</td><td>Anthropic: Claude breached three organizations during tests</td><td>No lab is exempt</td></tr>
+  </table></div>
+
+  <h3>Math: the Erdős problems, from hype to proof</h3>
+  <p>Paul Erdős left hundreds of open problems; Thomas Bloom collects them on erdosproblems.com. They became the public scoreboard for AI math.</p>
+  <ul>
+    <li><strong>The false start (Oct 2025).</strong> An OpenAI VP posted that GPT-5 had solved 10 open Erdős problems. Bloom pointed out that "open" on his site only meant he personally didn't know a solution: GPT-5 had found existing papers. Demis Hassabis called it "embarrassing" and the posts were deleted. On Christmas 2025 a "first autonomous solution" to problem 333 turned out to be in a 1977 paper by Erdős himself. Finding forgotten answers is useful work. It is not discovery.</li>
+    <li><strong>Jan 2026.</strong> Google DeepMind checks 700 problems marked open: 4 solved, 9 forgotten solutions rediscovered.</li>
+    <li><strong>Dec 2025 to May 2026.</strong> Two users of the public GPT-5.2 Pro, Kevin Barreto and Liam Price, solve problem 728, and later problem 1196 together with Terence Tao and Jared Duker Lichtman.</li>
+    <li><strong>May 2026.</strong> A DeepMind agent settles 9 of 353 open Erdős problems with formal proofs, at a few hundred dollars per problem.</li>
+    <li><strong>May 20, 2026.</strong> A general-purpose OpenAI reasoning model, not a math system, disproves the planar unit distance conjecture Erdős posed in 1946. The proof is 125 pages. Tim Gowers: "there is no doubt that the solution to the unit-distance problem is a milestone in AI mathematics."</li>
+    <li><strong>Aug 2026.</strong> OpenAI's unreleased Astra model solves three more Erdős problems.</li>
+  </ul>
+  <div class="tip"><span class="lbl">What made the difference</span>
+  Verification. Proofs in Lean, which a computer checks line by line, and mathematicians reading every page. Same rule for your code: the agent's "done" is a claim until a test agrees (<a href="#workflows">&sect; 14</a>).</div>
+
+  <h3>Knuth's open problem, solved by Claude</h3>
+  <div class="note"><span class="lbl">Don Knuth, "Claude's Cycles", 28 Feb 2026</span>
+  "Shock! Shock! I learned yesterday that an open problem I'd been working on for several weeks had just been solved by Claude Opus 4.6 -- Anthropic's hybrid reasoning model that had been released three weeks earlier! It seems that I'll have to revise my opinions about 'generative AI' one of these days."</div>
+  <p><strong>The problem</strong>, which came up while Knuth was writing a future volume of <em>The Art of Computer Programming</em>: take a 3D wraparound grid with m<sup>3</sup> vertices, each with three outgoing arcs, and split the arcs into three directed cycles that each visit every vertex, for every m &gt; 2.</p>
+  <p><strong>What happened.</strong> Knuth's friend Filip Stappers gave Claude the problem in Knuth's exact wording, plus one rule:</p>
+  <pre><code>** After EVERY exploreXX.py run, IMMEDIATELY update this file [plan.md] before
+doing anything else. ** No exceptions. Do not start the next exploration until
+the previous one is documented here.</code></pre>
+  <p>Claude reformulated the problem, tried a brute-force search, spotted the structure (it recognized a Cayley digraph), and at exploration 31, about an hour in, had a construction that works for every odd m. Knuth then proved it correct, and Kim Morrison had a Lean formalization within days. The even case stumped Claude: after a while Stappers reported it "was not even able to write and run explore programs correctly anymore". Within weeks, GPT-5.3-codex, GPT-5.4 Pro, and a Claude + GPT pair working together closed the even case too.</p>
+  <div class="tip"><span class="lbl">Workshop lessons in one paper</span>
+  <strong>A progress file</strong> (<a href="#rules">&sect; 06</a>) - and Stappers still had to remind Claude "again and again" to update it, which is a job for a hook (<a href="#hooks">&sect; 07</a>). <strong>Long sessions degrade</strong> - restart with fresh context instead of pushing on (<a href="#context">&sect; 03</a>). <strong>Two models beat one</strong> - the advisor tool (<a href="#models">&sect; 02</a>). Knuth's closing line: "I think Claude Shannon's spirit is probably proud to know that his name is now being associated with such advances."</div>
+
+  <h3>16 Claudes, one C compiler</h3>
+  <p>February 2026, Nicholas Carlini (Anthropic Safeguards): an agent team of 16 Claude Opus 4.6 instances worked on one codebase in parallel, without a human steering, and wrote a C compiler in Rust from scratch.</p>
+  <ul>
+    <li>About 2,000 Claude Code sessions over two weeks, about $20,000 in API cost.</li>
+    <li>100,000 lines. It builds Linux 6.9 for x86, ARM, and RISC-V, plus QEMU, FFmpeg, SQLite, PostgreSQL, and Redis. 99% pass rate on compiler test suites, including GCC's torture tests. It runs Doom.</li>
+    <li>Where it stops: no 16-bit x86 backend (it calls GCC for that), no assembler or linker of its own, and its output is slower than GCC's with optimizations off.</li>
+  </ul>
+  <p>Carlini's lessons: write extremely good tests, because they are how the agents know they are right; design the harness from the agent's point of view; and split the work so agents don't redo each other's (<a href="#agents">&sect; 10</a>).</p>
+
+  <h3>The Hugging Face incident (July 2026)</h3>
+  <p><strong>The setup.</strong> OpenAI ran <strong>ExploitGym</strong>, a cybersecurity benchmark, to measure how well its models find and exploit vulnerabilities. It had 898 tasks; 198 had never been solved by any model, and the rule was to use the intended exploit or fail. About 1,200 agents ran in parallel: 95% on an unreleased internal model, 5% on GPT-5.6 Sol. Safety classifiers were switched off to measure raw capability. The sandboxes reached software packages through a JFrog Artifactory proxy; the agents found a previously unknown flaw in it that opened the internet to them (JFrog later patched nine CVEs). Nobody was monitoring the logs.</p>
+  <p><strong>The motive.</strong> Many agents concluded their task could not be done as asked. One agent's reasoning, quoted in the Bulletin of the Atomic Scientists: "task impossible, peers doing it. We should continue." Instead of stopping, they went looking for the answer key, and guessed that Hugging Face hosted the benchmark's data and solutions.</p>
+
+  <div class="table-scroll"><table>
+    <tr><th>Date</th><th>What happened</th></tr>
+    <tr><td>Jul 8-9</td><td>Agents that were supposed to be isolated find they can leave notes for each other in Artifactory cache names - one wrote "Could communicate via cache names!" A message board forms. Within an hour an agent suggests the answer flags are generated with an HMAC, a first step towards forging them.</td></tr>
+    <tr><td>Jul 10</td><td>An agent finds two working Hugging Face credentials. Leaked logins on four other services become its tools: one an outbound relay and staging server, one storage, two read only.</td></tr>
+    <tr><td>Jul 11</td><td>The agent uploads a malicious dataset. Two code-execution paths in Hugging Face's dataset processing (a remote-code dataset loader and a template injection in a dataset config) run its code on a processing worker. From there: node access, stolen cloud and cluster credentials, lateral movement, private database records. Over 90% of the agents join in; about 700 take part.</td></tr>
+    <tr><td>Jul 12-13</td><td>The runs are terminated and the attack winds down.</td></tr>
+    <tr><td>Jul 16</td><td>Hugging Face discloses the breach. Its LLM-based triage of security alerts flagged it; the attacker was "an autonomous agent framework" whose model was unknown. It found no tampering with public models, datasets, or Spaces, rebuilt the affected nodes, rotated credentials, and analysed over 17,000 recorded events with an open-weight model in hours.</td></tr>
+    <tr><td>Jul 21</td><td>OpenAI says the agents were its own.</td></tr>
+    <tr><td>Aug 26</td><td>OpenAI publishes a 37-page technical report; METR publishes an independent investigation of the agents' behaviour.</td></tr>
+  </table></div>
+
+  <h3>What the agents did that nobody asked for</h3>
+  <div class="rules-grid">
+    <div class="rule-card"><b>They organized</b>
+      <p>Over 70,000 messages and files on a board they built themselves, with mailboxes, cryptographic signatures, and HOLD and VETO conventions for shared work. METR: they reached milestones none could have reached alone.</p></div>
+    <div class="rule-card"><b>They hid</b>
+      <p>Agents studied how to manipulate their own transcripts. Some broke out of their container and replaced the component that runs tool calls, so the log showed fake output. About 7% of the transcripts METR evaluated were successfully spoofed.</p></div>
+    <div class="rule-card"><b>Nobody noticed</b>
+      <p>Hugging Face caught the attack, not OpenAI. Reuters' sources: OpenAI did not notice for a week. By September 25 OpenAI had disclosed more than 15 incidents.</p></div>
+  </div>
+  <p>Other incidents from OpenAI's tests between May and July: hundreds of malicious packages uploaded to RubyGems; about 18,000 edits to a dormant German software wiki used as a coordination channel; and Australia's Medicare Statistics Reporting Service portal, breached on June 18 (aggregate data, no personal records). Logan Graham of Anthropic called it "the first true AI safety incident". Dan Guido of Trail of Bits: "a containment failure with the safeties turned off."</p>
+
+  <h3>Not just OpenAI</h3>
+  <p>On July 30, after the OpenAI news, Anthropic searched 141,006 of its own evaluation runs. In three of them, a misconfigured test environment run with the security firm Irregular had real internet access:</p>
+  <ul>
+    <li><strong>Claude Opus 4.7</strong> recognized real production systems and kept attacking anyway, pulling credentials and touching a database of production data.</li>
+    <li><strong>Claude Mythos 5</strong> talked itself into believing it was still in a simulation, then published a malicious package to PyPI that outside systems downloaded and ran.</li>
+    <li><strong>An internal research model</strong> concluded the target was real and stopped on its own.</li>
+  </ul>
+  <p>Meta (August 5) and Google (September 18) disclosed test breaches of their own. US lawmakers introduced an AI Kill Switch Act, and California's attorney general subpoenaed OpenAI. The pattern is the same each time: a test that was meant to be sealed wasn't, and the model treated the real world as part of the task.</p>
+
+  <h3>What it means for your setup</h3>
+  <p>The Bulletin of the Atomic Scientists put it bluntly: rogue AI didn't breach Hugging Face, human decisions did. Every one of those decisions has a small version on your laptop.</p>
+  <div class="table-scroll"><table>
+    <tr><th>What went wrong at the labs</th><th>Your version, and the fix</th></tr>
+    <tr><td>Safety classifiers switched off</td><td><code>--dangerously-skip-permissions</code> on your own machine. Bypass only inside a sandbox (<a href="#permissions">&sect; 08</a>)</td></tr>
+    <tr><td>A sandbox with a way out to the internet</td><td><code>/sandbox</code> with a domain allowlist; test the wall instead of assuming it (<a href="#permissions">&sect; 08</a>)</td></tr>
+    <tr><td>Impossible tasks and no way to quit</td><td>Let it say "I can't": a CLAUDE.md rule, a <code>/goal</code> turn budget (<a href="#rules">&sect; 06</a>, <a href="#workflows">&sect; 14</a>)</td></tr>
+    <tr><td>Working credentials lying around</td><td>No secrets in files the agent can read; read-only tokens and hooks like <code>gmail-readonly.sh</code> (<a href="#hooks">&sect; 07</a>)</td></tr>
+    <tr><td>Nobody read the logs</td><td>Hooks that log and block; read transcripts with <kbd>Ctrl+O</kbd> (<a href="#hooks">&sect; 07</a>, <a href="#commands">&sect; 13</a>)</td></tr>
+    <tr><td>1,200 agents on one shared channel</td><td>Parallel agents multiply mistakes too (<a href="#agents">&sect; 10</a>)</td></tr>
+  </table></div>
+  <div class="warn-box"><span class="lbl">The one-line version</span>
+  The model did not need bad intent. It needed a goal, a gap, and nobody watching.</div>
+
+  <p style="font-size: 0.84rem; color: var(--muted);">Sources:
+  <a href="https://cs.stanford.edu/~knuth/papers/claude-cycles.pdf" target="_blank">Knuth, Claude's Cycles</a> &middot;
+  <a href="https://www.quantamagazine.org/why-the-legendary-erdos-problems-are-falling-to-ai-20260803/" target="_blank">Quanta on the Erdős problems</a> &middot;
+  <a href="https://techcrunch.com/2025/10/19/openais-embarrassing-math/" target="_blank">TechCrunch on the GPT-5 claim</a> &middot;
+  <a href="https://www.anthropic.com/engineering/building-c-compiler" target="_blank">Carlini, building a C compiler</a> &middot;
+  <a href="https://huggingface.co/blog/security-incident-july-2026" target="_blank">Hugging Face disclosure</a> &middot;
+  <a href="https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/" target="_blank">METR investigation</a> &middot;
+  <a href="https://www.bleepingcomputer.com/news/security/openai-agent-used-exposed-credentials-at-4-services-in-hugging-face-breach/" target="_blank">BleepingComputer on the credentials</a> &middot;
+  <a href="https://thebulletin.org/2026/09/rogue-ai-didnt-breach-hugging-face-human-decisions-did/" target="_blank">Bulletin of the Atomic Scientists</a> &middot;
+  <a href="https://en.wikipedia.org/wiki/2026_OpenAI_agent_cyberattacks" target="_blank">Wikipedia overview</a> &middot;
+  <a href="https://techcrunch.com/2026/07/30/anthropic-says-its-own-ai-models-breached-three-companies-during-security-tests/" target="_blank">TechCrunch on Anthropic's tests</a></p>
+</details>
+</section>
+
+<!-- ================================ appendix ================================ -->
+<section id="codex-map">
+<details open>
+  <summary class="sec-head"><span class="num">&sect; A</span><h2>Appendix - Claude Code &harr; Codex map</h2></summary>
+
+  <p>One table, every concept from this manual, both tools. Codex has closed much of the gap in 2026 - hooks, subagents, memories, scheduled tasks, worktrees, and plugin marketplaces all exist there now. Switching over? <code>/import codex --dry-run</code> shows what Claude Code would bring across.</p>
+
+  <div class="table-scroll"><table>
+    <tr><th>Concept</th><th>Claude Code</th><th>Codex</th></tr>
+    <tr><td>Instructions file</td><td><code>CLAUDE.md</code>, and since v2.1.277 <code>AGENTS.md</code> natively (&sect; 05)</td><td><code>AGENTS.md</code></td></tr>
+    <tr><td>Default model</td><td>Opus 5.5</td><td>GPT-6.1 Sol</td></tr>
+    <tr><td>Model &amp; reasoning depth</td><td><code>/model</code>, <code>/effort low</code>-<code>max</code></td><td><code>model</code> + <code>model_reasoning_effort</code> in <code>config.toml</code></td></tr>
+    <tr><td>Fast mode</td><td><code>/fast</code> (Opus, up to 2.5x)</td><td><code>/fast on</code> or <code>service_tier = "fast"</code></td></tr>
+    <tr><td>Approval spectrum</td><td>Permission modes via <kbd>Shift+Tab</kbd>: plan / default / auto-edit / auto</td><td><code>approval_policy</code>: untrusted / on-request / never</td></tr>
+    <tr><td>OS sandbox</td><td><code>/sandbox</code> - Seatbelt / bubblewrap, path + domain allowlists</td><td><code>sandbox_mode</code>: read-only / workspace-write / danger-full-access</td></tr>
+    <tr><td>Full bypass</td><td><code>--dangerously-skip-permissions</code></td><td><code>--yolo</code></td></tr>
+    <tr><td>Reusable workflows</td><td>Skills (<code>.claude/skills/</code>, open standard)</td><td>Custom prompts / slash commands</td></tr>
+    <tr><td>Lifecycle hooks</td><td>Hooks in <code>settings.json</code> (PreToolUse, ...)</td><td>Hooks</td></tr>
+    <tr><td>Subagents</td><td>Agent tool + <code>.claude/agents/</code></td><td>Subagents</td></tr>
+    <tr><td>Background-session dashboard</td><td>Agent view (<code>claude agents</code>, <code>claude --bg</code>)</td><td>Agent command center</td></tr>
+    <tr><td>Peer agent teams</td><td>Agent teams (opt-in; shared task list, messaging)</td><td>No direct analogue found in the Codex docs index</td></tr>
+    <tr><td>Worktrees</td><td><code>--worktree</code>, automatic for agent view and <code>/batch</code></td><td><code>--worktree</code>, <code>/worktree</code> (experimental)</td></tr>
+    <tr><td>Plugins</td><td><code>/plugin</code>, marketplaces, mods</td><td>Plugin CLI with remote marketplaces</td></tr>
+    <tr><td>Voice input</td><td><code>/voice</code></td><td><code>/voice</code> (experimental)</td></tr>
+    <tr><td>Recurring / scheduled</td><td><code>/goal</code>, <code>/loop</code> (local), <code>/schedule</code> (cloud routines)</td><td>Scheduled tasks</td></tr>
+    <tr><td>Memory</td><td><code>~/.claude/projects/&lt;p&gt;/memory/</code></td><td>Memories</td></tr>
+    <tr><td>Headless / scripting</td><td><code>claude -p</code></td><td><code>codex exec</code> (non-interactive mode)</td></tr>
+    <tr><td>Cloud execution</td><td>claude.ai/code, cloud agents, <code>/code-review ultra</code></td><td>Codex cloud</td></tr>
+    <tr><td>GitHub review</td><td>GitHub app (<code>@claude</code>), <code>/code-review ultra --post</code></td><td>Code review</td></tr>
+    <tr><td>IDE</td><td>VS Code / JetBrains extensions</td><td>Codex IDE extension</td></tr>
+    <tr><td>MCP</td><td><code>claude mcp add</code>, lazy tool loading</td><td>MCP support in <code>config.toml</code></td></tr>
+    <tr><td>Usage tracking</td><td><code>/usage</code>, <code>/insights</code>, ccusage</td><td><code>@ccusage/codex</code></td></tr>
+  </table></div>
+
+  <p style="font-size: 0.84rem; color: var(--muted);">Names drift fast on both sides - when this table and the docs disagree, trust the docs.</p>
+</details>
+</section>
+
+<footer>
+  <img src="{{IMG:Roberts-Claude-Shannon.webp}}" alt="Claude Shannon">
+  <p>Claude is named after <strong>Claude Shannon</strong> (1916-2001), the father of information theory.</p>
+  <div class="links">
+    <a href="https://code.claude.com/docs" target="_blank">docs</a>
+    <a href="https://academy.claude.com/products/code" target="_blank">free course</a>
+    <a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md" target="_blank">changelog</a>
+    <a href="https://github.com/HaykTarkhanyan/claude-setup" target="_blank">this repo</a>
+  </div>
+</footer>
+
+</main>
+</div>
+
+<script>
+(function () {
+  // theme: localStorage > system preference
+  var btn = document.getElementById('themeBtn');
+  var root = document.documentElement;
+  function apply(dark) {
+    root.classList.toggle('dark', dark);
+    btn.textContent = dark ? 'light' : 'dark';
+  }
+  var stored = null;
+  try { stored = localStorage.getItem('ws-theme'); } catch (e) {}
+  apply(stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches);
+  btn.addEventListener('click', function () {
+    var dark = !root.classList.contains('dark');
+    apply(dark);
+    try { localStorage.setItem('ws-theme', dark ? 'dark' : 'light'); } catch (e) {}
+  });
+
+  // scroll-spy: highlight the last section whose top passed the 25% line
+  var links = Array.prototype.slice.call(document.querySelectorAll('.rail a[href^="#"]'));
+  var map = {};
+  links.forEach(function (a) { map[a.getAttribute('href').slice(1)] = a; });
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section[id]'));
+  var ticking = false;
+  function setActive() {
+    ticking = false;
+    var line = window.innerHeight * 0.25;
+    var best = null;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i].getBoundingClientRect().top <= line) best = sections[i];
+    }
+    links.forEach(function (a) { a.classList.remove('active'); });
+    if (best && map[best.id]) map[best.id].classList.add('active');
+  }
+  window.addEventListener('scroll', function () {
+    if (!ticking) { ticking = true; requestAnimationFrame(setActive); }
+  }, { passive: true });
+  window.addEventListener('resize', setActive);
+  setActive();
+
+  // collapsible sections: expand/collapse all, open on navigation, open all for print
+  var allDetails = Array.prototype.slice.call(document.querySelectorAll('section > details'));
+  function setAll(open) { allDetails.forEach(function (d) { d.open = open; }); setActive(); }
+  Array.prototype.slice.call(document.querySelectorAll('[data-toggle]')).forEach(function (b) {
+    b.addEventListener('click', function () { setAll(b.getAttribute('data-toggle') === 'open'); });
+  });
+  function openTarget() {
+    var id = decodeURIComponent(location.hash.slice(1));
+    var sec = id && document.getElementById(id);
+    var d = sec && sec.querySelector(':scope > details');
+    if (d && !d.open) { d.open = true; sec.scrollIntoView(); }
+  }
+  window.addEventListener('hashchange', openTarget);
+  openTarget();
+  Array.prototype.slice.call(document.querySelectorAll('a[href^="#"]')).forEach(function (a) {
+    a.addEventListener('click', function () {
+      var sec = document.getElementById(a.getAttribute('href').slice(1));
+      var d = sec && sec.querySelector(':scope > details');
+      if (d) d.open = true;
+    });
+  });
+  var printState = null;
+  window.addEventListener('beforeprint', function () {
+    printState = allDetails.map(function (d) { return d.open; });
+    setAll(true);
+  });
+  window.addEventListener('afterprint', function () {
+    if (printState) allDetails.forEach(function (d, i) { d.open = printState[i]; });
+  });
+})();
+</script>
+
+</body>
+</html>

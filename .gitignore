@@ -1,0 +1,8 @@
+logs/
+.playwright-mcp/
+
+# Telegram reader: local config holds the API hash, session files are a live login
+.mcp.json
+*.session
+*.session-journal
+.env

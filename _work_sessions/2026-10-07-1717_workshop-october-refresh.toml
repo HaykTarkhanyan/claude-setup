@@ -1,0 +1,32 @@
+title = "Workshop October 2026 refresh: new features, corrections, collapsible sections"
+date = "2026-10-07"
+time = "17:17"
+areas = ["workshop-template.html", "claude-codex-workshop-standalone.html", "build_standalone.py", "workshop-presenter-notes.md"]
+done = [
+  "Researched Claude Code 2.1.263 -> 2.1.292 via changelog, docs llms.txt index, and the docs' weekly What's-new digests (w13-w37); plus models overview, fast-mode, model-config, advisor, goal, agent-view, agents, agent-teams, cross-session-messaging, workflows, channels, projects, mods, memory (AGENTS.md), commands reference; Codex changelog Sept-Oct",
+  "NEW content: Opus 5.5 ($4/$20, Claude Code default) / Sonnet 5.5 ($2/$10) / Fable 5.1 model table; advisor tool; fast mode gotchas ($8/$40 on Opus 5.5, usage credits only, enable at session start); Mods subsection in section 07 (comparison table, samples, You-should-know built-in, not-sandboxed warning, claude plugin validate); section 10 rebuilt around the official five-way comparison (subagents, agent view, agent teams, dynamic workflows, Projects) + cross-session messaging; /goal subsection in 13; 'let Claude see what it built' (/verify, /run, Chrome, computer use); Projects + channels in 15; /powerup, /doctor, /insights, /team-onboarding, /fewer-permission-prompts, /import codex, /branch, /subtask, /focus, /cd, /teleport, /voice, /batch, param-matching deny rules, claude ultrareview, /autofix-pr, security plugins",
+  "CORRECTIONS to the September edition: default effort is medium on 5.5 models (page said xhigh); agent teams are experimental + opt-in via CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 (page said no setup step); auto mode is the default permission mode on Pro/Max/Team since Aug 14; /cost is an alias of /usage; Claude Code reads AGENTS.md natively since v2.1.277 (old 'AGENTS.md points to CLAUDE.md' advice replaced, with the CLAUDE.local.md trap); Codex default model GPT-6.1 Sol, Codex now has worktrees/plugin marketplaces/voice",
+  "Section 06 'proof it works' tip now teaches the omission lesson: September's edition passed claim-verification yet missed agent view, /goal, cross-session messaging",
+  "Global-CLAUDE.md compliance: all 16 sections wrapped in <details open><summary> (collapsible), expand/collapse-all buttons in rail, rail/TOC clicks open collapsed targets, beforeprint opens all; build_standalone.py now passes encoding='utf-8' to FileHandler, states ~1 s runtime in docstring, logs elapsed",
+  "Verified standalone in an isolated folder via Playwright over http.server: 9/9 images load, 0 external resource loads, 7 embedded font faces (Plex Sans 500 lazily unloaded because unused), 16/16 details toggle correctly, dark mode OK, 390px phone width has no horizontal overflow after fixing the meme img (max-width without 100% cap), favicon 404 silenced with inline data: icon",
+  "Presenter notes updated for new subsections (advisor, AGENTS.md trap, mods demo, agent view demo, /goal demo, Telegram channel demo)",
+]
+pending = [
+  "Nothing committed (user has not asked)",
+  "cli/*.md reference files still carry April content",
+  "Haiku 4.5 retirement possible from 2026-10-15 - recheck model table after that date",
+  "What's-new index only goes to Week 37 (Sept 7-11); weeks 38-40 digests 404'd, so late-Sept/Oct coverage relies on the raw changelog (2.1.285-2.1.292); changelog fetch for 2.1.270-2.1.284 returned nothing (both raw GitHub and docs changelog truncated) - a gap",
+]
+next = [
+  "Commit when user says so (CLAUDE.md modification in the tree is the user's own pre-existing change - exclude it from any commit unless asked)",
+  "Fill the 2.1.270-2.1.284 changelog gap, e.g. via gh api on anthropics/claude-code releases",
+]
+files = [
+  "workshop-template.html",
+  "claude-codex-workshop-standalone.html",
+  "build_standalone.py",
+  "workshop-presenter-notes.md",
+  ".gitignore (+ .playwright-mcp/)",
+]
+commits = []
+notes = "First build after the edits failed once with OSError Errno 22 on write_text; immediate rerun succeeded with no change. Likely a transient lock (antivirus scan of the just-written 4.5 MB file) - not proven. Playwright MCP can only write inside the repo, so screenshots landed in .playwright-mcp/ (now gitignored)."

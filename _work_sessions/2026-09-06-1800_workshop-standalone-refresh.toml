@@ -1,0 +1,58 @@
+title = "Workshop standalone HTML refresh (Sept 2026 edition)"
+date = "2026-09-06"
+time = "18:00"
+areas = ["claude-codex-workshop-standalone.html"]
+done = [
+  "Web-verified current facts: Claude 5 family pricing (Sonnet 5 $2/$10 - the Sept 1 increase to $3/$15 was CANCELLED Aug 10; Opus 5 $5/$25; Fable 5 $10/$50 1M ctx; Haiku 4.5 $1/$5), docs moved to code.claude.com/docs, Academy moved to academy.claude.com, Codex --full-auto deprecated in favor of explicit -a/-s flags, agent teams shipped Feb 2026 (TeamCreate removed June - spawn via Agent tool), ccusage/ccstatusline still maintained",
+  "Rebuilt claude-codex-workshop-standalone.html from scratch: content overhaul (new sections: Pick your model, CLAUDE.md rules learned the hard way, agent teams/Workflow/loop/schedule orchestration; updated: permissions incl. auto mode maturation, Codex flag rework, built-in reviewers /code-review ultra /simplify /security-review, /rewind /diff /skill-doctor /usage, plugin evals) + visual overhaul (Instrument Serif / IBM Plex, warm paper+terracotta palette, sticky scroll-spy TOC rail, light/dark via localStorage+prefers-color-scheme)",
+  "Added 'Rules learned the hard way' section distilled from the private global CLAUDE.md (fan-out quotas, spend thresholds, destructive-command guards, DECISIONS.md, _learnings/ pattern, repo tiers)",
+  "All 9 assets/ screenshots reused, inlined as base64 data URIs (4.23 MB final)",
+]
+pending = [
+  "cli/*.md reference files still carry April content (out of scope so far)",
+  "Nothing committed",
+]
+next = [
+  "Commit when user says so",
+  "Consider refreshing cli/*.md to match (Caveman now claims 65% not 75%; resources.md links unverified)",
+]
+files = [
+  "claude-codex-workshop-standalone.html",
+  "workshop-template.html",
+  "build_standalone.py",
+  "assets/fonts/ (7 latin woff2 subsets)",
+  "archive/workshop-2026-04.html (moved from workshop.html)",
+  "archive/README.md",
+  "README.md",
+  "workshop-presenter-notes.md",
+  ".gitignore",
+]
+# --- Review round (same session, ~19:00) ---
+# Applied all 11 review findings:
+# 1. FIXED WRONG CLAIM: Codex DOES have fast mode now (/fast on, service_tier="fast",
+#    1.5x speed at 2-2.5x credits) - the "no analogue" note was false.
+# 2. Verified all carried-over repo links alive: MemPalace 58.9k stars, Caveman 103.9k
+#    (claims 65% token cut now, not 75%), karpathy/autoresearch 95.3k,
+#    forrestchang/andrej-karpathy-skills 210.5k (guidelines BASED ON Karpathy, not by him - reworded).
+# 3. "15+ agents" -> "a dozen or more".
+# 4. New appendix: full Claude Code <-> Codex concept map (verified vs Codex docs index -
+#    Codex now has hooks, subagents, memories, scheduled tasks, custom prompts).
+# 5. Hands-on Lab boxes close each of the 4 parts.
+# 6. Warning box after the YOLO aliases pointing to section 08.
+# 7. New "Sandboxed bash" subsection: /sandbox, Seatbelt/bubblewrap, WSL2-only on Windows.
+# 8. Rule-card/figcaption contrast: new --muted token.
+# 9. Scroll-spy rewritten (rAF scroll handler, last-section-past-25%-line).
+# 10. Fonts embedded as base64 woff2 latin subsets (~280KB) - truly offline now. 4.51 MB total.
+# 11. Template + build script adopted into repo root; workshop.html git-mv'd to
+#     archive/workshop-2026-04.html with archive/README.md; root README rewritten;
+#     presenter notes rewritten to new numbering.
+# --- Follow-up (~19:50): user flagged that global-CLAUDE.md mining was incomplete.
+# Section 06 expanded with two new subsections previously missing or one-sentence-thin:
+# "Fighting the model's biases" (sycophancy/critique-not-validation, web-search-first,
+# admit uncertainty, no LLM-ese, silent assumptions, fresh-session review - with the
+# session's own Codex fast-mode catch as the worked example) and "Give the agent a
+# memory the team can read" (_learnings/ Symptom-Cause-evidence shape incl. disproven
+# theories, _work_sessions/ TOML cadence, CONVENTIONS.md, DEFERRED_TODO.md, the
+# skim-at-start/write-at-end loop). Superseded rule card removed. Rebuilt, 4.51 MB.
+commits = []
+notes = "Facts in the page were verified 2026-09-06 via web search + the claude-api skill's model table. Fast mode: Opus at ~2.5x output speed, premium price, same weights. Effort levels now low/medium/high/xhigh/max with xhigh the Claude Code default."

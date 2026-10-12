@@ -1,0 +1,31 @@
+title = "Copy the telegram-reader MCP server from 00_notes for the workshop demo"
+date = "2026-10-11"
+time = "03:00"
+areas = ["telegram/", ".gitignore", ".mcp.json (local only)"]
+done = [
+  "Copied telegram_mcp_server.py (byte-identical), HANDOFF.md and .env.example from 00_notes/telegram/mcp_server/ into telegram/mcp_server/",
+  "requirements.txt pinned to the installed versions (telethon==1.42.0, mcp==1.10.1) instead of the source's >= ranges",
+  ".mcp.json registers telegram-reader with the same creds as 00_notes and TELEGRAM_SESSION_PATH pointing at the 00_notes session file",
+  ".gitignore: .mcp.json, *.session, *.session-journal, .env (repo is public, verified with git check-ignore)",
+]
+pending = [
+  "Not live-tested: a 00_notes Claude session was running its own telegram-reader (PID 14884) on the same session file at the time",
+  "Nothing committed",
+]
+next = [
+  "Close the 00_notes session, restart Claude Code here, approve the telegram-reader server, call get_me / list_chats",
+]
+files = [
+  "telegram/mcp_server/telegram_mcp_server.py",
+  "telegram/mcp_server/HANDOFF.md",
+  "telegram/mcp_server/.env.example",
+  "telegram/mcp_server/requirements.txt",
+  ".gitignore",
+]
+commits = []
+notes = """The session file was deliberately NOT copied. A copy would mean two files holding the same auth key, and
+Telegram can revoke a session used from two places at once (00_notes already has a telegram_reader.session.dead-20260825).
+Pointing at the one original file means SQLite locking keeps it to one process at a time, and a second one fails loudly
+with 'database is locked'. Alternative if the demo should be independent of 00_notes: run --auth here for a fresh,
+separately revocable session, and drop TELEGRAM_SESSION_PATH from .mcp.json.
+00_notes/telegram/fetch_chats.py (standalone fallback script) was not copied."""

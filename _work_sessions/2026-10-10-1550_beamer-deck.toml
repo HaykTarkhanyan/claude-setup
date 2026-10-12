@@ -1,0 +1,131 @@
+title = "Beamer talk deck alongside the HTML handout"
+date = "2026-10-10"
+time = "15:50"
+areas = ["slides/", "assets/", "README.md", "workshop-presenter-notes.md", ".gitignore"]
+done = [
+  "User switched the deliverable to a Beamer presentation and kept the HTML. Choices (asked up front): match the HTML visual style, talk deck ~45-55 slides with the HTML as handout, no notes PDF, run the student-review subagent",
+  "Built slides/claude-codex-workshop.tex (57 frames: title, what's new, agenda, 4 part openers, sections 01-15 with the HTML's section numbers as kickers, 4 labs, 2-slide Codex appendix, closing) and slides/workshop-theme.sty (HTML color tokens, Instrument Serif titles, IBM Plex Sans/Mono, callout/card/lab/code boxes, inline \\cmd and \\kbd boxes)",
+  "Fonts: full TTFs downloaded into slides/fonts/ via the Google Fonts CSS API without a browser UA (it serves TTF instead of woff2); compiled with XeLaTeX so no TeX Live packages were installed",
+  "slides/latexmkrc: plain `latexmk` in slides/ builds with XeLaTeX, aux files in slides/build/ (gitignored), PDF next to the source",
+  "assets/Roberts-Claude-Shannon.jpg converted from the webp (XeLaTeX can't read webp), via an ephemeral uv env",
+  "Verification loop: log triage (errors, missing glyphs, overfull boxes), pdftotext scan for curly quotes/dashes, contact sheets of all pages read visually (v1 had ~12 overflow/collision slides, all fixed by v3), then a pixel-based footer-collision checker validated against the known-bad v1 render before trusting it on the final build",
+  "Student review (one Sonnet subagent, user-approved): no visual breakage, no typos; ~14 of its points fixed (model table comparisons, ultracode is a mode not an effort level, Stop hook missing from hooks table, ultrareview = /code-review ultra, unclear teammates caveat, lab references, jargon glosses, repeated anecdote); declined the meme removal, 4-col mods table, and screenshot crops (presenter cue added instead)",
+  "README rewritten around the two deliverables; presenter notes point at the deck and carry a 'run screenshots live' cue",
+]
+pending = [
+  "Nothing committed",
+  "Deck and HTML now share content by hand - an edit to one must be mirrored in the other",
+  "Haiku 4.5 retirement possible from 2026-10-15 - recheck slide 7 and HTML section 02 after that date",
+]
+next = [
+  "Commit when asked (keep the user's own CLAUDE.md change out unless told otherwise)",
+  "Consider whether the PDF should be committed or built in CI - it is a 2.2 MB binary that changes on every rebuild",
+]
+files = [
+  "slides/claude-codex-workshop.tex",
+  "slides/workshop-theme.sty",
+  "slides/latexmkrc",
+  "slides/fonts/*.ttf (9 files, 1.4 MB)",
+  "slides/claude-codex-workshop.pdf",
+  "assets/Roberts-Claude-Shannon.jpg",
+  "README.md",
+  "workshop-presenter-notes.md",
+  ".gitignore",
+]
+commits = []
+# --- Follow-up (~16:30-17:30): user asked to remove revision meta, add a Mods section, add showcase ideas ---
+# Applied to BOTH deck and HTML (user chose to keep them in sync):
+# - Meta removed: 'what's new' slide/box, rev labels, NEW/CHANGED badges, 'September edition'
+#   stories (blind-spot lesson rewritten generically), 'verified against' line, appendix date stamp.
+#   Version facts about the product (since v2.1.277 etc.) kept on purpose.
+# - Mods moved out of section 07 into its own section 12 (6 slides / expanded HTML section:
+#   abilities, comparison incl. 'can change' row, anatomy with the docs' tool-call counter, getting one,
+#   built-ins + where-mods-run table, not-sandboxed + off switches). Lab III now closes section 12.
+# - Practice renumbered 12-15 -> 13-16 (descending replacement, counts verified; HTML anchors and
+#   section order validated by script: 01..17 + A, no broken anchors, 18/18 details balanced).
+# - New Part V / section 17 'Showcases': menu + list.am via Playwright, Telegram/Gmail/Calendar
+#   (with gmail-readonly hook as guardrail), YouTube in/results out (Kargin search, youtube-reference
+#   skill, auto_dubbing), Claude for learning (nemeceren), Vahe's Armenian history video as placeholder.
+#   Identified projects from Desktop folder READMEs (kargin_project, nemeceren, auto_dubbing); user
+#   confirmed nemeceren = 'the German platform'; YouTube question unanswered so both skill + pipeline listed.
+# - Presenter notes rewritten for new numbering with a section 17 run-sheet ('must show: Kargin, YouTube').
+# - Deck: 66 slides, 0 errors / missing glyphs / overfull / curly quotes; footer checker 0 flags with the
+#   correct reference page. HTML verified in Playwright from an isolated folder: 9/9 images, 0 external loads.
+# - Mid-turn request: "include the heads up package, the 'You should know' thingy" = the built-in
+#   You should know mod (no separate 'heads up' package exists - checked changelog). Verified: added in
+#   changelog 2.1.293 ("side agent watches your back and flags things you or Claude might miss"); 2.1.296
+#   made notes say "we" / "the main agent" / "you". Off by default; enable with
+#   /plugin enable cc-plugin-you-should-know@builtin. Added: own deck slide in section 12, own HTML
+#   subsection, showcase-menu row in both, presenter cue (enable during section 12, payoff during /goal demo).
+#   Final deck: 67 slides, all checks clean, 0 footer flags.
+# - Then: new Part 0 / section 00 'Setup, step by step' (deck: opener + checklist + 6 step slides incl.
+#   'Not on Claude Code?'; HTML section 'start' + rail + TOC with ol start=0). Steps: install (native
+#   installer / brew / winget commands verified on code.claude.com/docs/en/setup; claude --version, claude
+#   doctor; paid plan needed), copy starter CLAUDE.md, AskUserQuestion interview, toolchain prompt (+ '! gh
+#   auth login', git config), Playwright (playwright@claude-plugins-official, verified from the local
+#   installed_plugins.json because the web-fetched marketplace.json was truncated and wrongly said it was
+#   missing), ccstatusline (TUI writes statusLine itself, per its README), superpowers + context7 plugins,
+#   guard-push hook prompt, /init first run, /powerup.
+# - Found and fixed stale refs: global/CLAUDE.md + global/settings.json were moved/deleted in commit
+#   4811832 but the HTML file-ref, presenter notes and README still pointed there. global/ is now an empty,
+#   untracked folder (left in place).
+# - Deck gotcha: the code style treats // as a comment, so https:// URLs rendered half grey; fixed per block
+#   with deletecomment={[l]{//}}. Long URLs in prompt boxes now use \url{} so they can break.
+#   Final deck: 75 slides, all checks clean, 0 footer flags. HTML: 19 sections 00-17 + A, no broken anchors.
+# - User asked about '!' and other prompt symbols / background tasks. Before: only @ and ! (one slide) plus
+#   scattered Ctrl+B / /background mentions. Verified the full list on code.claude.com/docs/en/interactive-mode:
+#   prompt prefixes / ! @ ? : and \+Enter (no # or & prefix exists now); background: Ctrl+B (tmux twice),
+#   asking for background, /tasks, Ctrl+X Ctrl+K, /background, auto-background on timeout; queueing: Enter
+#   queues, Ctrl+Enter sends now, Up takes back, Esc keeps work; keys: Ctrl+S stash, Ctrl+V/Alt+V image,
+#   Alt+P model, Alt+O fast mode, Ctrl+T checklist, Ctrl+C then Up restores a cleared draft. Section 13 now has
+#   3 slides for this (deck) and a symbols table + background/queueing subsection + updated keys (HTML).
+# - CAUGHT: the docs mentioned 'Haiku 5.5'. Claude Haiku 5.5 (claude-haiku-5-5) shipped Oct 7 2026 - same
+#   day as the models-page fetch, apparently just after it. 1M ctx, 128K out, from $0.10/$0.50 (cheaper tier
+#   for shorter prompts), default effort medium; Haiku 4.5 now legacy. Model tables in deck and HTML updated;
+#   the 'Haiku 4.5 retirement Oct 15' pending item is resolved.
+#   Final deck: 77 slides, all checks clean, 0 footer flags.
+# --- 2026-10-11: user asked for a section on agentic achievements (math problems) and the Hugging Face
+#   incident in detail, in the end part. Added section 18 'Wins and warnings' to Part V (deck: 9 slides after
+#   the showcases; HTML: section id=frontier + rail + TOC; presenter cue; agenda + Part V opener updated).
+#   Content, all from primary or named sources (links at the end of HTML section 18):
+#   - Math: GPT-5 Erdos false start (Oct 2025), DeepMind/GPT-5.2 Pro/DeepMind agent results, OpenAI unit
+#     distance disproof (May 20 2026, 125 pages), Astra (Aug 2026) - Quanta 2026-08-03.
+#   - Knuth 'Claude's Cycles' (28 Feb 2026, read from the PDF via pdftotext): Opus 4.6, exploration 31, ~1 h,
+#     odd m; Filip Stappers' plan.md rule quoted verbatim; even m closed by GPT models + Claude/GPT pair.
+#   - Carlini C compiler (Anthropic engineering, 2026-02-05): 16 agents, ~2,000 sessions, ~$20k, 100k lines.
+#   - Hugging Face: HF disclosure (Jul 16), METR investigation (Aug 26), Bulletin, BleepingComputer, Wikipedia.
+#     ExploitGym, ~1,200 agents (95% internal model, 5% GPT-5.6 Sol), ~700 in the attack, Jul 8-13 timeline,
+#     70k messages, ~7% spoofed transcripts. Plus Anthropic's own Jul 30 disclosure (141,006 runs, 3 breaches).
+#   - Number conflicts left out rather than guessed: '41 servers' (one secondary source only), nine vs four
+#     mathematicians checking the unit distance proof, Bloom's exact quote wording.
+#   CAUGHT: the log check `grep -c 'Overfull \\hbox'` in an earlier command never matched; the log has had 8
+#   small overfull hboxes (0.5-6.8 pt) on pre-existing slides all along. Use grep -F. Earlier '0 overfull'
+#   reports were wrong; footer checker and visual review were not affected.
+#   Playwright visual check of the HTML was blocked (browser profile locked by another session); structure
+#   validated by script instead (20 sections, no broken anchors, 20/20 details, 0 fancy chars).
+# - User asked for an Armenian rap verse by Claude about itself at the very beginning. Deck: slide 2
+#   'Before we start' (after the title, before the agenda); HTML: .note.verse box under the masthead.
+#   Plex/Instrument Serif have no Armenian glyphs: added Noto Sans Armenian (TTF 400/600 in slides/fonts,
+#   \armfont in the theme; armenian-subset variable woff2 in assets/fonts, declared 'font-weight: 400 600'
+#   in build_standalone.py, second in the --sans stack). Deck: 87 slides, 0 errors / missing chars / overfull
+#   vbox, footer checker 0 flags. NOTE: footer checker reference page is now 4 (part-0 opener moved).
+#   HTML checked in Playwright from an isolated copy: font loaded, 9/9 images, 0 external requests.
+#   Presenter cue: the Hugging Face / PyPI lines pay off in section 18.
+# - User asked for a beat for the verse ('fetch or create'). Created rather than fetched: full control,
+#   nothing to license, embeds in the standalone. non_essential/make_beat.py (numpy 2.5.4, scipy 1.18.1,
+#   seed 509): 88 BPM boom-bap in D minor, 22 bars / 60.3 s, FM keys, saturated sub bass, duduk-like reed
+#   lead in D harmonic minor (intro/outro), drop at bar 19, tape stop. assets/verse-beat.mp3 (160 kbps,
+#   1.2 MB) inlined via the existing {{IMG:}} placeholder (MIME from mimetypes; audio/mpeg registered).
+#   Handout now 6.14 MB. First mix was sub-heavy by measurement (verse sub -13 dB vs mid -24, high -37);
+#   rebalanced to sub -15 / mid -21..-24 / high -32..-34. NOT listened to by anyone yet - only measured.
+#   ffmpeg showspectrumpic hung for >2 min on the 60 s file (killed); per-bar band RMS via scipy instead.
+notes = """Gotchas found and fixed this session:
+- Footer checker reference page must be an empty-bottom slide (a part opener). Deleting a slide shifted
+  page 4 from opener to content and produced 27 false flags until the reference was moved to page 3.
+- pdftotext interleaves the letter-spaced section kicker with the title ("§M12ods"), so text-based page
+  lookup by kicker fails; find slides by title text instead.
+- fontspec TeX ligatures turn ' and \" into curly quotes and -- into an en dash in sans text. \\defaultfontfeatures{} and Ligatures=ResetAll do NOT stop it under XeTeX; \\defaultfontfeatures[\\rmfamily,\\sffamily]{} does (tested on a 1-page doc before writing the deck).
+- A tcblisting environment with an optional argument whose first code line starts with '{' swallows the brace during the optional-arg lookahead and never finds \\end{code}. Fix: pass an explicit [] .
+- Beamer loads amsmath, so \\newcommand{\\tag} clashes - renamed to \\badge.
+- sed with backslash-heavy LaTeX patterns silently matched nothing twice in Git Bash; used the Edit tool instead.
+- First footer checker had false positives (content reaching the bottom-left was mistaken for the footer); fixed by measuring the footer rows once on a part-opener reference page."""
