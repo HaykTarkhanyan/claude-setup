@@ -1,0 +1,7 @@
+# Build the deck: run `latexmk` inside slides/ (~1 min cold, a few s warm).
+# XeLaTeX is required: the theme loads TTF fonts from slides/fonts/ via fontspec.
+$pdf_mode = 5;
+$aux_dir = 'build';
+$out_dir = '.';
+$emulate_aux = 1;
+@default_files = ('claude-codex-workshop.tex');

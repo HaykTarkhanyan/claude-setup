@@ -1,0 +1,139 @@
+% Beamer theme matching claude-codex-workshop-standalone.html:
+% warm paper background, terracotta accent, Instrument Serif titles,
+% IBM Plex Sans body, IBM Plex Mono code. Compile with XeLaTeX.
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{workshop-theme}
+
+\RequirePackage{fontspec}
+\RequirePackage{xcolor}
+\RequirePackage{graphicx}
+\RequirePackage{booktabs}
+\RequirePackage{tabularx}
+\RequirePackage{array}
+\RequirePackage{listings}
+\RequirePackage[most]{tcolorbox}
+\RequirePackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, calc}
+
+\graphicspath{{../assets/}}
+
+% ---------- fonts ----------
+% fontspec applies TeX ligatures to rm/sf by default, which turns ' and "
+% into curly quotes and -- into an en dash. Tested 2026-10-10: only resetting
+% the per-family defaults keeps them straight (Ligatures=ResetAll does not).
+\defaultfontfeatures[\rmfamily,\sffamily]{}
+\usefonttheme{professionalfonts}
+\setsansfont{IBMPlexSans}[Path=fonts/, Extension=.ttf,
+  UprightFont=*-Regular, BoldFont=*-SemiBold,
+  ItalicFont=*-Italic, BoldItalicFont=*-SemiBoldItalic]
+\setmonofont{IBMPlexMono}[Path=fonts/, Extension=.ttf,
+  UprightFont=*-Regular, BoldFont=*-Medium, Scale=0.94]
+\newfontfamily\seriffamily{InstrumentSerif}[Path=fonts/, Extension=.ttf,
+  UprightFont=*-Regular, ItalicFont=*-Italic]
+\newfontfamily\lblfont{IBMPlexMono}[Path=fonts/, Extension=.ttf,
+  UprightFont=*-Regular, LetterSpace=10, Scale=0.94]
+% Plex and Instrument Serif have no Armenian glyphs
+\newfontfamily\armfont{NotoSansArmenian}[Path=fonts/, Extension=.ttf,
+  UprightFont=*-Regular, BoldFont=*-SemiBold]
+
+% ---------- colors (same tokens as the HTML light theme) ----------
+\definecolor{paper}{HTML}{FAF7F1}
+\definecolor{raised}{HTML}{F1EBE0}
+\definecolor{ink}{HTML}{221F19}
+\definecolor{dim}{HTML}{6F675A}
+\definecolor{muted}{HTML}{5C544A}
+\definecolor{rule}{HTML}{DFD7C8}
+\definecolor{accent}{HTML}{BE5A38}
+\definecolor{good}{HTML}{4A7A55}
+\definecolor{warn}{HTML}{A5811F}
+\definecolor{codebg}{HTML}{201C15}
+\definecolor{codefg}{HTML}{EAE3D3}
+\definecolor{codedim}{HTML}{8F8672}
+\definecolor{codehi}{HTML}{E1946E}
+
+\setbeamercolor{background canvas}{bg=paper}
+\setbeamercolor{normal text}{fg=ink, bg=paper}
+\setbeamercolor{structure}{fg=accent}
+\setbeamercolor{alerted text}{fg=accent}
+\setbeamercolor{itemize item}{fg=accent}
+\setbeamercolor{itemize subitem}{fg=dim}
+\setbeamercolor{enumerate item}{fg=accent}
+\hypersetup{colorlinks=true, urlcolor=accent, linkcolor=accent}
+
+% ---------- layout ----------
+\setbeamersize{text margin left=1.1cm, text margin right=1.1cm}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{itemize item}{\raisebox{0.18em}{\tikz\fill[accent] (0,0) rectangle (0.3em,0.3em);}}
+\setbeamertemplate{itemize subitem}{\color{dim}-}
+\setbeamertemplate{enumerate item}{{\ttfamily\color{accent}\insertenumlabel.}}
+\setlength{\leftmargini}{1.1em}
+\renewcommand{\arraystretch}{1.25}
+% Slides read better unhyphenated; emergencystretch absorbs the loose lines.
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
+\emergencystretch=1.5em
+% Like the HTML: header underline only, no rule above the header. It would
+% double up with the frame-title rule on slides where a table comes first.
+\def\toprule{}
+
+% Section number shown above each frame title: \setsec{07}
+\def\secnum{}
+\def\setsec#1{\def\secnum{#1}}
+
+\setbeamertemplate{frametitle}{%
+  \vspace*{0.45em}%
+  \begin{minipage}{\textwidth}
+    \ifx\secnum\empty\else
+      {\lblfont\scriptsize\color{accent}\S\,\secnum}\par\vspace{0.1em}%
+    \fi
+    {\seriffamily\fontsize{21}{23}\selectfont\color{ink}\insertframetitle}\par
+    \vspace{0.2em}{\color{rule}\rule{\textwidth}{0.6pt}}
+  \end{minipage}%
+}
+
+\setbeamertemplate{footline}{%
+  \hbox to \paperwidth{%
+    \hspace{1.1cm}{\lblfont\tiny\color{dim}CLAUDE CODE / CODEX \textperiodcentered{} WORKSHOP}%
+    \hfill{\ttfamily\scriptsize\color{dim}\insertframenumber\,/\,\inserttotalframenumber}\hspace{1.1cm}}%
+  \vspace{0.55em}%
+}
+
+% ---------- inline helpers ----------
+\newcommand{\lbl}[2][accent]{{\lblfont\scriptsize\color{#1}\MakeUppercase{#2}}}
+\newcommand{\hd}[1]{{\lblfont\tiny\color{dim}\MakeUppercase{#1}}}
+\newcommand{\sep}{\unskip\ \textperiodcentered\ \ignorespaces}
+\newcommand{\ra}{\textrightarrow{}}
+\newcommand{\badge}[1][new]{\,{\setlength{\fboxsep}{1.5pt}\colorbox{accent}{\lblfont\tiny\color{paper}\MakeUppercase{#1}}}}
+\newcommand{\dimtext}[1]{{\color{muted}#1}}
+
+\newtcbox{\cmd}{on line, colback=raised, colframe=rule, boxrule=0.4pt, arc=2pt,
+  left=1.6pt, right=1.6pt, top=0.6pt, bottom=0.6pt, boxsep=0pt,
+  fontupper=\ttfamily\color{ink}}
+\newtcbox{\kbd}{on line, colback=raised, colframe=dim!45, boxrule=0.4pt, bottomrule=1.2pt,
+  arc=2pt, left=2pt, right=2pt, top=0.6pt, bottom=0.6pt, boxsep=0pt,
+  fontupper=\ttfamily\color{ink}}
+
+% ---------- callouts: \begin{callout}[good]{Tip} ... \end{callout} ----------
+\newtcolorbox{callout}[2][accent]{enhanced, colback=raised, colframe=#1,
+  boxrule=0pt, leftrule=2.5pt, sharp corners, left=7pt, right=7pt, top=4pt, bottom=4pt,
+  halign=left, before upper={\lbl[#1]{#2}\par\vspace{0.2em}}, fontupper=\small}
+
+\newtcolorbox{lab}[1]{enhanced, colback=accent!7!paper, frame hidden,
+  borderline={1.1pt}{0pt}{accent, dashed}, arc=5pt, left=9pt, right=9pt, top=6pt, bottom=6pt,
+  halign=left, before upper={\lbl{#1}\par\vspace{0.3em}}}
+
+\newtcolorbox{card}[1]{enhanced, colback=raised, colframe=rule, boxrule=0.5pt, arc=4pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt, halign=left, fontupper=\footnotesize\color{muted},
+  before upper={{\small\bfseries\color{ink}#1}\par\vspace{0.15em}}}
+
+% ---------- code blocks (always dark, like the HTML) ----------
+\lstdefinestyle{dark}{basicstyle=\ttfamily\footnotesize\color{codefg},
+  commentstyle=\color{codedim}, morecomment=[l]{\#}, morecomment=[l]{//},
+  columns=fullflexible, keepspaces=true, showstringspaces=false, breaklines=false}
+\newtcblisting{code}[1][]{enhanced, listing only, colback=codebg, colframe=codebg,
+  boxrule=0pt, arc=4pt, left=6pt, right=6pt, top=2pt, bottom=2pt,
+  listing options={style=dark, #1}}
+
+% ---------- tables ----------
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
