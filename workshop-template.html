@@ -457,6 +457,17 @@ alias kachaytr='claude --dangerously-skip-permissions --resume'</code></pre>
 
   <pre><code>npx -y ccstatusline@latest</code></pre>
 
+  <h3>Setting up the status line</h3>
+  <ul>
+    <li><strong>No-install route:</strong> <code>/statusline show model, git branch and context % as a bar</code> - Claude writes a script under <code>~/.claude/</code> and wires it into your settings. <code>/statusline remove it</code> undoes it.</li>
+    <li><strong>ccstatusline:</strong> run the command above in a normal terminal, not inside a Claude session. It opens a picker where you choose widgets per line; your layout lands in <code>~/.config/ccstatusline/settings.json</code>, and it writes this entry into <code>~/.claude/settings.json</code>:
+      <pre><code>"statusLine": { "type": "command", "command": "npx -y ccstatusline@latest", "padding": 0 }</code></pre></li>
+    <li><strong>Make it fast:</strong> the command re-runs after every assistant message, and <code>npx ...@latest</code> resolves the package each time (about 1 s per repaint by ccstatusline's own numbers). Pick the pinned global install in its setup, so the command becomes just <code>ccstatusline</code>.</li>
+    <li><strong>Timers freeze when idle:</strong> updates are event-driven, so a session clock or reset timer stops while nothing happens. Add <code>"refreshInterval": 5</code> (seconds) to the <code>statusLine</code> block, or set it in ccstatusline's setup.</li>
+    <li><strong>Windows:</strong> the command runs through Git Bash when it is installed. Write paths with forward slashes - backslashes get eaten and the bar stays blank with no error.</li>
+    <li><strong>Blank bar?</strong> Usually an untrusted folder, a script that writes to stderr instead of stdout, or <code>disableAllHooks</code> set to true. <code>claude --debug</code> logs the script's errors.</li>
+  </ul>
+
   <h3>Diagnose with /context</h3>
   <figure>
     <img src="{{IMG:context-breakdown.png}}" alt="/context output showing a grid of used and free tokens plus a breakdown by category: system prompt, system tools, memory files, skills, messages, free space, autocompact buffer">

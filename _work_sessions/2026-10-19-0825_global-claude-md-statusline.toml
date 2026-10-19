@@ -1,0 +1,30 @@
+title = "Repo CLAUDE.md synced to the global one; status line setup notes in the handout"
+date = "2026-10-19"
+time = "08:25"
+areas = [".", "_work_sessions"]
+
+done = [
+  "CLAUDE.md replaced with ~/.claude/CLAUDE.md minus the 'Home in Munich' bullet (home address; repo is public). 221 -> 220 lines; scan for address/email/phone found nothing else",
+  "The user's own uncommitted CLAUDE.md edit (pandoc + PDF lines) was already in the global file, so nothing was lost",
+  "Handout section 03: new 'Setting up the status line' list (6 bullets): /statusline, ccstatusline picker and the statusLine entry it writes, pinned global install for speed, refreshInterval for idle timers, Windows forward slashes, blank-bar causes",
+  "Rebuilt standalone (6.14 MB, 20 sections, 10 data URIs, 0 fancy chars); Playwright element screenshot checked the list and the JSON block render without overflow",
+]
+
+pending = []
+
+next = []
+
+files = ["CLAUDE.md", "workshop-template.html", "claude-codex-workshop-standalone.html"]
+
+commits = ["Sync CLAUDE.md with the global file; add status line setup notes (pushed to origin/main)"]
+
+notes = """
+Status line facts checked on 2026-10-19 against code.claude.com/docs/en/statusline and the ccstatusline README:
+- /statusline <description> generates a script in ~/.claude/ and updates settings; '/statusline remove it' clears it
+- statusLine keys: type, command, padding (default 0), refreshInterval (seconds, min 1)
+- runs once per session start, then on new assistant messages, /compact, permission-mode change, etc.; debounced 300 ms
+- Windows: runs via Git Bash when installed, else PowerShell; backslashes in the command path are eaten silently
+- ccstatusline: npx -y ccstatusline@latest is ~1082 ms per repaint (their numbers); the pinned global install writes command 'ccstatusline'
+- ccstatusline config: ~/.config/ccstatusline/settings.json; npm latest was 2.2.32
+The synced CLAUDE.md now names other repos (webapp-nuxt, ai-backend) in its 'Learned' notes; left in and flagged to the user.
+"""
