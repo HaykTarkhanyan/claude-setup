@@ -1,0 +1,28 @@
+title = "Sync repo CLAUDE.md with the global file again; add the paper-explainer skill"
+date = "2026-10-30"
+time = "13:15"
+areas = [".", "skills/paper-explainer"]
+
+done = [
+  "CLAUDE.md replaced with ~/.claude/CLAUDE.md minus the 'Home in Munich' bullet (home address; repo is public). 234 -> 233 lines",
+  "New since the 2026-10-19 sync: two-account setup, never list ~/Downloads, local times only, name which 'memory', IDs on questions, ETA-friendly long jobs, OpenAlex MCP, Telegram via the notes repo, 'heads up' notes, the reworded technology-choices section",
+  "Scan for address, emails, phone numbers and keys found nothing; 0 curly quotes or long dashes",
+  "skills/paper-explainer/ (SKILL.md, template, check_html.py, paper_meta.py) read in full and scanned before committing: no keys, emails or personal paths",
+  "Handout file-ref: '6 example skills' -> 7, paper-explainer named; standalone rebuilt (6.14 MB)",
+]
+
+pending = []
+
+next = []
+
+files = [
+  "CLAUDE.md", "skills/paper-explainer/", "workshop-template.html", "claude-codex-workshop-standalone.html",
+]
+
+commits = ["Sync CLAUDE.md with the global file; add paper-explainer skill (pushed to origin/main)"]
+
+notes = """
+Same procedure as 2026-10-19: grep -v '^- Home in Munich:' ~/.claude/CLAUDE.md > CLAUDE.md, then scan before committing.
+User's rule for this repo: commit everything except private info and keys. The account-setup and Telegram-folder bullets
+stay in (no secrets, no address).
+"""
