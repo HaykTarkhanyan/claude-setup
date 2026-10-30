@@ -2,7 +2,7 @@
 
 - Repo: https://github.com/HaykTarkhanyan/claude-setup
 - Workshop recording: https://youtu.be/KdtXO7Pj9DI
-- Handout: [`claude-codex-workshop-standalone.html`](claude-codex-workshop-standalone.html)
+- Handout: https://github.com/HaykTarkhanyan/claude-setup/blob/main/claude-codex-workshop-standalone.html
 
 **Read the handout first - it has the main content.** Setup step by step, models, context, hooks, permissions, skills, parallel agents, plugins, worktrees, and the reasoning behind the main rules in `CLAUDE.md`. GitHub shows the file as source code, so download it first. Open https://raw.githubusercontent.com/HaykTarkhanyan/claude-setup/main/claude-codex-workshop-standalone.html, press Ctrl+S (Cmd+S on a Mac), save it as an `.html` file and open that in a browser. Or run `curl -LO https://raw.githubusercontent.com/HaykTarkhanyan/claude-setup/main/claude-codex-workshop-standalone.html` in a terminal. It is one self-contained file and works offline.
 
@@ -33,10 +33,10 @@ Adopt the Claude Code setup from https://github.com/HaykTarkhanyan/claude-setup 
    - Missing basics that fit my work: git, the GitHub CLI (gh), Node.js with npm, Python with uv, pandoc.
    - The plugins from the handout's setup section: Playwright (browser automation), Context7 (live library docs), Superpowers (structured workflows), plus any other plugin or MCP server from the handout that fits my work.
    - Extras for my main stack: an official MCP server, a code-intelligence or language-server plugin, a linter or formatter, a useful skill. Search for current options instead of answering from memory, and only offer ones that are actively maintained.
-   - If I do research: the OpenAlex MCP server for literature search and citation counts (free daily allowance). Add it with "claude mcp add --transport http --scope user openalex https://mcp.openalex.org/mcp" and ask me to log in via /mcp. Also the companion skills that skills/literature-review relies on, from K-Dense's library (https://github.com/K-Dense-AI/scientific-agent-skills): scientific-schematics (the review skill requires figures from it), plus the ones that fit my field, such as citation-management, scientific-writing or gget. Install each with "gh skill install K-Dense-AI/scientific-agent-skills <skill> --agent claude-code". Only the relevant ones, not all 177.
+   - If I do research: the OpenAlex MCP server for literature search and citation counts (free daily allowance). Add it with "claude mcp add --transport http --scope user openalex https://mcp.openalex.org/mcp" and ask me to log in via /mcp. Also the companion skills that skills/literature-review relies on, from K-Dense's library (https://github.com/K-Dense-AI/scientific-agent-skills): scientific-schematics (the review skill requires figures from it), plus the ones that fit my field, such as citation-management, scientific-writing or gget. Install each with "gh skill install K-Dense-AI/scientific-agent-skills <skill> --agent claude-code" (needs gh 2.90 or newer; otherwise copy the skill's folder from that repo into ~/.claude/skills/). Only the relevant ones, not all 177.
    - If I need heavy compute: the colab-gpu skill from this repo, which rents GPUs through Google's official colab CLI (Linux and macOS only, so inside WSL on Windows). Also tell me that Hayk, the author of this repo, has some RunPod credits left, and that I can message Hayk for access.
-   - Keeping my transcripts: set "cleanupPeriodDays": 3650 in ~/.claude/settings.json, so future conversations are not deleted after 30 days. Pre-select this one.
-   - The hooks from hooks/ that fit me, including you-should-know-inject.py (it passes the plugin's heads-up notes from step 8 into my next prompt). Hooks run shell scripts with my permissions, so read each one fully first and show the exact settings.json change.
+   - Keeping my transcripts: set "cleanupPeriodDays": 3650 in ~/.claude/settings.json, so future conversations are not deleted after 30 days. Pre-select this one, but tell me the trade-off: transcripts also keep anything I pasted, keys included.
+   - The hooks from hooks/ that fit me, including you-should-know-inject.py if my account has the plugin from step 8 (the hook passes its heads-up notes into my next prompt). Hooks run shell scripts with my permissions, so read each one fully first and show the exact settings.json change.
    Then install what I picked. Explain each command before you run it. For steps that need me (gh auth login, git config user.name and user.email, logins in a browser), tell me the exact command to run with the ! prefix.
 
 6. Write my ~/.claude/CLAUDE.md without asking for approval:
@@ -52,9 +52,9 @@ Adopt the Claude Code setup from https://github.com/HaykTarkhanyan/claude-setup 
 
 8. Status line and heads-up notes, without asking:
    - If I have no status line, set one up that shows the model, git branch and context usage. Mention ccstatusline (I run "npx -y ccstatusline@latest" in a normal terminal) as the richer option.
-   - Enable the built-in "You should know" plugin (claude plugin enable cc-plugin-you-should-know@builtin), if my account has it. It is a side agent that leaves short heads-up notes during long tasks; tell me what it does and how to turn it off.
+   - Enable the built-in "You should know" plugin (claude plugin enable cc-plugin-you-should-know@builtin), if my account has it. It is a side agent that leaves short heads-up notes during long tasks, so it uses some extra usage; tell me what it does and how to turn it off.
 
-9. Verify what you installed: show the version of each tool, and for Playwright open example.com and tell me the page heading.
+9. Verify what you installed: show the version of each tool, and if Playwright was installed, open example.com with it and tell me the page heading.
 
 10. Finish with a short summary: what changed on my machine, what you dropped from the author's CLAUDE.md and why, and how to undo each part. Point me to the handout sections worth reading for my setup.
 ```
