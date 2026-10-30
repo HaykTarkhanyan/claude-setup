@@ -15,7 +15,7 @@ Adopt the Claude Code setup from https://github.com/HaykTarkhanyan/claude-setup 
 
 2. Detect my setup yourself instead of asking: OS and shell, CPU, RAM and GPU, which tools are installed (git, gh, python, uv, node, pandoc, docker), and what I already have in ~/.claude (CLAUDE.md, settings.json, hooks, skills, status line).
 
-3. Ask me once, in a single batch of questions, only what you cannot detect: which language I write in and how I like answers written, whether my repos are public, and how much freedom you should have (asking before subagents, commits, pushes, deletes, paid API calls).
+3. Ask me once, in a single batch of questions, only what you cannot detect: what kind of work I do and which services I use (GitHub, CI, email, research papers, and so on), which language I write in and how I like answers written, whether my repos are public, and how much freedom you should have (asking before subagents, commits, pushes, deletes, paid API calls).
 
 4. Write my ~/.claude/CLAUDE.md without asking for approval:
    - Back up any existing file first, and merge into it rather than replacing it.
@@ -24,9 +24,9 @@ Adopt the Claude Code setup from https://github.com/HaykTarkhanyan/claude-setup 
    - Fill in my detected machine facts and my answers from step 3.
    - Add a rule: never write personal data or keys into repo files.
 
-5. Skills: copy the skills from skills/ that clearly fit my tools into ~/.claude/skills/, adapting paths and commands. List the rest in one line each so I can ask for them later.
+5. Skills: from my answers and what you detected, decide yourself which skills in skills/ are relevant and install those into ~/.claude/skills/, adapting paths and commands. Don't walk me through the rest.
 
-6. Hooks: these run shell scripts with my permissions, so this is the one part that needs my approval. Read each script in hooks/ fully, tell me in one line what it does and whether it fits me, and install only the ones I pick, showing the exact settings.json change first.
+6. Hooks: pick the relevant ones the same way. Hooks run shell scripts with my permissions, so read each one you picked fully, then ask me once to approve that set, showing the exact settings.json change. Don't walk me through the others.
 
 7. Status line: if I have none, set one up that shows the model, git branch and context usage. Mention ccstatusline (I run "npx -y ccstatusline@latest" in a normal terminal) as the richer option.
 
@@ -35,9 +35,9 @@ Adopt the Claude Code setup from https://github.com/HaykTarkhanyan/claude-setup 
 
 ## What it does on its own and what it asks
 
-- **Without asking:** reading the repo, detecting your machine, writing `~/.claude/CLAUDE.md` (after backing up any old one), copying the skills that fit, setting up a basic status line.
-- **Asks once:** your language and writing preferences, whether your repos are public, and how much freedom Claude gets.
-- **Needs your approval:** each hook, because hooks run shell scripts with your permissions.
+- **Without asking:** reading the repo, detecting your machine, writing `~/.claude/CLAUDE.md` (after backing up any old one), picking and installing the skills that fit your work, setting up a basic status line.
+- **Asks once:** what kind of work you do, your language and writing preferences, whether your repos are public, and how much freedom Claude gets.
+- **Needs your approval:** the hooks it picked, in one go, because hooks run shell scripts with your permissions.
 - **Undo:** the summary at the end says how to reverse each change.
 
 The repo's `CLAUDE.md` is tied to the author's machine (Windows, an Intel laptop GPU, OneDrive, two Claude accounts, Telegram, Armenian). Step 4 is what keeps those parts out of your copy.

@@ -20,7 +20,7 @@ files = [
   "CLAUDE.md", "ADOPT.md", "README.md", "skills/paper-explainer/", "workshop-template.html", "claude-codex-workshop-standalone.html",
 ]
 
-commits = ["Sync CLAUDE.md with the global file; add paper-explainer skill (pushed to origin/main)", "Add ADOPT.md: paste-in prompt to adopt this setup (pushed to origin/main)"]
+commits = ["Sync CLAUDE.md with the global file; add paper-explainer skill (pushed to origin/main)", "Add ADOPT.md: paste-in prompt to adopt this setup (pushed to origin/main)", "17d3057 ADOPT.md: point readers to the handout first, with download steps", "ADOPT.md: pick skills and hooks from the interview instead of listing all"]
 
 notes = """
 Same procedure as 2026-10-19: grep -v '^- Home in Munich:' ~/.claude/CLAUDE.md > CLAUDE.md, then scan before committing.
