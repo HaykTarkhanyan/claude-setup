@@ -6,21 +6,29 @@
 
 **Read the handout first - it has the main content.** Setup step by step, models, context, hooks, permissions, skills, parallel agents, plugins, worktrees, and the reasoning behind the main rules in `CLAUDE.md`. GitHub shows the file as source code, so download it first. Open https://raw.githubusercontent.com/HaykTarkhanyan/claude-setup/main/claude-codex-workshop-standalone.html, press Ctrl+S (Cmd+S on a Mac), save it as an `.html` file and open that in a browser. Or run `curl -LO https://raw.githubusercontent.com/HaykTarkhanyan/claude-setup/main/claude-codex-workshop-standalone.html` in a terminal. It is one self-contained file and works offline.
 
-Then paste the prompt below into Claude Code. It detects your machine itself, adopts the general rules without asking, and stops only for what it cannot know or what carries risk.
+Then start Claude Code with Opus 5.5 at xhigh effort: `claude --model opus --effort xhigh`, or type `/model opus` and `/effort xhigh` in a running session. Opus 5.5 starts at medium effort by default, and this job (reading your history, interviewing you, writing your setup) is worth the extra thinking.
+
+Paste the prompt below. It starts by reading your past Claude Code conversations and turns what it finds into concrete suggestions: skills for the tasks you repeat, rules for the corrections you keep making, hooks for the manual steps. It detects your machine itself, adopts the general rules without asking, and stops only for what it cannot know or what carries risk.
 
 ```text
-Adopt the Claude Code setup from https://github.com/HaykTarkhanyan/claude-setup and adapt it to me. Do the safe parts on your own; stop only for the questions and approvals listed below. Open your first reply with a short fun hello (an interesting fact or a joke, a line or two), then get to work.
+Adopt the Claude Code setup from https://github.com/HaykTarkhanyan/claude-setup and adapt it to me. Do the safe parts on your own; stop only for the questions and approvals listed below. Open your first reply with a short fun hello (an interesting fact or a joke, a line or two), then get to work. If you are not running as Opus 5.5, tell me to switch first (/model opus, then /effort xhigh).
 
 1. Detect my setup yourself instead of asking: OS and shell, CPU, RAM and GPU, which tools are installed (git, gh, python, uv, node, npm, pandoc, docker), which plugins and MCP servers I already have, and what is in ~/.claude (CLAUDE.md, settings.json, hooks, skills, status line).
 
 2. Get the repo into a temp folder: with git clone if git is installed, otherwise download and unzip https://github.com/HaykTarkhanyan/claude-setup/archive/refs/heads/main.zip. Read README.md, CLAUDE.md, hooks/ and skills/, and workshop-template.html: it is the source of the workshop handout and has the main content and the reasoning behind the rules (same text as claude-codex-workshop-standalone.html, without the 6 MB of embedded images).
 
-3. Before the interview, read my past conversations so your questions are informed:
+3. Read my past conversations. This is the most important step: the interview and everything after it build on what you find here, so take your time.
    - ~/.claude/history.jsonl: every prompt I typed, one line each, with the project folder and time.
-   - The most recent session transcripts in ~/.claude/projects/ (one folder per project, one .jsonl per session), and ~/.codex/sessions/ if I use Codex.
-   These files get large, so use a short script that pulls only my own messages from the last month or two instead of loading whole files. Work out my stack, my main projects, the tasks I repeat, what tends to go wrong, and the corrections I keep making. Use it as context only: never copy conversation text, names or keys into any file. Claude Code deletes transcripts after 30 days by default (the cleanupPeriodDays setting), so expect about a month of history. If there is none, skip this step.
+   - The session transcripts in ~/.claude/projects/ (one folder per project, one .jsonl per session), newest first, and ~/.codex/sessions/ if I use Codex.
+   These files get large, so use a short script that pulls out my own messages (and the errors in your replies) instead of loading whole files, and go through all of it, not a sample. Claude Code deletes transcripts after 30 days by default (the cleanupPeriodDays setting), so expect about a month of history. Then write me a short report:
+   - What I work on: stack, main projects, the tools and services I use.
+   - What I repeat: tasks and prompts I type again and again (candidates for skills).
+   - What goes wrong: errors, dead ends, things I had to redo.
+   - How I correct you: things I keep restating (candidates for CLAUDE.md rules).
+   - Manual steps I do every time (candidates for hooks or automation).
+   End it with numbered suggestions (S1, S2, ...): a skill to write, a rule to add, a hook, an MCP server or plugin, a change to how I work. Back each one with the evidence from my history, quoted in your reply only: never copy conversation text, names or keys into any file. If there is no history, say so and skip to the interview.
 
-4. Interview me once, in a single batch of questions. Start with a few lines on what you learned from my history, then ask only what it and the detection didn't answer:
+4. Interview me once, in a single batch of questions. Let me accept or drop each suggestion from step 3, then ask only what the history and the detection didn't answer:
    - my main stack and languages (for example Python, JavaScript/TypeScript, MATLAB, R, C++)
    - what kind of work I do and which services I use (GitHub, CI, email, research papers, and so on)
    - whether I do research (reading papers, literature reviews), and in which field
@@ -30,6 +38,7 @@ Adopt the Claude Code setup from https://github.com/HaykTarkhanyan/claude-setup 
    - how much freedom you should have (asking before subagents, commits, pushes, deletes, paid API calls)
 
 5. Offer me one list of things to install, with your recommendations pre-selected and one line on what each does, so I can approve it in one go:
+   - Whatever the suggestions I accepted in step 4 need (plugins, MCP servers, tools).
    - Missing basics that fit my work: git, the GitHub CLI (gh), Node.js with npm, Python with uv, pandoc.
    - The plugins from the handout's setup section: Playwright (browser automation), Context7 (live library docs), Superpowers (structured workflows), plus any other plugin or MCP server from the handout that fits my work.
    - Extras for my main stack: an official MCP server, a code-intelligence or language-server plugin, a linter or formatter, a useful skill. Search for current options instead of answering from memory, and only offer ones that are actively maintained.
@@ -44,11 +53,11 @@ Adopt the Claude Code setup from https://github.com/HaykTarkhanyan/claude-setup 
    - Keep the general rules: fail loudly instead of silent fallbacks, verify facts instead of guessing, ask before heavy compute or spawning many subagents, run long jobs in the background, confirm the exact scope of critical changes, keep edits surgical, record decisions in DECISIONS.md, keep session logs in _work_sessions/ and learnings in _learnings/, make HTML reports standalone, pin exact dependency versions.
    - Drop what only fits the author: machine details that don't match mine, their personal tools and accounts, their language and plot colors, and any dated "Learned ..." story that makes no sense for me (keep the rule if it still applies).
    - Fill in my machine facts, my answers from step 4, and a short section for my main stack: how to run, test and lint it, and which of the installed tools to use for what.
-   - Turn the corrections I kept making in past conversations into rules.
+   - Turn the corrections I kept making in past conversations, and the rules I accepted from step 3, into rules.
    - Add a rule for a light start: the first reply in a session opens with a short fun hello (an interesting fact or a joke, a line or two). Only at the start of a session, or again every few days in a long-running one. Don't overdo it.
    - Add a rule: never write personal data or keys into repo files.
 
-7. Skills: from my answers and what you detected, decide yourself which skills in skills/ are relevant and install those into ~/.claude/skills/, adapting paths and commands. Always include session-log, since the CLAUDE.md rules keep session logs in _work_sessions/. If I do research, always include literature-review and paper-explainer; if I need heavy compute, include colab-gpu. Don't walk me through the rest.
+7. Skills: from my answers and what you detected, decide yourself which skills in skills/ are relevant and install those into ~/.claude/skills/, adapting paths and commands. Always include session-log, since the CLAUDE.md rules keep session logs in _work_sessions/. If I do research, always include literature-review and paper-explainer; if I need heavy compute, include colab-gpu. Don't walk me through the rest. Then write new skills for the repeated tasks I accepted in step 4, and the hooks I accepted, following the same patterns.
 
 8. Status line and heads-up notes, without asking:
    - If I have no status line, set one up that shows the model, git branch and context usage. Mention ccstatusline (I run "npx -y ccstatusline@latest" in a normal terminal) as the richer option.
@@ -56,13 +65,14 @@ Adopt the Claude Code setup from https://github.com/HaykTarkhanyan/claude-setup 
 
 9. Verify what you installed: show the version of each tool, and if Playwright was installed, open example.com with it and tell me the page heading.
 
-10. Finish with a short summary: what changed on my machine, what you dropped from the author's CLAUDE.md and why, and how to undo each part. Point me to the handout sections worth reading for my setup.
+10. Finish with a short summary: what changed on my machine, what you dropped from the author's CLAUDE.md and why, and how to undo each part. List the suggestions from my history I haven't acted on yet. Point me to the handout sections worth reading for my setup.
 ```
 
 ## What it does on its own and what it asks
 
-- **Without asking:** detecting your machine, getting and reading the repo, reading your past Claude Code and Codex conversations (to shape the questions), writing `~/.claude/CLAUDE.md` (after backing up any old one), picking and installing the skills that fit your work, setting up a basic status line, turning on the "You should know" heads-up plugin, and checking that everything works.
-- **Asks once:** your main stack (Python, MATLAB, and so on), what kind of work you do, your language and writing preferences, whether your repos are public, and how much freedom Claude gets.
+- **First:** it reads your past Claude Code and Codex conversations and reports what you work on, what you repeat and what goes wrong, with numbered suggestions backed by that history. Everything after builds on it.
+- **Without asking:** detecting your machine, getting and reading the repo, writing `~/.claude/CLAUDE.md` (after backing up any old one), picking and installing the skills that fit your work, setting up a basic status line, turning on the "You should know" heads-up plugin, and checking that everything works.
+- **Asks once:** which of its suggestions you want, your main stack (Python, MATLAB, and so on), what kind of work you do, your language and writing preferences, whether your repos are public, and how much freedom Claude gets.
 - **Needs your approval, in one go:** what to install - missing tools like git, plugins like Playwright and Context7, extras for your stack, research tools (OpenAlex, K-Dense's scientific skills) if you do research, GPU access through Colab if you need heavy compute, keeping your transcripts past the default 30 days, and the hooks it picked.
 - **Needs you at the keyboard:** logins such as `gh auth login`, the OpenAlex and Colab logins, and your git name and email.
 - **Need a GPU?** Hayk, the author of this repo, has some RunPod credits left - message Hayk for access.
