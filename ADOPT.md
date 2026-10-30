@@ -2,14 +2,16 @@
 
 - Repo: https://github.com/HaykTarkhanyan/claude-setup
 - Workshop recording: https://youtu.be/KdtXO7Pj9DI
-- Handout: [`claude-codex-workshop-standalone.html`](claude-codex-workshop-standalone.html) (download it and open it in a browser; it works offline)
+- Handout: [`claude-codex-workshop-standalone.html`](claude-codex-workshop-standalone.html)
 
-Paste the prompt below into Claude Code. It detects your machine itself, adopts the general rules without asking, and stops only for what it cannot know or what carries risk.
+**Read the handout first - it has the main content.** Setup step by step, models, context, hooks, permissions, skills, parallel agents, plugins, worktrees, and the reasoning behind the main rules in `CLAUDE.md`. GitHub shows the file as source code, so download it first. Open https://raw.githubusercontent.com/HaykTarkhanyan/claude-setup/main/claude-codex-workshop-standalone.html, press Ctrl+S (Cmd+S on a Mac), save it as an `.html` file and open that in a browser. Or run `curl -LO https://raw.githubusercontent.com/HaykTarkhanyan/claude-setup/main/claude-codex-workshop-standalone.html` in a terminal. It is one self-contained file and works offline.
+
+Then paste the prompt below into Claude Code. It detects your machine itself, adopts the general rules without asking, and stops only for what it cannot know or what carries risk.
 
 ```text
 Adopt the Claude Code setup from https://github.com/HaykTarkhanyan/claude-setup and adapt it to me. Do the safe parts on your own; stop only for the questions and approvals listed below.
 
-1. Clone the repo into a temp folder and read README.md, CLAUDE.md, hooks/ and skills/.
+1. Clone the repo into a temp folder and read README.md, CLAUDE.md, hooks/ and skills/. Also read workshop-template.html: it is the source of the workshop handout and has the main content and the reasoning behind the rules (same text as claude-codex-workshop-standalone.html, without the 6 MB of embedded images).
 
 2. Detect my setup yourself instead of asking: OS and shell, CPU, RAM and GPU, which tools are installed (git, gh, python, uv, node, pandoc, docker), and what I already have in ~/.claude (CLAUDE.md, settings.json, hooks, skills, status line).
 
@@ -28,9 +30,7 @@ Adopt the Claude Code setup from https://github.com/HaykTarkhanyan/claude-setup 
 
 7. Status line: if I have none, set one up that shows the model, git branch and context usage. Mention ccstatusline (I run "npx -y ccstatusline@latest" in a normal terminal) as the richer option.
 
-8. Finish with a short summary: what changed on my machine, what you dropped from the author's CLAUDE.md and why, and how to undo each part.
-
-The workshop handout in the repo (claude-codex-workshop-standalone.html) explains the reasoning behind each rule if you need it.
+8. Finish with a short summary: what changed on my machine, what you dropped from the author's CLAUDE.md and why, and how to undo each part. Point me to the handout sections worth reading for my setup.
 ```
 
 ## What it does on its own and what it asks
