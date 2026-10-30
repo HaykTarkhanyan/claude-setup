@@ -501,6 +501,9 @@ alias kachaytr='claude --dangerously-skip-permissions --resume'</code></pre>
 
   <p>ccstatusline tells you how full your context is <em>right now</em>. <a href="https://github.com/ryoppippi/ccusage" target="_blank">ccusage</a> tells you what you've actually spent - daily, monthly, per session, per project - by reading Claude Code's local JSONL logs. No API calls, no login, pure local analysis.</p>
 
+  <div class="tip"><span class="lbl">Keep your transcripts</span>
+  ccusage and <code>/resume</code> only see transcripts Claude Code still has, and by default it deletes them after 30 days without a message. To keep them, set <code>"cleanupPeriodDays": 3650</code> in <code>~/.claude/settings.json</code> (0 is rejected).</div>
+
   <figure>
     <img src="{{IMG:ccusage-daily.png}}" alt="ccusage daily report: table with Date, Models, Input, Output, Cache Create, Cache Read, Total Tokens, and Cost (USD) columns - showing one day at $99.97 driven by 138M cache-read tokens">
     <figcaption>Daily report. Cache reads dwarf input/output tokens - that's the <em>why</em> behind a $99 day, and exactly what a billing summary alone never shows.</figcaption>
@@ -680,7 +683,7 @@ npx @ccusage/codex@latest</code></pre>
   }
 }</code></pre>
 
-  <p class="file-ref">hooks/ - 5 ready-to-use hook scripts</p>
+  <p class="file-ref">hooks/ - 6 ready-to-use hook scripts</p>
 
   <p>Need more than a script on an event - a pane, an instant command, or taking an event over entirely? That's a mod: <a href="#mods">&sect; 12</a>.</p>
 </details>
@@ -723,7 +726,7 @@ npx @ccusage/codex@latest</code></pre>
   <p>Even in skip-permissions mode, PreToolUse hooks still fire. Use them for actions that should <em>never</em> happen, regardless of mode:</p>
   <ul>
     <li><code>guard-push.sh</code> - blocks <code>git push</code> (forces a manual push)</li>
-    <li><code>gmail-readonly.sh</code> - blocks Gmail writes</li>
+    <li><code>gmail-readonly.sh</code> - allows Gmail reads and drafts, blocks sending and any new Gmail tool</li>
     <li>Pattern: match dangerous shapes (<code>rm -rf /</code>, <code>drop table</code>, credential files), exit non-zero to cancel</li>
   </ul>
 
@@ -773,7 +776,7 @@ argument-hint: "[repo] [run-id]"
     <li><code>claude plugin eval</code> - runs your plugin against test cases, scores the results, and <strong>compares against a no-plugin baseline</strong> - so you learn whether the skill helps at all, not just whether it runs. <code>claude plugin eval init</code> drafts the cases and graders for you. Skills are prompts, and prompts regress.</li>
   </ul>
 
-  <p class="file-ref">skills/ - 8 example skills (morning, ci-status, deploy-watch, literature-review, paper-explainer, colab-gpu, ...)</p>
+  <p class="file-ref">skills/ - 9 example skills (morning, ci-status, deploy-watch, literature-review, paper-explainer, colab-gpu, session-log, ...)</p>
 </details>
 </section>
 
@@ -954,6 +957,7 @@ export function register(on) {
   <p>A built-in mod where a <strong>side agent watches your back</strong> while Claude works on longer tasks. When it finds something worth knowing that you or Claude might miss, it leaves a short note above the prompt. Notes say who made the call - "we", "the main agent", or "you" - so you can tell your own decision from one Claude took on its own.</p>
   <pre><code>/plugin enable cc-plugin-you-should-know@builtin</code></pre>
   <p>Or find it in <code>/plugin</code> &rarr; Installed &rarr; Show disabled. Availability can depend on your organization.</p>
+  <p>The notes show only on your screen; Claude itself never sees them. <code>hooks/you-should-know-inject.py</code> (a UserPromptSubmit hook) passes them into your next prompt, so you can just say "check that heads-up".</p>
   <div class="tip"><span class="lbl">Where it pays off</span>
   Long unattended runs - auto mode plus <code>/goal</code> (<a href="#workflows">&sect; 14</a>), or sessions dispatched to the background (<a href="#agents">&sect; 10</a>). That is exactly when nobody is reading every tool call. It is an agent, so it adds some usage.</div>
 
@@ -1202,7 +1206,7 @@ Flag anything 30% under the median.</code></pre>
     <li><strong>Calendar</strong>: "Find a free hour next week that avoids my lectures, and create the meeting." It reads, proposes a slot, and writes after you confirm.</li>
   </ul>
   <div class="warn-box"><span class="lbl">Guardrail</span>
-  Start read-only and keep write actions behind a prompt or a hook. This repo's <code>hooks/gmail-readonly.sh</code> blocks Gmail writes outright.</div>
+  Start read-only and keep write actions behind a prompt or a hook. This repo's <code>hooks/gmail-readonly.sh</code> allows reads and drafts and blocks sending outright.</div>
 
   <h3>YouTube in, results out</h3>
   <div class="rules-grid">

@@ -20,9 +20,13 @@ files = [
   "CLAUDE.md", "ADOPT.md", "README.md", "skills/paper-explainer/", "workshop-template.html", "claude-codex-workshop-standalone.html",
 ]
 
-commits = ["Sync CLAUDE.md with the global file; add paper-explainer skill (pushed to origin/main)", "Add ADOPT.md: paste-in prompt to adopt this setup (pushed to origin/main)", "17d3057 ADOPT.md: point readers to the handout first, with download steps", "b3062d3 ADOPT.md: pick skills and hooks from the interview instead of listing all", "3bc4628 ADOPT.md: offer installs (git, plugins, stack extras) in one approval; ZIP fallback without git", "d09e1e4 ADOPT.md: read past Claude Code / Codex conversations before the interview", "ADOPT.md: research path (OpenAlex, K-Dense companions), GPU path (colab-gpu skill, RunPod note), fun hello rule; add skills/colab-gpu"]
+commits = ["Sync CLAUDE.md with the global file; add paper-explainer skill (pushed to origin/main)", "Add ADOPT.md: paste-in prompt to adopt this setup (pushed to origin/main)", "17d3057 ADOPT.md: point readers to the handout first, with download steps", "b3062d3 ADOPT.md: pick skills and hooks from the interview instead of listing all", "3bc4628 ADOPT.md: offer installs (git, plugins, stack extras) in one approval; ZIP fallback without git", "d09e1e4 ADOPT.md: read past Claude Code / Codex conversations before the interview", "96fb103 ADOPT.md: research path (OpenAlex, K-Dense companions), GPU path (colab-gpu skill, RunPod note), fun hello rule; add skills/colab-gpu", "Picks from 00_notes review (S1, S3, S4, S6): allowlist Gmail hook, session-log skill, cleanupPeriodDays tip, you-should-know inject hook + plugin"]
 
 notes = """
+OLD GMAIL HOOK WAS DEAD: its matcher listed mcp__claude_ai_Gmail__gmail_send etc., but the connector's tools are send_message,
+create_draft and so on, so it never fired. Replaced with the allowlist guard (tested: send_message exit 2, create_draft exit 0).
+cleanupPeriodDays default 30 confirmed in code.claude.com/docs/en/settings-reference (min 1, 0 fails validation).
+User's review picks: S1 S3 S4 S6 yes; S2 youtube-reference, S5 docker-local, S7 tips, S8 plugins, S9, S10 not chosen.
 Same procedure as 2026-10-19: grep -v '^- Home in Munich:' ~/.claude/CLAUDE.md > CLAUDE.md, then scan before committing.
 User's rule for this repo: commit everything except private info and keys. The account-setup and Telegram-folder bullets
 stay in (no secrets, no address).

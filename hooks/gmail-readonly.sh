@@ -1,15 +1,29 @@
-#!/bin/bash
-# PreToolUse hook - blocks Gmail write operations (create, send, modify, delete, etc.)
-# Keeps Gmail access read-only.
+#!/usr/bin/env bash
+# PreToolUse guard for the claude.ai Gmail connector: reads and drafts are allowed, sending never.
+# Everything not on the allowlist is blocked, so new connector tools are blocked by default.
+# Exit 2 = block; stderr is shown to Claude as the reason.
 #
-# This is already built into the global settings.json as inline JSON,
-# but this script version can be used if you prefer file-based hooks.
-#
-# Usage in settings.json:
+# Usage in ~/.claude/settings.json:
 #   "PreToolUse": [{
-#     "matcher": "mcp__claude_ai_Gmail__gmail_create|mcp__claude_ai_Gmail__gmail_send|mcp__claude_ai_Gmail__gmail_modify|mcp__claude_ai_Gmail__gmail_delete|mcp__claude_ai_Gmail__gmail_update|mcp__claude_ai_Gmail__gmail_trash|mcp__claude_ai_Gmail__gmail_star",
-#     "hooks": [{ "type": "command", "command": "bash path/to/gmail-readonly.sh" }]
+#     "matcher": "^mcp__claude_ai_Gmail__",
+#     "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/gmail-readonly.sh" }]
 #   }]
 
-echo '{"decision":"block","reason":"Gmail write access is blocked. Only read/search operations are allowed."}'
-exit 0
+input=$(cat)
+tool=$(printf '%s' "$input" | grep -o '"tool_name"[[:space:]]*:[[:space:]]*"[^"]*"' | head -n 1 | sed 's/.*"\([^"]*\)"$/\1/')
+
+case "$tool" in
+  mcp__claude_ai_Gmail__search_threads|\
+  mcp__claude_ai_Gmail__get_thread|\
+  mcp__claude_ai_Gmail__get_message|\
+  mcp__claude_ai_Gmail__list_labels|\
+  mcp__claude_ai_Gmail__list_drafts|\
+  mcp__claude_ai_Gmail__get_draft|\
+  mcp__claude_ai_Gmail__create_draft|\
+  mcp__claude_ai_Gmail__update_draft)
+    exit 0
+    ;;
+esac
+
+echo "Blocked by gmail-readonly.sh: '${tool:-<could not parse tool_name>}' is not allowed. Gmail is reads + drafts only (search/get/list, create_draft, update_draft). Never send, reply, forward, label, trash, mark spam or delete." >&2
+exit 2
