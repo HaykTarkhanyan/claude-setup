@@ -20,7 +20,7 @@ files = [
   "CLAUDE.md", "ADOPT.md", "README.md", "skills/paper-explainer/", "workshop-template.html", "claude-codex-workshop-standalone.html",
 ]
 
-commits = ["Sync CLAUDE.md with the global file; add paper-explainer skill (pushed to origin/main)", "Add ADOPT.md: paste-in prompt to adopt this setup (pushed to origin/main)", "17d3057 ADOPT.md: point readers to the handout first, with download steps", "b3062d3 ADOPT.md: pick skills and hooks from the interview instead of listing all", "3bc4628 ADOPT.md: offer installs (git, plugins, stack extras) in one approval; ZIP fallback without git", "ADOPT.md: read past Claude Code / Codex conversations before the interview"]
+commits = ["Sync CLAUDE.md with the global file; add paper-explainer skill (pushed to origin/main)", "Add ADOPT.md: paste-in prompt to adopt this setup (pushed to origin/main)", "17d3057 ADOPT.md: point readers to the handout first, with download steps", "b3062d3 ADOPT.md: pick skills and hooks from the interview instead of listing all", "3bc4628 ADOPT.md: offer installs (git, plugins, stack extras) in one approval; ZIP fallback without git", "d09e1e4 ADOPT.md: read past Claude Code / Codex conversations before the interview", "ADOPT.md: research path (OpenAlex, K-Dense companions), GPU path (colab-gpu skill, RunPod note), fun hello rule; add skills/colab-gpu"]
 
 notes = """
 Same procedure as 2026-10-19: grep -v '^- Home in Munich:' ~/.claude/CLAUDE.md > CLAUDE.md, then scan before committing.
