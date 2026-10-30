@@ -4,7 +4,7 @@ Workshop material on agentic coding tools (Claude Code / Codex), plus real confi
 
 **Workshop recording:** [youtu.be/KdtXO7Pj9DI](https://youtu.be/KdtXO7Pj9DI)
 
-**Use this setup yourself:** paste the prompt from [`ADOPT.md`](ADOPT.md) into Claude Code. It adapts the rules, skills, hooks and status line to your machine.
+**Use this setup yourself:** paste the prompt from [`ADOPT.md`](ADOPT.md) into Claude Code. It works out your profession and adapts the setup to your work, your personal life and your machine.
 
 The workshop itself is [`claude-codex-workshop-standalone.html`](claude-codex-workshop-standalone.html), the full field manual in one self-contained file that works offline. Edit `workshop-template.html` and rebuild with `python build_standalone.py`; do not edit the standalone file directly. `workshop-presenter-notes.md` has the talk track for each section.
 
