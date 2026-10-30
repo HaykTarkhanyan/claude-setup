@@ -9,6 +9,7 @@ done = [
   "Scan for address, emails, phone numbers and keys found nothing; 0 curly quotes or long dashes",
   "skills/paper-explainer/ (SKILL.md, template, check_html.py, paper_meta.py) read in full and scanned before committing: no keys, emails or personal paths",
   "Handout file-ref: '6 example skills' -> 7, paper-explainer named; standalone rebuilt (6.14 MB)",
+  "ADOPT.md: links plus a paste-in prompt that adapts the setup for someone else; safe parts run without asking, hooks need approval. README links it",
 ]
 
 pending = []
@@ -16,10 +17,10 @@ pending = []
 next = []
 
 files = [
-  "CLAUDE.md", "skills/paper-explainer/", "workshop-template.html", "claude-codex-workshop-standalone.html",
+  "CLAUDE.md", "ADOPT.md", "README.md", "skills/paper-explainer/", "workshop-template.html", "claude-codex-workshop-standalone.html",
 ]
 
-commits = ["Sync CLAUDE.md with the global file; add paper-explainer skill (pushed to origin/main)"]
+commits = ["Sync CLAUDE.md with the global file; add paper-explainer skill (pushed to origin/main)", "Add ADOPT.md: paste-in prompt to adopt this setup (pushed to origin/main)"]
 
 notes = """
 Same procedure as 2026-10-19: grep -v '^- Home in Munich:' ~/.claude/CLAUDE.md > CLAUDE.md, then scan before committing.
