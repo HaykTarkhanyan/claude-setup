@@ -6,12 +6,12 @@
 
 **Read the handout first - it has the main content.** Setup step by step, models, context, hooks, permissions, skills, parallel agents, plugins, worktrees, and the reasoning behind the main rules in `CLAUDE.md`. GitHub shows the file as source code, so download it first. Open https://raw.githubusercontent.com/HaykTarkhanyan/claude-setup/main/claude-codex-workshop-standalone.html, press Ctrl+S (Cmd+S on a Mac), save it as an `.html` file and open that in a browser. Or run `curl -LO https://raw.githubusercontent.com/HaykTarkhanyan/claude-setup/main/claude-codex-workshop-standalone.html` in a terminal. It is one self-contained file and works offline.
 
-Then start Claude Code with Opus 5.5 at xhigh effort: `claude --model opus --effort xhigh`, or type `/model opus` and `/effort xhigh` in a running session. Opus 5.5 starts at medium effort by default, and this job (reading your history, interviewing you, writing your setup) is worth the extra thinking.
+In the Claude Code session you already have open, switch to Opus 5.5 at xhigh effort if that isn't set yet: type `/model opus`, then `/effort xhigh`. No restart or new session needed. Opus 5.5 starts at medium effort by default, and this job (reading your history, interviewing you, writing your setup) is worth the extra thinking.
 
 Paste the prompt below. It starts by reading your past Claude Code conversations and turns what it finds into concrete suggestions: skills for the tasks you repeat, rules for the corrections you keep making, hooks for the manual steps. It detects your machine itself, adopts the general rules without asking, and stops only for what it cannot know or what carries risk.
 
 ```text
-Adopt the Claude Code setup from https://github.com/HaykTarkhanyan/claude-setup and adapt it to me. Do the safe parts on your own; stop only for the questions and approvals listed below. Open your first reply with a short fun hello (an interesting fact or a joke, a line or two), then get to work. If you are not running as Opus 5.5, tell me to switch first (/model opus, then /effort xhigh).
+Adopt the Claude Code setup from https://github.com/HaykTarkhanyan/claude-setup and adapt it to me. Do the safe parts on your own; stop only for the questions and approvals listed below. Open your first reply with a short fun hello (an interesting fact or a joke, a line or two), then get to work. If you are not running as Opus 5.5, or can't tell whether effort is xhigh, suggest once that I type /model opus and /effort xhigh in this same session, then carry on without waiting.
 
 1. Detect my setup yourself instead of asking: OS and shell, CPU, RAM and GPU, which tools are installed (git, gh, python, uv, node, npm, pandoc, docker), which plugins and MCP servers I already have, and what is in ~/.claude (CLAUDE.md, settings.json, hooks, skills, status line).
 
