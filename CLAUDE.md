@@ -122,6 +122,7 @@ Never block the session with a `sleep` / `tail -f` / `for ...; grep ...` loop th
 
 ## Programming
 - NEVER use silent fallbacks. If something fails, it must fail loudly. No swallowing errors, no default returns on failure, no "if error return empty". Crash or raise AND log at ERROR level - never silently continue.
+- **Never print a value from a `.env`, config or credential file, whatever the variable is called.** When scanning such files, print only variable names, lengths and short hashes (fingerprints), and compare keys by hash. Don't decide by name what is secret: connection strings hide passwords under harmless names (`NEON_DB_STRING=postgresql://user:password@host`). Copy keys file-to-file in a script, never through the output. (Learned 2026-11-06: an inventory printed the first 70 characters of every "non-secret" value and leaked three Neon passwords into the session.)
 
 ## Paid API spend - ask above a threshold, always report after
 **Under ~$0.25 for a command, just run it. At or above ~$0.25, state the estimate and ask first.** Estimate before running, not after: token counts times the model's per-token price, which means checking the live price rather than assuming.
