@@ -63,6 +63,7 @@ Never block the session with a `sleep` / `tail -f` / `for ...; grep ...` loop th
 ## Accuracy
 - Verify anything that may have changed or postdates your training data (library versions and APIs, prices, dates, statistics, recent events) instead of answering from memory. Library/framework/SDK/CLI docs: Context7 first. Everything else: web search. Hallucinating is worse than taking 5 extra seconds.
 - When unsure about something, say so explicitly rather than guessing confidently
+- **Check several samples before stating a claim about a whole set.** One file, URL or run only shows what that one does. Before saying "all", "every" or "none", test a handful picked across the set (5-10 where it is cheap) and report the count ("3 of 9 PPTX files need a login"), or say plainly that it rests on one sample. This matters most when I am about to choose an option based on the claim. (Learned 2026-11-12: after testing one .pptx I said every .pptx on infineon.com needs a myInfineon login, and Hayk picked "exclude PPTX" based on that; a check of 9 then showed 6 were public and readable.)
 
 ## Permissions and licensing
 - If I tell you to use, download, or include something (an image, dataset, file, snippet, etc.), that means I already have the right to use it. Do NOT raise, discuss, or caveat licensing, copyright, or attribution - just use it. No credit lines or license notes unless I explicitly ask.
