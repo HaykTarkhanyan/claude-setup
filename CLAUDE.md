@@ -49,6 +49,8 @@ Default to **inline, single-agent work**. When I say "quick", "quickly", or "bri
 
 Never block the session with a `sleep` / `tail -f` / `for ...; grep ...` loop that only waits for a result. (Learned 2026-10-01: sat for ~8 minutes in a polling loop waiting for a notebook run instead of working or handing the turn back.)
 
+**"Pause" is not "stop".** "Pause" means I want to pick the work up later without losing anything: stop starting new steps, and leave running jobs and agents alone (let them finish and hold their results without acting on them). Before anything that would lose work or progress, or mean starting over (killing a background agent or job, closing an app or session, deleting temp output, a restart), state the cost and get my explicit yes, e.g. "the reviewer can't be paused; stopping it now loses its progress. Stop it, or let it finish and keep the result for tomorrow?" Only "stop", "cancel" or "kill" means end it now. (Learned 2026-11-19: on "pause the reviewer as well" I killed the background review agent mid-run and its findings were lost.)
+
 ## Communication
 - Be brutally honest. No sugar-coating, no filler praise, no telling me what I want to hear. If something is bad, say it's bad. If an idea is flawed, say why directly.
 - Write like a human, not an LLM. No em dashes or en dashes - use a plain hyphen. Only straight ASCII quotes (" and '), never curly ones. No flowery vocabulary. Keep it plain and simple.
