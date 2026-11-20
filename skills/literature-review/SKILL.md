@@ -16,6 +16,27 @@ Conduct systematic, comprehensive literature reviews following rigorous academic
 
 This skill integrates with multiple scientific skills for database access (gget, bioservices, datacommons-client) and provides specialized tools for citation verification, result aggregation, and document generation.
 
+## Local setup on this machine (read first; overrides the generic advice below)
+
+Added 2026-11-20. Applies in every project (thesis, consulting, anything else); details are in the global CLAUDE.md
+section "Literature research setup".
+
+- **Search and citations: the OpenAlex MCP first.** Use `search_works` / `keyword_search` to find papers,
+  `list_citations` for forward and backward chaining, and `resolve_references` to verify a bibliography. Cost is
+  about $0.001 per search, out of a free daily allowance.
+- **Semantic Scholar** is the second source, for recommendations and citation contexts. Use it only with
+  `SEMANTIC_SCHOLAR_API_KEY` from `~/OneDrive/Desktop/00_notes/.secrets/api_keys.env`, sent as the `x-api-key`
+  header, at most 1 request per second. Load it file-to-file and never print it. The key was requested on
+  2026-11-20; until it arrives, skip Semantic Scholar: keyless calls returned 429 on 7 of 7 tries.
+- **Full texts behind a paywall:** open them through the LMU library proxy in the Playwright browser,
+  `https://emedien.ub.uni-muenchen.de/login?url=https://doi.org/<DOI>`. Log in as the global CLAUDE.md describes
+  (credentials pasted from the clipboard, never typed or printed). Tested: Springer and Elsevier work, and some
+  older volumes are not licensed. Only when that fails, ask Hayk for the PDF. Never screen or summarise a paper from
+  its abstract alone and present it as read.
+- **Google Scholar:** don't scrape it. OpenAlex plus Semantic Scholar cover it.
+- **References:** keep a `references.bib` in the project repo, with every entry checked with `resolve_references`
+  (or against the DOI's landing page). No Zotero.
+
 ## When to Use This Skill
 
 Use this skill when:
