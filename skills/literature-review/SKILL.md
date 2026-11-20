@@ -24,10 +24,16 @@ section "Literature research setup".
 - **Search and citations: the OpenAlex MCP first.** Use `search_works` / `keyword_search` to find papers,
   `list_citations` for forward and backward chaining, and `resolve_references` to verify a bibliography. Cost is
   about $0.001 per search, out of a free daily allowance.
-- **Semantic Scholar** is the second source, for recommendations and citation contexts. Use it only with
-  `SEMANTIC_SCHOLAR_API_KEY` from `~/OneDrive/Desktop/00_notes/.secrets/api_keys.env`, sent as the `x-api-key`
-  header, at most 1 request per second. Load it file-to-file and never print it. The key was requested on
-  2026-11-20; until it arrives, skip Semantic Scholar: keyless calls returned 429 on 7 of 7 tries.
+- **Semantic Scholar** is the second source, for TLDRs, citation contexts and intents (the sentence in which a paper
+  is cited), recommendations and influential-citation counts.
+  - **Key:** `SEMANTIC_SCHOLAR_API_KEY` in `~/OneDrive/Desktop/00_notes/.secrets/api_keys.env` (approved and
+    checked on 2026-11-20), sent as the `x-api-key` header. Load it straight from the file and never print it.
+  - **Limit:** at most 1 request per second across all endpoints. Even at 1 call per 3 s the key got an occasional
+    429, so always retry with exponential backoff. Keyless calls failed on 7 of 7 tries that day: don't use them.
+  - **Gaps:** references come back empty for some publisher-restricted papers (seen with an ACM paper); take those
+    from OpenAlex.
+  - **Attribution (license term):** published work that uses results from Semantic Scholar cites "The Semantic
+    Scholar Open Data Platform" (Kinney et al. 2023, arXiv:2301.10140). Add it to `references.bib` once it is used.
 - **Full texts behind a paywall:** open them through the LMU library proxy in the Playwright browser,
   `https://emedien.ub.uni-muenchen.de/login?url=https://doi.org/<DOI>`. Log in as the global CLAUDE.md describes
   (credentials pasted from the clipboard, never typed or printed). Tested: Springer and Elsevier work, and some

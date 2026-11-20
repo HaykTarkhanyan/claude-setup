@@ -1,4 +1,4 @@
-"""Citation count, venue hint and the most-cited citing papers for one paper, without any API key.
+"""Citation count, venue hint and the most-cited citing papers for one paper; no API key needed.
 
 The fallback when the OpenAlex MCP is not connected (SKILL.md step 3).
 Usage: python paper_meta.py 2605.21288               (arXiv ID; old style like hep-th/9711200 works too)
@@ -8,11 +8,15 @@ Usage: python paper_meta.py 2605.21288               (arXiv ID; old style like h
 IDs may also be given as "arXiv:2605.21288", an arxiv.org/abs or /pdf link, "doi:10...." or a doi.org link.
 Prints JSON to stdout (UTF-8). Exit code 1 (with the errors printed) if no source answered. Runtime: ~1-30 s
 (Semantic Scholar's keyless tier often rate-limits; it is retried with backoff before OpenAlex is tried).
+Optional: a Semantic Scholar API key in the environment variable SEMANTIC_SCHOLAR_API_KEY is sent as the x-api-key
+header (keys allow 1 request per second and still answer 429 now and then, so the backoff stays). The key is never
+printed.
 Python 3.8+ (no packages needed; use python3 where python is not on PATH).
 """
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
 import time
@@ -23,9 +27,13 @@ import urllib.request
 
 def get_json(url: str, tries: int = 3) -> dict:
     delay = 4
+    headers = {"User-Agent": "paper-explainer"}
+    s2_key = os.environ.get("SEMANTIC_SCHOLAR_API_KEY", "").strip()
+    if s2_key and url.startswith("https://api.semanticscholar.org/"):
+        headers["x-api-key"] = s2_key
     for attempt in range(1, tries + 1):
         try:
-            with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "paper-explainer"}), timeout=30) as r:
+            with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=30) as r:
                 return json.loads(r.read().decode("utf-8"))
         except urllib.error.HTTPError as e:
             if e.code in (429, 500, 502, 503, 504) and attempt < tries:
