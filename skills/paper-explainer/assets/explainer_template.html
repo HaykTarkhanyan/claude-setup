@@ -8,18 +8,24 @@
 <style>
 :root {
   --bg: #fbfaf7; --fg: #1d1f24; --muted: #5b6170; --card: #ffffff; --border: #dcdfe5;
-  --cell: #e6e9ef; --red: #D90012; --blue: #0033A0; --orange: #F2A800; --gray: #8a8f99;
-  --green: #1f8a4c; --take-bg: #fff5dc; --take-border: #F2A800; --code: #eff1f4; --link: #0033A0;
+  --cell: #e6e9ef; --take-bg: #fff5dc; --code: #eff1f4;
+  /* Chart series colors, the accent and the heat-map colors: colorblind-safe defaults (Okabe-Ito), chosen
+     to work on both the light and the dark background, so the dark theme below doesn't change them.
+     preferences.md can set other values in the "Preference overrides" block at the end of this style
+     element. --heat-good / --heat-bad are "R G B" triplets (the heat helper adds the transparency). */
+  --c1: #0072B2; --c2: #E69F00; --c3: #009E73; --c4: #8a8f99; --accent: #E69F00; --link: #0b57d0;
+  --heat-good: 0 114 178; --heat-bad: 213 94 0;
+  --take-border: var(--accent);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #16181d; --fg: #e3e5ea; --muted: #9aa1ad; --card: #1e2128; --border: #333842;
-    --cell: #2c3039; --blue: #4573e6; --green: #3fb873; --take-bg: #2a2415; --code: #262a32; --link: #8fb0ff;
+    --cell: #2c3039; --take-bg: #2a2415; --code: #262a32; --link: #8fb0ff;
   }
 }
 :root[data-theme="dark"] {
   --bg: #16181d; --fg: #e3e5ea; --muted: #9aa1ad; --card: #1e2128; --border: #333842;
-  --cell: #2c3039; --blue: #4573e6; --green: #3fb873; --take-bg: #2a2415; --code: #262a32; --link: #8fb0ff;
+  --cell: #2c3039; --take-bg: #2a2415; --code: #262a32; --link: #8fb0ff;
 }
 * { box-sizing: border-box; }
 html { background: var(--bg); }
@@ -34,7 +40,7 @@ h3 { font-size: 1.08rem; margin: 24px 0 6px; }
 .topbar { display: flex; justify-content: flex-end; padding-top: 12px; }
 button { font: inherit; font-size: 0.85rem; color: var(--fg); background: var(--card);
   border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
-button[aria-pressed="true"] { border-color: var(--orange); box-shadow: inset 0 0 0 1px var(--orange); font-weight: 600; }
+button[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); font-weight: 600; }
 details.sec { background: var(--card); border: 1px solid var(--border); border-radius: 10px; margin: 18px 0; padding: 4px 18px 14px; }
 details.sec > summary { cursor: pointer; padding: 10px 0; }
 details.sec > summary::marker { color: var(--muted); }
@@ -42,10 +48,10 @@ details.sec > summary::marker { color: var(--muted); }
 .toc ol { margin: 6px 0; padding-left: 22px; }
 .legendbox { font-size: 0.92rem; color: var(--muted); margin: 10px 0 0; }
 .take { background: var(--take-bg); border-left: 4px solid var(--take-border); border-radius: 6px; padding: 10px 14px; margin: 14px 0; }
-.take > b:first-child { color: var(--take-border); }
+.take > b:first-child { color: var(--fg); }
 .sure { font-size: 0.85rem; color: var(--muted); }
-.key { border-left: 4px solid var(--blue); padding: 4px 12px; margin: 12px 0; }
-.eq { font-family: "Cambria Math", "STIX Two Math", Georgia, serif; font-size: 1.08rem; text-align: center; margin: 10px 0; }
+.key { border-left: 4px solid var(--c1); padding: 4px 12px; margin: 12px 0; }
+.eq { font-family: "Cambria Math", "STIX Two Math", Georgia, serif; font-size: 1.08rem; text-align: center; margin: 10px 0; overflow-x: auto; }
 code { background: var(--code); padding: 1px 5px; border-radius: 4px; font-size: 0.92em; }
 table { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 10px 0; font-size: 0.9rem; }
 th, td { border-bottom: 1px solid var(--border); padding: 6px 6px; vertical-align: top; overflow-wrap: anywhere; }
@@ -67,6 +73,19 @@ svg text { fill: var(--fg); font-family: inherit; }
 .demo input[type=range] { width: 180px; vertical-align: middle; }
 .caption { font-size: 0.86rem; color: var(--muted); margin: 2px 0 12px; }
 ul.tight li, ol.tight li { margin: 3px 0; }
+/* Equation pattern: the formula, a table of its symbols, a worked example with tiny numbers. */
+.worked { background: var(--cell); border-radius: 6px; padding: 8px 12px; margin: 10px 0; font-size: 0.95rem; }
+/* A crop of one of the paper's own figures. */
+figure.paperfig { margin: 12px 0; }
+figure.paperfig img { display: block; max-width: 100%; margin: 0 auto; background: #fff; border: 1px solid var(--border); border-radius: 6px; }
+figure.paperfig figcaption { font-size: 0.86rem; color: var(--muted); margin-top: 4px; }
+/* Check yourself: each answer hidden in a nested details block. */
+details.q { border-top: 1px solid var(--border); padding: 6px 0; }
+details.q > summary { cursor: pointer; font-weight: 600; }
+details.q .answer { margin: 6px 0 2px 18px; }
+/* Preference overrides (palette from preferences.md etc.) go here, after the defaults. A plain :root rule
+   applies to both themes. To give a variable a different value in dark mode, repeat it under both dark
+   selectors used above (the media query and :root[data-theme="dark"]); preferences.example.md shows how. */
 </style>
 </head>
 <body>
@@ -74,8 +93,10 @@ ul.tight li, ol.tight li { margin: 3px 0; }
 <div class="topbar"><button id="theme-btn" type="button">Theme: auto</button></div>
 
 <h1>"__PAPER_TITLE__", explained</h1>
-<!-- Authors (affiliation). Venue and year, arXiv ID. Page count (main + appendix). Citations with source and date. Local PDF path if any. -->
+<!-- Authors (affiliation). Venue and year, arXiv ID and version (or DOI / OpenReview / ACL Anthology ID). Page count (main + appendix). Citations with source and date checked. Local PDF path if any. -->
 <p class="sub">__META_LINE__</p>
+<!-- Honest estimate: about 200 words a minute plus a minute per chart or demo. -->
+<p class="sub">About __READ_MINUTES__ min read.</p>
 
 <nav class="toc" aria-label="Contents">
 <b>Contents</b>
@@ -85,8 +106,10 @@ ul.tight li, ol.tight li { margin: 3px 0; }
 <!-- One entry per findings section, e.g. <li><a href="#f1">Finding 1: ...</a></li> -->
 __TOC_FINDINGS__
 <li><a href="#demo">Try it: __DEMO_TOPIC__</a></li>
+<li><a href="#after">What came after</a></li>
 <li><a href="#critique">My critique</a></li>
 <li><a href="#links">How it connects to your work</a></li>
+<li><a href="#quiz">Check yourself</a></li>
 <li><a href="#glossary">Glossary</a></li>
 <li><a href="#reading">How to read the actual paper</a></li>
 </ol>
@@ -117,6 +140,21 @@ __BACKGROUND__
 </svg>
 <p class="caption">Schematic. ...</p>
 -->
+<!-- Equation pattern (only the formulas the reader needs):
+<p class="eq">p = softmax(W<sub>U</sub> h)</p>
+<table>
+<colgroup><col style="width:18%"><col style="width:57%"><col style="width:25%"></colgroup>
+<thead><tr><th>Symbol</th><th>Meaning</th><th>Shape</th></tr></thead>
+<tbody><tr><td>h</td><td>the hidden state at the last position</td><td>d</td></tr></tbody>
+</table>
+<div class="worked"><b>Worked example.</b> With d = 2, h = (1, 2) and ... you get ... (made-up numbers you could redo by hand).</div>
+-->
+<!-- Paper figure pattern (1-3 figures that carry the main results; crop, downscale to ~720 px, base64 JPEG):
+<figure class="paperfig">
+<img alt="Figure 3 of the paper: ..." src="data:image/jpeg;base64,...">
+<figcaption>Figure 3 from the paper (cropped). What to look at: ...</figcaption>
+</figure>
+-->
 </details>
 
 <!-- ============================================================ -->
@@ -129,19 +167,36 @@ __FINDINGS_SECTIONS__
 <details class="sec" open id="demo">
 <summary><h2>__DEMO_SECTION_NUMBER__. Try it: __DEMO_TOPIC__</h2></summary>
 <div class="demo">
-<svg id="demo-svg" viewBox="0 0 760 260" aria-label="__DEMO_TOPIC__"></svg>
+<!-- barChart / lineChart draw their own SVG and legend into this div; call them again on every input change. -->
+<div id="demo-chart"></div>
 <div class="controls">
   <label>__CONTROL_LABEL__ <input id="demo-slider" type="range" min="0" max="20" step="1" value="10"> <b id="demo-val"></b></label>
 </div>
 <p id="demo-text" class="caption"></p>
-<p class="caption">Made-up numbers for illustration (seed 509). __DEMO_EXPLANATION__</p>
+<p class="caption">Made-up numbers for illustration (fixed seed). __DEMO_EXPLANATION__</p>
 </div>
+</details>
+
+<!-- ============================================================ -->
+<details class="sec" open id="after">
+<summary><h2>__AFTER_SECTION_NUMBER__. What came after</h2></summary>
+<p>__AFTER_SUMMARY__</p>
+<table>
+<colgroup><col style="width:42%"><col style="width:8%"><col style="width:12%"><col style="width:38%"></colgroup>
+<thead><tr><th>Paper</th><th class="n">Year</th><th class="n">Citations</th><th>What it does with this paper</th></tr></thead>
+<tbody>
+<tr><td>__FOLLOWUP_TITLE__</td><td class="n">__YEAR__</td><td class="n">__CITES__</td><td>__RELATION__</td></tr>
+</tbody>
+</table>
+<div class="take"><b>My take: still the state of the art?</b> __STATE_OF_ART__</div>
+<p class="caption">Citations and follow-ups from __CITATION_SOURCE__, checked __DATE__.</p>
 </details>
 
 <!-- ============================================================ -->
 <details class="sec" open id="critique">
 <summary><h2>__CRITIQUE_SECTION_NUMBER__. My critique</h2></summary>
 <p><b>What's good.</b> __STRENGTHS__</p>
+<p><b>Code and data.</b> __CODE_AND_DATA__</p>
 <table>
 <colgroup><col style="width:4%"><col style="width:54%"><col style="width:28%"><col style="width:14%"></colgroup>
 <thead><tr><th>#</th><th>Problem</th><th>Evidence</th><th>How sure</th></tr></thead>
@@ -156,6 +211,13 @@ __FINDINGS_SECTIONS__
 <summary><h2>__LINKS_SECTION_NUMBER__. How it connects to your work</h2></summary>
 <p>Everything in this section is my own analysis.</p>
 __LINKS__
+</details>
+
+<!-- ============================================================ -->
+<details class="sec" open id="quiz">
+<summary><h2>__QUIZ_SECTION_NUMBER__. Check yourself</h2></summary>
+<p>Questions on the core idea, not trivia. Try to answer before opening each one.</p>
+<details class="q"><summary>1. __QUESTION_1__</summary><p class="answer">__ANSWER_TO_1__</p></details>
 </details>
 
 <!-- ============================================================ -->
@@ -175,7 +237,8 @@ __LINKS__
 <ol class="tight">
 <li>__READING_STEP__</li>
 </ol>
-<p class="caption">Written __DATE__ from the arXiv __VERSION__ PDF (__PAGES__ pages, read in full). Values marked approx. were read off figures.</p>
+<!-- __PDF_SOURCE__: where the PDF came from, e.g. "the arXiv v2 PDF", "the ACL Anthology PDF", "the OpenReview camera-ready PDF", "a local PDF". -->
+<p class="caption">Written __DATE__ from __PDF_SOURCE__ (__PAGES__ pages, read in full). Values marked approx. were read off figures. Every number on this page, with its table or figure: __FACTS_FILE__.</p>
 </details>
 
 </main>
@@ -239,6 +302,7 @@ function legend(root, items) {
 //   refs:[{y,label,color}] (labels sit in a right margin), colorOf(gi,si) optional, width, height, barMax}.
 function barChart(id, cfg) {
   const root = need(id);
+  root.replaceChildren();
   const W = cfg.width || 760, H = cfg.height || 250;
   const m = { l: 46, r: cfg.refs ? 150 : 14, t: 18, b: 34 };
   const svg = mk("svg", { viewBox: `0 0 ${W} ${H}`, class: "chart", role: "img", "aria-label": cfg.label }, root);
@@ -295,8 +359,8 @@ function lineChart(id, cfg) {
   legend(root, cfg.series);
 }
 
-// Diverging heat coloring for <td data-v="number"> cells in a table: green above the median, red below
-// (pass higherIsBetter=false to flip), background at the median, alpha capped at 0.4 so text stays readable.
+// Diverging heat coloring for <td data-v="number"> cells in a table: --heat-good above the median, --heat-bad
+// below (pass higherIsBetter=false to flip), background at the median, alpha capped at 0.4 so text stays readable.
 function heat(tableId, higherIsBetter = true) {
   const cells = Array.from(need(tableId).querySelectorAll("td[data-v]"));
   if (!cells.length) throw new Error("No heat cells in #" + tableId);
@@ -308,11 +372,11 @@ function heat(tableId, higherIsBetter = true) {
     const good = higherIsBetter ? v >= med : v <= med;
     const span = v >= med ? (hi - med) : (med - lo);
     const a = span > 0 ? 0.4 * Math.abs(v - med) / span : 0;
-    c.style.background = good ? `rgba(34,150,60,${a.toFixed(3)})` : `rgba(217,0,18,${a.toFixed(3)})`;
+    c.style.background = `rgb(var(${good ? "--heat-good" : "--heat-bad"}) / ${a.toFixed(3)})`;
   }
 }
 
-// Seeded random numbers for demos (seed 509), so a demo looks the same on every load.
+// Seeded random numbers for demos, so a demo looks the same on every load. Seed: 42 unless preferences.md names one.
 function mulberry32(a) {
   return function () {
     a |= 0; a = (a + 0x6D2B79F5) | 0;
@@ -323,6 +387,7 @@ function mulberry32(a) {
 }
 
 // ---- Page-specific code below: chart calls (barChart("chart-x", {...})), heat("tbl-x"), the demo. ----
+// Series colors: use "var(--c1)" ... "var(--c4)" so the palette (and preferences.md) apply in both themes.
 __PAGE_SCRIPT__
 </script>
 </body>

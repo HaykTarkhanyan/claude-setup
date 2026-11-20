@@ -6,3 +6,6 @@ logs/
 *.session
 *.session-journal
 .env
+
+# Personal layer of a shared skill (e.g. skills/paper-explainer/preferences.md): stays local
+skills/*/preferences.md
